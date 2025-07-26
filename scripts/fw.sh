@@ -144,7 +144,117 @@ if [[ "$BRANCH_NAME" =~ ^feat/epic-[0-9]+/issue- ]]; then
 elif [[ "$BRANCH_NAME" =~ ^feat/epic-[0-9]+- ]]; then
     echo ""
     echo -e "${YELLOW}This is an epic branch${NC}"
-    echo "When all issues are complete, merge this epic to main manually"
+    
+    # Extract epic number from branch name
+    EPIC_NUM=$(echo "$BRANCH_NAME" | sed 's/^feat\/epic-\([0-9]\+\).*/\1/')
+    
+    echo -e "${CYAN}Epic completion checklist:${NC}"
+    echo "1. Verify all child issues are closed"
+    echo "2. Run comprehensive tests"
+    echo "3. Test the application manually"
+    echo "4. Create PR and merge to main"
+    echo ""
+    
+    read -p "Complete this epic? (y/N): " COMPLETE_EPIC
+    if [[ "$COMPLETE_EPIC" == "y" || "$COMPLETE_EPIC" == "Y" ]]; then
+        echo ""
+        echo -e "${BLUE}🔍 Checking child issues...${NC}"
+        
+        # Get all open issues for this epic
+        OPEN_ISSUES=$(gh issue list --label "epic-$EPIC_NUM" --state open --json number,title | jq -r '.[] | "#\(.number) \(.title)"' 2>/dev/null || echo "")
+        
+        if [ -n "$OPEN_ISSUES" ]; then
+            echo -e "${RED}⚠️  Open issues found for this epic:${NC}"
+            echo "$OPEN_ISSUES"
+            echo ""
+            read -p "Continue anyway? (y/N): " FORCE_CONTINUE
+            if [[ "$FORCE_CONTINUE" != "y" && "$FORCE_CONTINUE" != "Y" ]]; then
+                echo -e "${YELLOW}Epic completion cancelled${NC}"
+                exit 0
+            fi
+        else
+            echo -e "${GREEN}✅ All child issues are closed${NC}"
+        fi
+        
+        echo ""
+        echo -e "${BLUE}🧪 Running tests...${NC}"
+        echo "1. Run unit tests (npm test)"
+        echo "2. Run security tests (npx electron tests/electron/security-test.js)"
+        echo "3. Test application manually (npm run dev)"
+        echo ""
+        read -p "Have you run all tests and they pass? (y/N): " TESTS_PASS
+        
+        if [[ "$TESTS_PASS" != "y" && "$TESTS_PASS" != "Y" ]]; then
+            echo -e "${YELLOW}Please run tests before completing the epic${NC}"
+            exit 0
+        fi
+        
+        echo ""
+        echo -e "${BLUE}📝 Creating PR for epic...${NC}"
+        
+        # Create PR to main
+        PR_TITLE="Epic #$EPIC_NUM: $(gh issue view $EPIC_NUM --json title -q .title 2>/dev/null || echo 'Epic completion')"
+        PR_BODY="## Epic #$EPIC_NUM Completion
+
+This PR completes Epic #$EPIC_NUM with all child issues resolved.
+
+### Completed Issues:
+$(gh issue list --label "epic-$EPIC_NUM" --state closed --json number,title | jq -r '.[] | "- [x] #\(.number) \(.title)"' 2>/dev/null || echo "- See epic for details")
+
+### Testing:
+- [ ] All unit tests pass
+- [ ] Security tests pass
+- [ ] Manual testing completed
+- [ ] No regressions found
+
+### Documentation:
+- [ ] CLAUDE.md updated if needed
+- [ ] PROJECT_LOG.txt updated
+- [ ] README.md updated if needed"
+
+        echo "$PR_BODY" > /tmp/pr_body.md
+        
+        PR_URL=$(gh pr create --title "$PR_TITLE" --body-file /tmp/pr_body.md --base main --head "$BRANCH_NAME" 2>/dev/null || echo "")
+        
+        if [ -n "$PR_URL" ]; then
+            echo -e "${GREEN}✅ PR created: $PR_URL${NC}"
+            
+            echo ""
+            read -p "Merge PR to main now? (y/N): " MERGE_PR
+            if [[ "$MERGE_PR" == "y" || "$MERGE_PR" == "Y" ]]; then
+                gh pr merge --merge --delete-branch
+                echo -e "${GREEN}✅ Epic branch merged to main${NC}"
+                
+                # Close the epic issue
+                echo ""
+                echo -e "${BLUE}Closing epic issue #$EPIC_NUM...${NC}"
+                gh issue close $EPIC_NUM --comment "✅ Epic completed and merged to main!"
+                echo -e "${GREEN}✅ Epic #$EPIC_NUM closed${NC}"
+                
+                # Clean up child issue branches
+                echo ""
+                echo -e "${BLUE}🧹 Cleaning up branches...${NC}"
+                CHILD_BRANCHES=$(git branch -r | grep "origin/feat/epic-$EPIC_NUM/issue-" | sed 's/origin\///')
+                if [ -n "$CHILD_BRANCHES" ]; then
+                    echo "Found child branches to clean up:"
+                    echo "$CHILD_BRANCHES"
+                    read -p "Delete all child branches? (y/N): " DELETE_CHILDREN
+                    if [[ "$DELETE_CHILDREN" == "y" || "$DELETE_CHILDREN" == "Y" ]]; then
+                        echo "$CHILD_BRANCHES" | while read branch; do
+                            git push origin --delete "$branch" 2>/dev/null && echo "Deleted $branch" || echo "Failed to delete $branch"
+                        done
+                    fi
+                fi
+                
+                # Switch back to main
+                git checkout main
+                git pull origin main
+                echo -e "${GREEN}✅ Switched to main branch${NC}"
+            fi
+        else
+            echo -e "${YELLOW}PR may already exist or creation failed${NC}"
+        fi
+    fi
 fi
 
 # Update GitHub issue if we have issue number

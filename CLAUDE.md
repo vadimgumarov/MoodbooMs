@@ -235,6 +235,32 @@ We use modified versions of standard workflow scripts that automatically handle 
    - Close the GitHub issue
    - Move to next issue in the epic
 
+### Epic Completion Workflow
+
+When completing an epic (all child issues done):
+
+1. **Pre-completion Checklist**
+   - ✓ All child issues closed
+   - ✓ All branches merged to epic branch
+   - ✓ Unit tests pass (`npm test`)
+   - ✓ Security tests pass (`npx electron tests/electron/security-test.js`)
+   - ✓ Manual testing complete (`npm run dev`)
+
+2. **Use fw.sh Script**
+   - Run `fw` while on epic branch
+   - Choose "Complete this epic? (y/N)"
+   - Script will:
+     - Check for open child issues
+     - Guide through test verification
+     - Create PR to main branch
+     - Merge and close epic
+     - Clean up child branches
+
+3. **Post-completion**
+   - Update PROJECT_LOG.txt
+   - Verify documentation is current
+   - Begin next epic in priority order
+
 ## Commit Message Format
 
 ### Standard Commits
