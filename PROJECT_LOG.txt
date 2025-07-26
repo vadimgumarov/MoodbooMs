@@ -1,6 +1,37 @@
 PROJECT WORK LOG - MoodBooMs
 ===================================
 
+2025-07-26 10:29: Resolved Menubar Icon Crashes on macOS 15.5
+------------------------------------------------------------
+Successfully implemented stable icon solution for macOS Sequoia:
+
+Problem:
+- VS Code and app crashed when attempting to load PNG icons
+- All PNG file loading methods resulted in empty icons
+- macOS 15.5 has compatibility issues with standard icon loading
+
+Solution Implemented:
+- Created programmatic icon generation in electron/main.js
+- Draws a 16x16 purple/pink circle icon in memory
+- Bypasses file loading entirely using Buffer and nativeImage
+- Multiple fallback strategies ensure app always starts
+
+Technical Details:
+- Primary: Try loading PNG files (for future compatibility)
+- Secondary: Create colored circle icon programmatically
+- Tertiary: Fall back to text-only "MB" if needed
+- Added comprehensive error handling and logging
+
+Result:
+- App runs stably with visible menubar icon
+- No more crashes on icon loading
+- Icon appears as purple/pink circle in menubar
+- Solution documented in CLAUDE.md for future reference
+
+Files Modified:
+- electron/main.js - Implemented programmatic icon generation
+- CLAUDE.md - Added working icon solution documentation
+
 2025-07-26 07:56: Project Structure Refactoring
 ------------------------------------------------------------
 Reorganized project for better maintainability:

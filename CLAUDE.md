@@ -297,6 +297,22 @@ tray.setTitle('MB');
 - PNG/template icons - cause crashes
 - Electron 37.x - timeout crashes
 
+### WORKING ICON SOLUTION (Implemented):
+Instead of loading PNG files (which crash on macOS 15.5), we create a programmatic icon:
+```javascript
+// Create a colored circle icon in memory
+const size = 16;
+const buffer = Buffer.alloc(size * size * 4);
+// Draw purple/pink circle...
+const icon = nativeImage.createFromBuffer(buffer, { width: size, height: size });
+tray = new Tray(icon);
+```
+This approach:
+- Avoids PNG loading crashes
+- Creates a stable purple/pink circle icon
+- Falls back to text "MB" if needed
+- Works reliably on macOS 15.5 Sequoia
+
 # important-instruction-reminders
 Do what has been asked; nothing more, nothing less.
 NEVER create files unless they're absolutely necessary for achieving your goal.
