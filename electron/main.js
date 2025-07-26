@@ -1,5 +1,6 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const TrayManager = require('./trayManager');
+const { initializeIpcHandlers } = require('./ipcHandlers');
 
 let window = null;
 let trayManager = null;
@@ -42,14 +43,8 @@ app.whenReady().then(() => {
   trayManager = new TrayManager();
   trayManager.init(window);
   
-  // Set up IPC handlers for phase updates
-  ipcMain.on('phase-update', (event, phase) => {
-    console.log('Received phase update:', phase);
-    if (trayManager) {
-      trayManager.updateIcon(phase);
-      trayManager.updateTooltip(`MoodBooMs - ${phase}`);
-    }
-  });
+  // Initialize all IPC handlers
+  initializeIpcHandlers(ipcMain, window, trayManager);
 });
 
 // Keep the app running
