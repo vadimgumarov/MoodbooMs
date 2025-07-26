@@ -33,8 +33,8 @@ app.whenReady().then(() => {
   
   // Create window with security settings
   const windowOptions = applySecuritySettings({
-    width: 380,
-    height: 520,
+    width: 400,
+    height: 600,
     show: false,
     frame: false,
     resizable: false,

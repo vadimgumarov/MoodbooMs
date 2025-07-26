@@ -1,4 +1,4 @@
-const { differenceInDays, addDays } = require('date-fns');
+import { differenceInDays, addDays } from 'date-fns';
 
 /**
  * Calculate the current day of the menstrual cycle
@@ -145,7 +145,7 @@ function getDaysUntilNextPeriod(currentDay, cycleLength) {
   return cycleLength - currentDay + 1;
 }
 
-module.exports = {
+export {
   calculateCurrentDay,
   getCurrentPhase,
   getFertilityLevel,

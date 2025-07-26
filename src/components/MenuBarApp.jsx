@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Sun, CloudSun, Cloud, CloudRain, CloudLightning, Tornado, Heart, Coffee, Candy, IceCream, Cookie } from 'lucide-react';
+import Calendar from './Calendar';
 
 const moodMessages = {
   'Bloody Hell Week': [
@@ -119,6 +120,7 @@ const MenuBarApp = () => {
   const [testMode, setTestMode] = useState(false);
   const [testDays, setTestDays] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('mood'); // 'mood' or 'calendar'
 
   // Load saved data on mount
   useEffect(() => {
@@ -238,13 +240,38 @@ const MenuBarApp = () => {
   }
 
   return (
-    <div className="w-80">
+    <div className="w-96">
       <div className="p-4">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold">MoodBooMs</h2>
         </div>
 
-        <div className="space-y-4">
+        {/* Tab Navigation */}
+        <div className="flex mb-4 bg-gray-100 rounded-lg p-1">
+          <button
+            onClick={() => setActiveTab('mood')}
+            className={`flex-1 py-2 px-4 rounded-md transition-colors ${
+              activeTab === 'mood' 
+                ? 'bg-white shadow-sm' 
+                : 'hover:bg-gray-200'
+            }`}
+          >
+            Mood
+          </button>
+          <button
+            onClick={() => setActiveTab('calendar')}
+            className={`flex-1 py-2 px-4 rounded-md transition-colors ${
+              activeTab === 'calendar' 
+                ? 'bg-white shadow-sm' 
+                : 'hover:bg-gray-200'
+            }`}
+          >
+            Calendar
+          </button>
+        </div>
+
+        {activeTab === 'mood' ? (
+          <div className="space-y-4">
           <div className="p-3 bg-gray-100 rounded">
             <div className="space-y-2">
               <div className="flex items-center gap-2">
@@ -314,6 +341,19 @@ const MenuBarApp = () => {
             )}
           </div>
         </div>
+        ) : (
+          <Calendar 
+            cycleStartDate={testMode 
+              ? new Date(new Date().getTime() - testDays * 24 * 60 * 60 * 1000) 
+              : cycleData.startDate
+            }
+            cycleLength={cycleData.cycleLength}
+            onDateSelect={(date) => {
+              console.log('Selected date:', date);
+              // TODO: Add date selection functionality
+            }}
+          />
+        )}
       </div>
     </div>
   );

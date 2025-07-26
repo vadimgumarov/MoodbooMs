@@ -1,5 +1,5 @@
 // Unit tests for cycle calculation utilities
-const {
+import {
   calculateCurrentDay,
   getCurrentPhase,
   getFertilityLevel,
@@ -8,7 +8,7 @@ const {
   calculateAverageCycleLength,
   getCycleProgress,
   getDaysUntilNextPeriod
-} = require('../cycleCalculations');
+} from '../cycleCalculations';
 
 describe('Cycle Calculations', () => {
   describe('calculateCurrentDay', () => {
