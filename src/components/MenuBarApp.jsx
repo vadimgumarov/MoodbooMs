@@ -129,8 +129,8 @@ const MenuBarApp = () => {
     setCurrentCraving(getRandomFood());
     
     // Update tray icon via IPC
-    if (window.electronAPI && window.electronAPI.updatePhase) {
-      window.electronAPI.updatePhase(phase.phase);
+    if (window.electronAPI && window.electronAPI.tray) {
+      window.electronAPI.tray.updatePhase(phase.phase);
     }
   }, [cycleData, testDays, testMode]);
 

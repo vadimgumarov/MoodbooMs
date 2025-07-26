@@ -6,6 +6,25 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 MoodBooMs is an Electron-based menubar application that tracks menstrual cycle phases with humor. It combines a React frontend with Electron to create a macOS menubar app that displays cycle phase information and mood messages.
 
+## Security Architecture
+
+The app uses a secure Electron architecture with:
+- **Context Isolation**: Enabled to prevent renderer access to Node.js
+- **Node Integration**: Disabled for security
+- **Preload Script**: Provides secure APIs via contextBridge
+- **IPC Communication**: All main process functionality accessed through defined channels
+
+### Available APIs (window.electronAPI)
+- `tray.*` - Menubar icon management
+- `window.*` - Window positioning and visibility
+- `store.*` - Data persistence (issue #3)
+- `system.*` - OS information and theme
+- `notifications.*` - System notifications
+- `app.*` - App control and information
+- `dialog.*` - File dialogs
+- `updates.*` - Auto-updater (future)
+- `dev.*` - Development tools
+
 ## Development Commands
 
 ```bash
@@ -106,30 +125,89 @@ You will act as a **Senior Software Developer**, responsible for analyzing requi
 
 ## Development Workflow
 
+### Epic-Based Branching Strategy
+We use a hierarchical branching approach for better organization and tracking:
+
+```
+main
+ └── feat/epic-{number}-{description}
+      ├── feat/epic-{number}/issue-{number}-{description}
+      ├── feat/epic-{number}/issue-{number}-{description}
+      └── feat/epic-{number}/issue-{number}-{description}
+```
+
+#### Workflow Using Scripts:
+
+We use modified versions of standard workflow scripts that automatically handle epic branching:
+
+1. **Starting Work on Any Issue (Epic or Regular)**
+   ```bash
+   ./scripts/wi.sh
+   # Or directly: ./scripts/wi.sh <issue-number>
+   ```
+   - Automatically detects if issue is an Epic
+   - Creates epic branches from main
+   - Creates issue branches from current epic branch
+   - Handles branch naming: `feat/epic-1/issue-2-description`
+
+2. **Finishing Work (Commit, Push, and Merge)**
+   ```bash
+   ./scripts/fw.sh
+   ```
+   - Commits and pushes changes
+   - For issue branches: offers to merge to parent epic branch
+   - For epic branches: reminds to merge to main when complete
+   - Optionally closes GitHub issues
+
+3. **Other Useful Scripts**
+   ```bash
+   ./scripts/cs.sh   # Check status and current work
+   ./scripts/rt.sh   # Run tests
+   ./scripts/qa.sh   # Quality assurance checks
+   ./scripts/pl.sh   # Update project log
+   ./scripts/fix.sh  # Quick fixes
+   ```
+
+#### Manual Workflow (if needed):
+
+1. **Epic Branch**: `feat/epic-{number}-{description}`
+2. **Issue Branch**: `feat/epic-{number}/issue-{number}-{description}`
+3. **Merge Pattern**: Issue → Epic → Main
+
 ### Standard Development Flow
 1. **Identify & Clarify Requirements**
-   - Understand the task completely
+   - Check the GitHub issue for requirements
    - Ask clarifying questions if needed
 
-2. **Plan Implementation**
+2. **Create Issue Branch**
+   - Branch from the parent epic branch
+   - Use consistent naming: `feat/epic-X/issue-Y-description`
+
+3. **Plan Implementation**
    - Consider architectural impacts
    - Identify files to modify or create
 
-3. **Write Tests First (when applicable)**
+4. **Write Tests First (when applicable)**
    - Create failing tests for new functionality
    - Ensure tests cover edge cases
 
-4. **Implement Code**
+5. **Implement Code**
    - Follow existing patterns and conventions
-   - Keep changes focused and minimal
+   - Keep changes focused on the specific issue
 
-5. **Verify & Test**
+6. **Verify & Test**
    - Run tests to ensure nothing breaks
    - Test the application manually if needed
 
-6. **Document Changes**
-   - Update relevant documentation
-   - Add comments only when necessary for complex logic
+7. **Document Changes**
+   - Update CLAUDE.md for development practices
+   - Update README.md for user-facing features
+   - Add technical details to commit messages
+
+8. **Merge & Close**
+   - Merge issue branch to epic branch
+   - Close the GitHub issue
+   - Move to next issue in the epic
 
 ## Commit Message Format
 
