@@ -6,6 +6,41 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 MoodBooMs is an Electron-based menubar application that tracks menstrual cycle phases with humor. It combines a React frontend with Electron to create a macOS menubar app that displays cycle phase information and mood messages.
 
+## Security Architecture
+
+The app uses a secure Electron architecture with:
+- **Context Isolation**: Enabled to prevent renderer access to Node.js
+- **Node Integration**: Disabled for security
+- **Preload Script**: Provides secure APIs via contextBridge
+- **IPC Communication**: All main process functionality accessed through defined channels
+- **Content Security Policy (CSP)**: Strict policies prevent XSS attacks
+- **Security Verification**: Runtime checks ensure security settings
+
+### Security Configuration
+- All windows created with enforced security settings
+- Navigation restricted to allowed origins only
+- Additional security headers (X-Frame-Options, etc.)
+- Remote module disabled
+- WebView tag disabled
+- See `electron/SECURITY_DOCUMENTATION.md` for details
+
+### Content Security Policy
+- Production: Restrictive policy allowing only self-hosted resources
+- Development: Permissive policy for hot reload and DevTools
+- Violation reporting to track security issues
+- See `electron/CSP_DOCUMENTATION.md` for details
+
+### Available APIs (window.electronAPI)
+- `tray.*` - Menubar icon management
+- `window.*` - Window positioning and visibility
+- `store.*` - Data persistence (issue #3)
+- `system.*` - OS information and theme
+- `notifications.*` - System notifications
+- `app.*` - App control and information
+- `dialog.*` - File dialogs
+- `updates.*` - Auto-updater (future)
+- `dev.*` - Development tools
+
 ## Development Commands
 
 ```bash
@@ -51,11 +86,18 @@ The application consists of:
    - Uses Tailwind CSS for styling
    - Lucide React for icons
 
-3. **Key Features**:
+3. **Data Persistence** (`electron/store.js`):
+   - Uses electron-store@8.1.0 for secure data storage
+   - Stores cycle data, preferences, and app state
+   - Validates data before saving
+   - Supports data export/import functionality
+
+4. **Key Features**:
    - Tracks 6 menstrual cycle phases with humorous messages
    - Allows cycle start date and length customization (21-35 days)
    - Test mode for previewing different cycle days
    - Random mood messages and food cravings per phase
+   - Persistent data storage across app sessions
 
 ## Project Structure
 
@@ -63,9 +105,12 @@ The application consists of:
 /moodbooms
 ├── /electron              # Electron main process
 │   ├── main.js           # Main electron file
-│   ├── package.json      # Electron-specific dependencies
-│   └── /assets
-│       └── /icons        # App icons (menubar, dock, etc.)
+│   ├── preload.js       # Secure API exposure via contextBridge
+│   ├── ipcHandlers.js   # Centralized IPC handler management
+│   ├── store.js         # electron-store data persistence
+│   ├── trayManager.js   # Tray icon management
+│   ├── iconGeneratorLucide.js # Dynamic icon generation
+│   └── package.json      # Electron-specific dependencies
 ├── /src                  # React application
 │   └── /components       # React components
 ├── /tests                # All test files
@@ -106,30 +151,115 @@ You will act as a **Senior Software Developer**, responsible for analyzing requi
 
 ## Development Workflow
 
+### Epic-Based Branching Strategy
+We use a hierarchical branching approach for better organization and tracking:
+
+```
+main
+ └── feat/epic-{number}-{description}
+      ├── feat/epic-{number}/issue-{number}-{description}
+      ├── feat/epic-{number}/issue-{number}-{description}
+      └── feat/epic-{number}/issue-{number}-{description}
+```
+
+#### Workflow Using Scripts:
+
+We use modified versions of standard workflow scripts that automatically handle epic branching:
+
+1. **Starting Work on Any Issue (Epic or Regular)**
+   ```bash
+   ./scripts/wi.sh
+   # Or directly: ./scripts/wi.sh <issue-number>
+   ```
+   - Automatically detects if issue is an Epic
+   - Creates epic branches from main
+   - Creates issue branches from current epic branch
+   - Handles branch naming: `feat/epic-1/issue-2-description`
+
+2. **Finishing Work (Commit, Push, and Merge)**
+   ```bash
+   ./scripts/fw.sh
+   ```
+   - Commits and pushes changes
+   - For issue branches: offers to merge to parent epic branch
+   - For epic branches: reminds to merge to main when complete
+   - Optionally closes GitHub issues
+
+3. **Other Useful Scripts**
+   ```bash
+   ./scripts/cs.sh   # Check status and current work
+   ./scripts/rt.sh   # Run tests
+   ./scripts/qa.sh   # Quality assurance checks
+   ./scripts/pl.sh   # Update project log
+   ./scripts/fix.sh  # Quick fixes
+   ```
+
+#### Manual Workflow (if needed):
+
+1. **Epic Branch**: `feat/epic-{number}-{description}`
+2. **Issue Branch**: `feat/epic-{number}/issue-{number}-{description}`
+3. **Merge Pattern**: Issue → Epic → Main
+
 ### Standard Development Flow
 1. **Identify & Clarify Requirements**
-   - Understand the task completely
+   - Check the GitHub issue for requirements
    - Ask clarifying questions if needed
 
-2. **Plan Implementation**
+2. **Create Issue Branch**
+   - Branch from the parent epic branch
+   - Use consistent naming: `feat/epic-X/issue-Y-description`
+
+3. **Plan Implementation**
    - Consider architectural impacts
    - Identify files to modify or create
 
-3. **Write Tests First (when applicable)**
+4. **Write Tests First (when applicable)**
    - Create failing tests for new functionality
    - Ensure tests cover edge cases
 
-4. **Implement Code**
+5. **Implement Code**
    - Follow existing patterns and conventions
-   - Keep changes focused and minimal
+   - Keep changes focused on the specific issue
 
-5. **Verify & Test**
+6. **Verify & Test**
    - Run tests to ensure nothing breaks
    - Test the application manually if needed
 
-6. **Document Changes**
-   - Update relevant documentation
-   - Add comments only when necessary for complex logic
+7. **Document Changes**
+   - Update CLAUDE.md for development practices
+   - Update README.md for user-facing features
+   - Add technical details to commit messages
+
+8. **Merge & Close**
+   - Merge issue branch to epic branch
+   - Close the GitHub issue
+   - Move to next issue in the epic
+
+### Epic Completion Workflow
+
+When completing an epic (all child issues done):
+
+1. **Pre-completion Checklist**
+   - ✓ All child issues closed
+   - ✓ All branches merged to epic branch
+   - ✓ Unit tests pass (`npm test`)
+   - ✓ Security tests pass (`npx electron tests/electron/security-test.js`)
+   - ✓ Manual testing complete (`npm run dev`)
+
+2. **Use fw.sh Script**
+   - Run `fw` while on epic branch
+   - Choose "Complete this epic? (y/N)"
+   - Script will:
+     - Check for open child issues
+     - Guide through test verification
+     - Create PR to main branch
+     - Merge and close epic
+     - Clean up child branches
+
+3. **Post-completion**
+   - Update PROJECT_LOG.txt
+   - Verify documentation is current
+   - Begin next epic in priority order
 
 ## Commit Message Format
 
@@ -334,6 +464,47 @@ Key discoveries:
 - Icons need to be 22x22 for macOS menubar clarity
 - 2x resolution (44x44) then scaled down improves quality
 - Simple shapes work better than complex details at small sizes
+
+## Data Persistence with electron-store
+
+### Store Schema
+```javascript
+{
+  cycleData: {
+    startDate: 'ISO date string',
+    cycleLength: 28, // 21-35 days
+    history: [
+      { startDate: 'ISO date', length: 28, notes: 'optional' }
+    ]
+  },
+  preferences: {
+    notifications: true,
+    notificationDays: [1, 14], // Which cycle days to notify
+    theme: 'auto', // 'light', 'dark', 'auto'
+    language: 'en',
+    testMode: false
+  },
+  appState: {
+    lastOpened: 'ISO date string',
+    version: '1.0.0',
+    onboardingCompleted: false
+  }
+}
+```
+
+### Store Operations
+- **Cycle Data**: Validated cycle length (21-35 days), ISO date format
+- **History**: Maintains last 12 cycles, auto-timestamps entries
+- **Preferences**: Theme validation, notification settings
+- **Export/Import**: Full data backup and restore functionality
+
+### Security
+- Uses encryption for data at rest
+- Schema validation prevents invalid data
+- All store access through IPC handlers only
+
+### Testing
+Run store tests with: `npx electron tests/electron/test-store-electron.js`
 
 # important-instruction-reminders
 Do what has been asked; nothing more, nothing less.

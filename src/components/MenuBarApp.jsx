@@ -118,6 +118,36 @@ const MenuBarApp = () => {
   const [currentCraving, setCurrentCraving] = useState({ icon: Candy, text: "candy" });
   const [testMode, setTestMode] = useState(false);
   const [testDays, setTestDays] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Load saved data on mount
+  useEffect(() => {
+    const loadSavedData = async () => {
+      if (window.electronAPI && window.electronAPI.store) {
+        try {
+          const savedCycleData = await window.electronAPI.store.get('cycleData');
+          const savedPreferences = await window.electronAPI.store.get('preferences');
+          
+          if (savedCycleData) {
+            setCycleData({
+              startDate: new Date(savedCycleData.startDate),
+              cycleLength: savedCycleData.cycleLength || 28,
+              notifications: savedPreferences?.notifications ?? true
+            });
+          }
+          
+          if (savedPreferences?.testMode !== undefined) {
+            setTestMode(savedPreferences.testMode);
+          }
+        } catch (error) {
+          console.error('Error loading saved data:', error);
+        }
+      }
+      setIsLoading(false);
+    };
+    
+    loadSavedData();
+  }, []);
 
   useEffect(() => {
     const phase = calculatePhase(
@@ -129,22 +159,83 @@ const MenuBarApp = () => {
     setCurrentCraving(getRandomFood());
     
     // Update tray icon via IPC
-    if (window.electronAPI && window.electronAPI.updatePhase) {
-      window.electronAPI.updatePhase(phase.phase);
+    if (window.electronAPI && window.electronAPI.tray) {
+      window.electronAPI.tray.updatePhase(phase.phase);
     }
   }, [cycleData, testDays, testMode]);
 
-  const handleDateChange = (newDate) => {
+  const handleDateChange = async (newDate) => {
     setCycleData(prev => ({ ...prev, startDate: newDate }));
+    
+    // Save to store
+    if (window.electronAPI && window.electronAPI.store) {
+      try {
+        await window.electronAPI.store.set('cycleData', {
+          startDate: newDate.toISOString(),
+          cycleLength: cycleData.cycleLength
+        });
+      } catch (error) {
+        console.error('Error saving cycle data:', error);
+      }
+    }
   };
 
-  const handleLengthChange = (newLength) => {
+  const handleLengthChange = async (newLength) => {
     setCycleData(prev => ({ ...prev, cycleLength: newLength }));
+    
+    // Save to store
+    if (window.electronAPI && window.electronAPI.store) {
+      try {
+        await window.electronAPI.store.set('cycleData', {
+          startDate: cycleData.startDate.toISOString(),
+          cycleLength: newLength
+        });
+      } catch (error) {
+        console.error('Error saving cycle data:', error);
+      }
+    }
   };
 
-  const toggleNotifications = () => {
-    setCycleData(prev => ({ ...prev, notifications: !prev.notifications }));
+  const toggleNotifications = async () => {
+    const newNotificationState = !cycleData.notifications;
+    setCycleData(prev => ({ ...prev, notifications: newNotificationState }));
+    
+    // Save to store
+    if (window.electronAPI && window.electronAPI.store) {
+      try {
+        await window.electronAPI.store.set('preferences', {
+          notifications: newNotificationState
+        });
+      } catch (error) {
+        console.error('Error saving preferences:', error);
+      }
+    }
   };
+
+  const handleTestModeChange = async (enabled) => {
+    setTestMode(enabled);
+    
+    // Save to store
+    if (window.electronAPI && window.electronAPI.store) {
+      try {
+        await window.electronAPI.store.set('preferences', {
+          testMode: enabled
+        });
+      } catch (error) {
+        console.error('Error saving test mode:', error);
+      }
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="w-80">
+        <div className="p-4 text-center">
+          <p>Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-80">
@@ -202,7 +293,7 @@ const MenuBarApp = () => {
               <input
                 type="checkbox"
                 checked={testMode}
-                onChange={(e) => setTestMode(e.target.checked)}
+                onChange={(e) => handleTestModeChange(e.target.checked)}
                 className="rounded"
               />
               <span>Test Mode</span>
