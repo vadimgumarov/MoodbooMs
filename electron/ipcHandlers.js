@@ -1,9 +1,8 @@
 const { app, dialog, nativeTheme, Notification } = require('electron');
 const os = require('os');
+const { storeOperations } = require('./store');
 
 // This module sets up all IPC handlers for the main process
-// Store reference will be added in issue #3
-let store = null;
 
 // Initialize IPC handlers
 function initializeIpcHandlers(ipcMain, mainWindow, trayManager) {
@@ -45,35 +44,74 @@ function initializeIpcHandlers(ipcMain, mainWindow, trayManager) {
     return false;
   });
 
-  // Data Persistence (placeholder - will be implemented in issue #3)
+  // Data Persistence - Implemented with electron-store
   ipcMain.handle('store-get', async (event, key) => {
-    // TODO: Implement in issue #3
-    console.log('Store get called for:', key);
-    return null;
+    try {
+      if (!key) {
+        return storeOperations.getAll();
+      }
+      
+      // Handle special keys for structured data
+      switch (key) {
+        case 'cycleData':
+          return storeOperations.getCycleData();
+        case 'preferences':
+          return storeOperations.getPreferences();
+        case 'appState':
+          return storeOperations.getAppState();
+        default:
+          return storeOperations.get(key);
+      }
+    } catch (error) {
+      console.error('Store get error:', error);
+      throw error;
+    }
   });
 
   ipcMain.handle('store-set', async (event, { key, value }) => {
-    // TODO: Implement in issue #3
-    console.log('Store set called:', key, value);
-    return true;
+    try {
+      // Handle special keys with validation
+      switch (key) {
+        case 'cycleData':
+          return storeOperations.setCycleData(value);
+        case 'preferences':
+          return storeOperations.setPreferences(value);
+        case 'cycleData.history':
+          return storeOperations.addCycleHistory(value);
+        default:
+          return storeOperations.set(key, value);
+      }
+    } catch (error) {
+      console.error('Store set error:', error);
+      throw error;
+    }
   });
 
   ipcMain.handle('store-delete', async (event, key) => {
-    // TODO: Implement in issue #3
-    console.log('Store delete called for:', key);
-    return true;
+    try {
+      return storeOperations.delete(key);
+    } catch (error) {
+      console.error('Store delete error:', error);
+      throw error;
+    }
   });
 
   ipcMain.handle('store-clear', async () => {
-    // TODO: Implement in issue #3
-    console.log('Store clear called');
-    return true;
+    try {
+      return storeOperations.clear();
+    } catch (error) {
+      console.error('Store clear error:', error);
+      throw error;
+    }
   });
 
   ipcMain.handle('store-has', async (event, key) => {
-    // TODO: Implement in issue #3
-    console.log('Store has called for:', key);
-    return false;
+    try {
+      return storeOperations.has(key);
+    } catch (error) {
+      console.error('Store has error:', error);
+      throw error;
+    }
   });
 
   // System Information
@@ -194,12 +232,6 @@ function initializeIpcHandlers(ipcMain, mainWindow, trayManager) {
   }
 }
 
-// Function to set store instance (will be called from main.js in issue #3)
-function setStore(storeInstance) {
-  store = storeInstance;
-}
-
 module.exports = {
-  initializeIpcHandlers,
-  setStore
+  initializeIpcHandlers
 };

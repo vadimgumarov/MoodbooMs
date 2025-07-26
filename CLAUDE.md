@@ -70,11 +70,18 @@ The application consists of:
    - Uses Tailwind CSS for styling
    - Lucide React for icons
 
-3. **Key Features**:
+3. **Data Persistence** (`electron/store.js`):
+   - Uses electron-store@8.1.0 for secure data storage
+   - Stores cycle data, preferences, and app state
+   - Validates data before saving
+   - Supports data export/import functionality
+
+4. **Key Features**:
    - Tracks 6 menstrual cycle phases with humorous messages
    - Allows cycle start date and length customization (21-35 days)
    - Test mode for previewing different cycle days
    - Random mood messages and food cravings per phase
+   - Persistent data storage across app sessions
 
 ## Project Structure
 
@@ -82,9 +89,12 @@ The application consists of:
 /moodbooms
 ├── /electron              # Electron main process
 │   ├── main.js           # Main electron file
-│   ├── package.json      # Electron-specific dependencies
-│   └── /assets
-│       └── /icons        # App icons (menubar, dock, etc.)
+│   ├── preload.js       # Secure API exposure via contextBridge
+│   ├── ipcHandlers.js   # Centralized IPC handler management
+│   ├── store.js         # electron-store data persistence
+│   ├── trayManager.js   # Tray icon management
+│   ├── iconGeneratorLucide.js # Dynamic icon generation
+│   └── package.json      # Electron-specific dependencies
 ├── /src                  # React application
 │   └── /components       # React components
 ├── /tests                # All test files
@@ -412,6 +422,47 @@ Key discoveries:
 - Icons need to be 22x22 for macOS menubar clarity
 - 2x resolution (44x44) then scaled down improves quality
 - Simple shapes work better than complex details at small sizes
+
+## Data Persistence with electron-store
+
+### Store Schema
+```javascript
+{
+  cycleData: {
+    startDate: 'ISO date string',
+    cycleLength: 28, // 21-35 days
+    history: [
+      { startDate: 'ISO date', length: 28, notes: 'optional' }
+    ]
+  },
+  preferences: {
+    notifications: true,
+    notificationDays: [1, 14], // Which cycle days to notify
+    theme: 'auto', // 'light', 'dark', 'auto'
+    language: 'en',
+    testMode: false
+  },
+  appState: {
+    lastOpened: 'ISO date string',
+    version: '1.0.0',
+    onboardingCompleted: false
+  }
+}
+```
+
+### Store Operations
+- **Cycle Data**: Validated cycle length (21-35 days), ISO date format
+- **History**: Maintains last 12 cycles, auto-timestamps entries
+- **Preferences**: Theme validation, notification settings
+- **Export/Import**: Full data backup and restore functionality
+
+### Security
+- Uses encryption for data at rest
+- Schema validation prevents invalid data
+- All store access through IPC handlers only
+
+### Testing
+Run store tests with: `npx electron tests/electron/test-store-electron.js`
 
 # important-instruction-reminders
 Do what has been asked; nothing more, nothing less.
