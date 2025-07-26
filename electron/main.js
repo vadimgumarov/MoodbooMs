@@ -27,9 +27,11 @@ app.whenReady().then(() => {
   });
 
   // Create tray
+  // NOTE: Icons don't work on macOS 15.5 (Sequoia) due to OS bug
+  // When fixed, use: const icon = nativeImage.createFromPath(path.join(__dirname, 'assets/icons/icon.png'));
   const image = nativeImage.createEmpty();
   tray = new Tray(image);
-  tray.setTitle('MB');
+  tray.setTitle('MB'); // Text-based menubar workaround
   
   tray.on('click', () => {
     if (window.isVisible()) {

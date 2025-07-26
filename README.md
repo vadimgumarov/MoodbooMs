@@ -106,6 +106,29 @@ Comprehensive testing coverage
 - #29 Implement performance monitoring
 - #30 Create user acceptance test scenarios
 
+### Epic 7: Cross-Platform Packaging & Distribution
+Make the application packable and transferable to any Mac, with eventual Windows support
+
+**Issues:**
+- #38 Configure electron-builder for macOS DMG/ZIP distribution
+- #39 Implement universal binary support (Intel + Apple Silicon)
+- #40 Create auto-update mechanism for macOS
+- #41 Add Windows build configuration and testing
+- #42 Implement Windows-specific tray icon handling
+- #44 Create portable versions (no install required)
+- #45 Set up CI/CD for multi-platform builds
+- #46 Implement license verification system
+- #47 Create installation/uninstallation scripts
+- #48 Add crash reporting and telemetry
+
+**Key Requirements:**
+- Application must be fully self-contained
+- No dependencies on local development environment
+- Support for macOS 10.15+ and Windows 10+
+- Code signing for both platforms
+- Auto-update capability
+- Proper icon support for both platforms
+
 ## Implementation Phases
 
 ### Phase 1: Foundation (Week 1)

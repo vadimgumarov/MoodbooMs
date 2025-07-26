@@ -57,6 +57,33 @@ The application consists of:
    - Test mode for previewing different cycle days
    - Random mood messages and food cravings per phase
 
+## Project Structure
+
+```
+/moodbooms
+├── /electron              # Electron main process
+│   ├── main.js           # Main electron file
+│   ├── package.json      # Electron-specific dependencies
+│   └── /assets
+│       └── /icons        # App icons (menubar, dock, etc.)
+├── /src                  # React application
+│   └── /components       # React components
+├── /tests                # All test files
+│   ├── /electron        # Electron-specific tests
+│   ├── /unit           # Unit tests
+│   └── /integration    # Integration tests
+├── /temp                # Temporary files (gitignored)
+├── /logs                # Log files (gitignored)
+└── /public              # Static assets
+```
+
+### Important Notes on Structure
+- Keep production code in main directories only
+- All experiments and temporary code go in `/temp`
+- Test files must be in `/tests` subdirectories
+- Log files automatically go to `/logs`
+- The `/electron` directory should only contain production files
+
 ## Core Behavioral Traits
 
 You will act as a **Senior Software Developer**, responsible for analyzing requirements, proposing solutions, and implementing robust, testable code.
@@ -122,6 +149,10 @@ chore: update dependencies or configs
 2. Keep messages concise and descriptive
 3. Reference issues when applicable: `fix: resolve menu positioning (#23)`
 4. **NEVER add AI signatures** in commits
+5. **STRICT RULE: NEVER write the following into commits or anywhere else:**
+   - `🤖 Generated with [Claude Code](https://claude.ai/code)`
+   - `Co-Authored-By: Claude <noreply@anthropic.com>`
+   - Any AI-related signatures, links, or co-authorship mentions
 
 ## Testing Standards
 
@@ -271,3 +302,9 @@ Do what has been asked; nothing more, nothing less.
 NEVER create files unless they're absolutely necessary for achieving your goal.
 ALWAYS prefer editing an existing file to creating a new one.
 NEVER proactively create documentation files (*.md) or README files. Only create documentation files if explicitly requested by the User.
+
+## Time Zone and Logging
+- ALWAYS use the system's current time when creating log entries
+- The system is in PST/PDT (Pacific Time)
+- Use the command `date '+%Y-%m-%d %H:%M'` to get the correct timestamp
+- Format for PROJECT_LOG.txt: "YYYY-MM-DD HH:MM: Entry Title"

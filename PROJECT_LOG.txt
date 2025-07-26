@@ -1,6 +1,44 @@
 PROJECT WORK LOG - MoodBooMs
 ===================================
 
+2025-07-26 07:56: Project Structure Refactoring
+------------------------------------------------------------
+Reorganized project for better maintainability:
+
+Created folder structure:
+- /electron/assets/icons - Production icon files
+- /tests/electron - Electron-specific test files
+- /tests/unit - Unit tests
+- /tests/integration - Integration tests
+- /temp - Temporary files and experiments (gitignored)
+- /logs - Log files (gitignored)
+
+Actions taken:
+- Moved all test files from electron/ to tests/electron/
+- Moved all icon files to electron/assets/icons/
+- Moved log files to logs/
+- Updated .gitignore to exclude temp/ and logs/
+- Added README files to test directories
+- Updated main.js with comment about icon path
+
+Result: Clean separation between production code and tests
+
+2025-07-26 07:52: Tray Icon Investigation
+------------------------------------------------------------
+Investigation into why icons don't work on macOS 15.5:
+- Confirmed this is a macOS Sequoia (15.x) compatibility issue
+- All image loading methods fail (direct path, nativeImage, base64)
+- Icons always return empty (0x0 size) even for valid PNG files
+- User briefly saw question mark icon (macOS's missing icon indicator)
+- System refuses to load any image files for tray icons
+- Created GitHub issue #49 to track this problem
+
+Findings:
+- This appears to be an OS-level restriction/bug
+- Other Electron apps also affected (1Password, etc.)
+- Only workaround is text-based tray using setTitle()
+- May need to wait for Electron or macOS updates
+
 2025-07-25 23:58: Menubar App Development & Debugging Session
 ------------------------------------------------------------
 Work completed:
@@ -54,6 +92,8 @@ Next priority tasks:
 - Add data persistence (electron-store)
 - Enhance security with contextBridge
 - Build production version
+- CRITICAL: Make app packable and transferable to any Mac (Epic #7)
+- Future: Add Windows support for cross-platform distribution
 
 
 2025-07-25 22:25: Session work (no new commits)
@@ -178,3 +218,5 @@ Next priority tasks:
 - Add data persistence (electron-store)
 - Enhance security with contextBridge
 - Build production version
+- CRITICAL: Make app packable and transferable to any Mac (Epic #7)
+- Future: Add Windows support for cross-platform distribution
