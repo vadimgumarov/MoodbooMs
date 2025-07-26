@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Sun, CloudSun, Cloud, CloudRain, CloudLightning, Tornado, Heart, Coffee, Candy, IceCream, Cookie } from 'lucide-react';
 import Calendar from './Calendar';
+import PhaseDetail from './PhaseDetail';
 
 const moodMessages = {
   'Bloody Hell Week': [
@@ -121,6 +122,7 @@ const MenuBarApp = () => {
   const [testDays, setTestDays] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('mood'); // 'mood' or 'calendar'
+  const [selectedDate, setSelectedDate] = useState(null);
 
   // Load saved data on mount
   useEffect(() => {
@@ -342,17 +344,28 @@ const MenuBarApp = () => {
           </div>
         </div>
         ) : (
-          <Calendar 
-            cycleStartDate={testMode 
-              ? new Date(new Date().getTime() - testDays * 24 * 60 * 60 * 1000) 
-              : cycleData.startDate
-            }
-            cycleLength={cycleData.cycleLength}
-            onDateSelect={(date) => {
-              console.log('Selected date:', date);
-              // TODO: Add date selection functionality
-            }}
-          />
+          <div className="space-y-4">
+            <Calendar 
+              cycleStartDate={testMode 
+                ? new Date(new Date().getTime() - testDays * 24 * 60 * 60 * 1000) 
+                : cycleData.startDate
+              }
+              cycleLength={cycleData.cycleLength}
+              onDateSelect={(date) => setSelectedDate(date)}
+            />
+            {selectedDate && (
+              <div className="border-t pt-4">
+                <PhaseDetail
+                  selectedDate={selectedDate}
+                  cycleStartDate={testMode 
+                    ? new Date(new Date().getTime() - testDays * 24 * 60 * 60 * 1000) 
+                    : cycleData.startDate
+                  }
+                  cycleLength={cycleData.cycleLength}
+                />
+              </div>
+            )}
+          </div>
         )}
       </div>
     </div>

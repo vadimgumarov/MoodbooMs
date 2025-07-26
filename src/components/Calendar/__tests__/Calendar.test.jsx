@@ -113,7 +113,7 @@ describe('Calendar Component', () => {
       button.className.includes('bg-red') || 
       button.className.includes('bg-green') ||
       button.className.includes('bg-yellow') ||
-      button.className.includes('bg-orange')
+      button.className.includes('bg-gray-300')
     );
     
     expect(coloredButtons.length).toBeGreaterThan(0);
@@ -156,7 +156,7 @@ describe('Calendar Component', () => {
     expect(screen.getByText('Low Fertility')).toBeInTheDocument();
     expect(screen.getByText('Medium Fertility')).toBeInTheDocument();
     expect(screen.getByText('High Fertility')).toBeInTheDocument();
-    expect(screen.getByText('Very High (Ovulation)')).toBeInTheDocument();
+    expect(screen.getByText('Peak Fertility (Ovulation)')).toBeInTheDocument();
   });
 
   test('handles missing cycleStartDate gracefully', () => {

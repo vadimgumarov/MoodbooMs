@@ -60,13 +60,13 @@ const Calendar = ({ cycleStartDate, cycleLength = 28, onDateSelect }) => {
       case 'very-low':
         return 'bg-red-400 text-white';
       case 'low':
-        return 'bg-green-200';
-      case 'medium':
         return 'bg-yellow-200';
+      case 'medium':
+        return 'bg-gray-300';
       case 'high':
-        return 'bg-orange-300';
+        return 'bg-green-300';
       case 'very-high':
-        return 'bg-red-600 text-white';
+        return 'bg-green-500 text-white';
       default:
         return 'bg-gray-100';
     }
@@ -150,20 +150,20 @@ const Calendar = ({ cycleStartDate, cycleLength = 28, onDateSelect }) => {
             <span>Menstruation</span>
           </div>
           <div className="flex items-center space-x-2">
-            <div className="w-4 h-4 bg-green-200 rounded"></div>
+            <div className="w-4 h-4 bg-yellow-200 rounded"></div>
             <span>Low Fertility</span>
           </div>
           <div className="flex items-center space-x-2">
-            <div className="w-4 h-4 bg-yellow-200 rounded"></div>
+            <div className="w-4 h-4 bg-gray-300 rounded"></div>
             <span>Medium Fertility</span>
           </div>
           <div className="flex items-center space-x-2">
-            <div className="w-4 h-4 bg-orange-300 rounded"></div>
+            <div className="w-4 h-4 bg-green-300 rounded"></div>
             <span>High Fertility</span>
           </div>
           <div className="flex items-center space-x-2">
-            <div className="w-4 h-4 bg-red-600 rounded"></div>
-            <span>Very High (Ovulation)</span>
+            <div className="w-4 h-4 bg-green-500 rounded"></div>
+            <span>Peak Fertility (Ovulation)</span>
           </div>
         </div>
       </div>
