@@ -13,6 +13,13 @@ The app uses a secure Electron architecture with:
 - **Node Integration**: Disabled for security
 - **Preload Script**: Provides secure APIs via contextBridge
 - **IPC Communication**: All main process functionality accessed through defined channels
+- **Content Security Policy (CSP)**: Strict policies prevent XSS attacks
+
+### Content Security Policy
+- Production: Restrictive policy allowing only self-hosted resources
+- Development: Permissive policy for hot reload and DevTools
+- Violation reporting to track security issues
+- See `electron/CSP_DOCUMENTATION.md` for details
 
 ### Available APIs (window.electronAPI)
 - `tray.*` - Menubar icon management

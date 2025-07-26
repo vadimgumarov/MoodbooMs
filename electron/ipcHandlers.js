@@ -1,11 +1,16 @@
 const { app, dialog, nativeTheme, Notification } = require('electron');
 const os = require('os');
 const { storeOperations } = require('./store');
+const { handleCSPViolation } = require('./csp-config');
 
 // This module sets up all IPC handlers for the main process
 
 // Initialize IPC handlers
 function initializeIpcHandlers(ipcMain, mainWindow, trayManager) {
+  // CSP Violation Reporting
+  ipcMain.on('csp-violation', (event, violation) => {
+    handleCSPViolation(violation);
+  });
   // Tray/Icon Management
   ipcMain.on('phase-update', (event, phase) => {
     console.log('Received phase update:', phase);
