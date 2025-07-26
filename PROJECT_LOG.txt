@@ -514,3 +514,35 @@ The application now has:
 All branches merged to feat/epic-1-core-infrastructure
 Ready to begin Epic #7: Calendar & Date Calculations
 
+2025-07-26 13:44: Started Epic #7 - Calendar & Date Calculations
+------------------------------------------------------------
+Created epic branch feat/epic-7-calendar-date-calculations using wi.sh script:
+
+Epic Overview:
+- Implement comprehensive calendar view with fertility tracking
+- Create cycle calculations, phase detection, and visual representation
+- Core feature for transforming raw cycle data into actionable insights
+
+Child Issues to Complete:
+- Issue #8: Create cycle calculation utility module
+- Issue #9: Implement calendar component with color coding
+- Issue #10: Add date selection and navigation
+- Issue #11: Create fertility phase detection logic
+- Issue #12: Add cycle history tracking
+
+Technical Approach:
+- Build modular cycle calculation engine
+- Create reusable calendar component
+- Implement color-coding system for fertility levels
+- Add date navigation controls
+- Store and analyze historical data for predictions
+
+Dependencies:
+- Requires Epic #1 completion (✅ done)
+- Will use date-fns library for date calculations
+
+Next Steps:
+- Begin with Issue #8: Create cycle calculation utility module
+- Set up date-fns dependency
+- Create tests for cycle calculations
+

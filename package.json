@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "concurrently": "^8.2.0",
+    "date-fns": "^4.1.0",
     "electron-store": "^8.1.0",
     "lucide-react": "^0.263.1",
     "react": "^18.2.0",
@@ -21,6 +22,7 @@
   },
   "devDependencies": {
     "@tauri-apps/cli": "^2.7.1",
+    "@testing-library/jest-dom": "^6.6.4",
     "autoprefixer": "^10.4.16",
     "canvas": "^2.11.2",
     "cross-env": "^7.0.3",
