@@ -1,7 +1,5 @@
-cat > src/components/MenuBarApp.jsx << 'EOL'
 import React, { useState, useEffect } from 'react';
 import { Sun, CloudSun, Cloud, CloudRain, CloudLightning, Tornado, Heart, Coffee, Candy, IceCream, Cookie } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
 
 const moodMessages = {
   'Bloody Hell Week': [
@@ -144,10 +142,10 @@ const MenuBarApp = () => {
   };
 
   return (
-    <Card className="w-80">
-      <CardContent className="p-4">
+    <div className="w-80">
+      <div className="p-4">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold">CycleAware</h2>
+          <h2 className="text-lg font-semibold">MoodBooMs</h2>
         </div>
 
         <div className="space-y-4">
@@ -220,10 +218,9 @@ const MenuBarApp = () => {
             )}
           </div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
 
 export default MenuBarApp;
-EOL
