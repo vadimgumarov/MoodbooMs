@@ -4,12 +4,21 @@
 MoodBooMs is a discreet, professional fertility tracking application that lives in your menu bar. It provides at-a-glance cycle information with a calendar view, safety indicators, and personalized insights.
 
 ## Features
-- 🎯 **Dynamic Menu Bar Icon** - Changes color based on your current cycle phase
+- 🎯 **Dynamic Menu Bar Icon** - Weather-themed icons that change based on cycle phase (sunny to stormy)
 - 📅 **Calendar View** - Month view with color-coded fertility days
 - 🌡️ **Safety Scale** - Visual indicator showing current fertility level
 - 💬 **Smart Status Messages** - Contextual phrases for your current phase
 - 💾 **Data Persistence** - Your data saves automatically between sessions
 - 🔔 **Optional Notifications** - Customizable reminders and alerts
+
+### Dynamic Weather Icons
+The menubar icon changes to reflect your cycle phase:
+- ☀️ **Sun** - "Finally Got My Sh*t Together" (follicular phase)
+- 🌤️ **Partly Cloudy** - "Horny AF" (ovulation)
+- ☁️ **Cloudy** - "Getting Real Tired of This BS" (early luteal)
+- 🌧️ **Rainy** - "Pre-Chaos Mood Swings" (late luteal)
+- ⛈️ **Thunderstorm** - "Bloody Hell Week" (menstruation)
+- 🌪️ **Tornado** - "Apocalypse Countdown" (PMS)
 
 ## Project Redesign Plan
 

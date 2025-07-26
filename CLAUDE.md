@@ -297,7 +297,9 @@ tray.setTitle('MB');
 - PNG/template icons - cause crashes
 - Electron 37.x - timeout crashes
 
-### WORKING ICON SOLUTION (Implemented):
+### WORKING ICON SOLUTIONS (Implemented):
+
+#### Static Programmatic Icon (Initial Fix)
 Instead of loading PNG files (which crash on macOS 15.5), we create a programmatic icon:
 ```javascript
 // Create a colored circle icon in memory
@@ -307,11 +309,31 @@ const buffer = Buffer.alloc(size * size * 4);
 const icon = nativeImage.createFromBuffer(buffer, { width: size, height: size });
 tray = new Tray(icon);
 ```
-This approach:
-- Avoids PNG loading crashes
-- Creates a stable purple/pink circle icon
-- Falls back to text "MB" if needed
-- Works reliably on macOS 15.5 Sequoia
+
+#### Dynamic Weather Icons (Current Implementation)
+Implemented dynamic tray icons that change based on menstrual cycle phase:
+```javascript
+// Architecture:
+// 1. IconGeneratorLucide.js - Creates weather-themed icons
+// 2. TrayManager.js - Manages tray and icon updates
+// 3. IPC communication via preload.js for phase updates
+// 4. React component sends phase updates to main process
+
+// Icon mapping:
+// Sun ☀️ - "Finally Got My Sh*t Together"
+// Cloud+Sun 🌤️ - "Horny AF"
+// Cloud ☁️ - "Getting Real Tired of This BS"
+// Cloud+Rain 🌧️ - "Pre-Chaos Mood Swings"
+// Cloud+Lightning ⛈️ - "Bloody Hell Week"
+// Tornado 🌪️ - "Apocalypse Countdown"
+```
+
+Key discoveries:
+- PNG files fail to load on macOS 15.5 (always return empty)
+- Programmatic icon generation using Buffer works reliably
+- Icons need to be 22x22 for macOS menubar clarity
+- 2x resolution (44x44) then scaled down improves quality
+- Simple shapes work better than complex details at small sizes
 
 # important-instruction-reminders
 Do what has been asked; nothing more, nothing less.
