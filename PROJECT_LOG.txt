@@ -1,6 +1,61 @@
 PROJECT WORK LOG - MoodBooMs
 ===================================
 
+2025-07-25 23:58: Menubar App Development & Debugging Session
+------------------------------------------------------------
+Work completed:
+- Successfully created working macOS menubar app with Electron
+- Resolved multiple critical issues preventing menubar functionality
+- Cleaned up unnecessary files from failed approaches
+
+CRITICAL DEBUGGING FINDINGS:
+
+1. Electron Tray Icon Issues on macOS 15.5 (Sequoia):
+   - Standard icon loading methods fail with "invalid icon" errors
+   - Solution: Use empty nativeImage with setTitle('MB') for text display
+   - Icon files cause crashes even when properly formatted
+
+2. Electron Version Compatibility:
+   - Electron 37.x causes crashes after ~10 seconds on macOS 15.5
+   - Solution: Downgrade to Electron 28.3.3 for stability
+   - Version 28.x works reliably without timeout crashes
+
+3. Window Resizing Crashes:
+   - Any window resize operation causes immediate app crash
+   - Solution: Set resizable: false and all related properties
+   - Must disable: resizable, minimizable, maximizable, fullscreenable
+
+4. Working Configuration:
+   - Window size: 380x520 (fits all content without scrolling)
+   - Use empty image for tray: nativeImage.createEmpty()
+   - Use tray.setTitle('MB') instead of icon
+   - Keep app alive with setInterval(() => {}, 1000)
+
+Approaches Tried (Failed):
+- Tauri framework - tray icon issues, complex setup
+- menubar npm package - incompatible with newer Electron
+- Various icon formats (PNG, template images) - all crash
+- Electron 37.x - timeout crashes after 10 seconds
+
+Files Removed:
+- src-tauri/ directory (Tauri attempt)
+- scripts/ directory (unused)
+- Various test files (electron-alternative.js, test.html, etc.)
+- Debug and log files
+
+Final Working Structure:
+- electron/main.js - Minimal working menubar app
+- Simple configuration without complex features
+- Text-based menubar icon ('MB')
+- Stable window management
+
+Next priority tasks:
+- Implement proper icon support when macOS compatibility improves
+- Add data persistence (electron-store)
+- Enhance security with contextBridge
+- Build production version
+
+
 2025-07-25 22:25: Session work (no new commits)
 ------------------------------------------------------------
 Work completed:
@@ -30,7 +85,7 @@ Suggested Improvements (not yet in GitHub):
   - Add user onboarding flow for first-time users
 
 
-2025-07-26 05:10: Created project structure with 6 Epics and 30 child issues
+2025-07-25 21:00: Created project structure with 6 Epics and 30 child issues
 ------------------------------------------------------------
 Work completed:
 - Created comprehensive project plan in README.md
@@ -78,3 +133,48 @@ Suggested next steps:
 2. Begin with issue #2 - preload script implementation
 3. Set up basic testing infrastructure early
 4. Document architectural decisions as we go
+
+1. Electron Tray Icon Issues on macOS 15.5 (Sequoia):
+   - Standard icon loading methods fail with "invalid icon" errors
+   - Solution: Use empty nativeImage with setTitle('MB') for text display
+   - Icon files cause crashes even when properly formatted
+
+2. Electron Version Compatibility:
+   - Electron 37.x causes crashes after ~10 seconds on macOS 15.5
+   - Solution: Downgrade to Electron 28.3.3 for stability
+   - Version 28.x works reliably without timeout crashes
+
+3. Window Resizing Crashes:
+   - Any window resize operation causes immediate app crash
+   - Solution: Set resizable: false and all related properties
+   - Must disable: resizable, minimizable, maximizable, fullscreenable
+
+4. Working Configuration:
+   - Window size: 380x520 (fits all content without scrolling)
+   - Use empty image for tray: nativeImage.createEmpty()
+   - Use tray.setTitle('MB') instead of icon
+   - Keep app alive with setInterval(() => {}, 1000)
+
+Approaches Tried (Failed):
+- Tauri framework - tray icon issues, complex setup
+- menubar npm package - incompatible with newer Electron
+- Various icon formats (PNG, template images) - all crash
+- Electron 37.x - timeout crashes after 10 seconds
+
+Files Removed:
+- src-tauri/ directory (Tauri attempt)
+- scripts/ directory (unused)
+- Various test files (electron-alternative.js, test.html, etc.)
+- Debug and log files
+
+Final Working Structure:
+- electron/main.js - Minimal working menubar app
+- Simple configuration without complex features
+- Text-based menubar icon ('MB')
+- Stable window management
+
+Next priority tasks:
+- Implement proper icon support when macOS compatibility improves
+- Add data persistence (electron-store)
+- Enhance security with contextBridge
+- Build production version

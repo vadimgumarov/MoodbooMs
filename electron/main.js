@@ -1,59 +1,46 @@
-const { app, BrowserWindow, Tray } = require('electron');
-const path = require('path');
+const { app, BrowserWindow, Tray, nativeImage, Menu } = require('electron');
 
-let tray = null;
 let window = null;
+let tray = null;
 
-function createWindow() {
-  // Create a window that will be shown when clicking the menu bar icon
+// Hide dock icon
+app.dock.hide();
+
+app.whenReady().then(() => {
+  // Create window
   window = new BrowserWindow({
-    width: 320,
-    height: 450,
-    show: false,  // Start hidden
-    frame: false, // No window frame
+    width: 380,
+    height: 520,
+    show: false,
+    frame: false,
     resizable: false,
     webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false
+      nodeIntegration: false,
+      contextIsolation: true
     }
   });
 
-  // Give React time to start up
-  setTimeout(() => {
-    window.loadURL('http://localhost:3000');
-    // Uncomment this line to see if window is loading correctly
-    // window.webContents.openDevTools();
-  }, 2000);
-
-  // Hide window when clicking outside
+  window.loadURL('http://localhost:3000');
+  
   window.on('blur', () => {
     window.hide();
   });
-}
 
-app.whenReady().then(() => {
-  createWindow();
+  // Create tray
+  const image = nativeImage.createEmpty();
+  tray = new Tray(image);
+  tray.setTitle('MB');
   
-  // Create the menu bar icon
-  const iconPath = path.join(__dirname, 'icon.png');
-  console.log('Loading icon from:', iconPath); // Add this to debug
-  tray = new Tray(iconPath);
-  tray.setToolTip('MoodBooMs');
-
-  // Show window when clicking the icon
-  tray.on('click', (event, bounds) => {
+  tray.on('click', () => {
     if (window.isVisible()) {
       window.hide();
     } else {
-      const { x, y } = bounds;
-      window.setPosition(x - 160, y);
+      const bounds = tray.getBounds();
+      window.setPosition(bounds.x - 190, bounds.y + bounds.height);
       window.show();
     }
   });
 });
 
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit();
-  }
-});
+// Keep the app running
+setInterval(() => {}, 1000);

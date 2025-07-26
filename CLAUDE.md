@@ -198,3 +198,76 @@ npm run electron-dev
 - Uses node integration enabled (security consideration for future updates)
 - Always prefer editing existing files over creating new ones
 - Keep the codebase simple and maintainable
+
+## Debugging Electron Menubar on macOS 15.5 (Sequoia)
+
+### CRITICAL ISSUES AND SOLUTIONS:
+
+1. **Tray Icon Loading Failures**
+   - **Problem**: Standard icon loading crashes with "invalid icon" errors
+   - **Solution**: Use empty image with text instead
+   ```javascript
+   const image = nativeImage.createEmpty();
+   tray = new Tray(image);
+   tray.setTitle('MB'); // Use text instead of icon
+   ```
+
+2. **Electron Version Crashes**
+   - **Problem**: Electron 37.x crashes after ~10 seconds
+   - **Solution**: Use Electron 28.3.3 for stability
+   ```bash
+   npm install electron@28.3.3 --save-dev
+   ```
+
+3. **Window Resize Crashes**
+   - **Problem**: Any resize operation causes immediate crash
+   - **Solution**: Disable ALL resize options
+   ```javascript
+   window = new BrowserWindow({
+     resizable: false,
+     minimizable: false,
+     maximizable: false,
+     fullscreenable: false
+   });
+   ```
+
+4. **App Timeout Issues**
+   - **Problem**: App quits after command timeout
+   - **Solution**: Add keep-alive interval
+   ```javascript
+   setInterval(() => {}, 1000);
+   ```
+
+### Working Menubar Configuration:
+```javascript
+// Minimal working setup for macOS 15.5
+app.dock.hide(); // Hide dock icon
+
+const window = new BrowserWindow({
+  width: 380,
+  height: 520,
+  show: false,
+  frame: false,
+  resizable: false,
+  webPreferences: {
+    nodeIntegration: false,
+    contextIsolation: true
+  }
+});
+
+const image = nativeImage.createEmpty();
+const tray = new Tray(image);
+tray.setTitle('MB');
+```
+
+### Failed Approaches (Don't Use):
+- Tauri framework - icon loading issues
+- menubar npm package - incompatible versions
+- PNG/template icons - cause crashes
+- Electron 37.x - timeout crashes
+
+# important-instruction-reminders
+Do what has been asked; nothing more, nothing less.
+NEVER create files unless they're absolutely necessary for achieving your goal.
+ALWAYS prefer editing an existing file to creating a new one.
+NEVER proactively create documentation files (*.md) or README files. Only create documentation files if explicitly requested by the User.
