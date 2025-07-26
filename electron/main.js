@@ -2,9 +2,13 @@ const { app, BrowserWindow, ipcMain, session } = require('electron');
 const TrayManager = require('./trayManager');
 const { initializeIpcHandlers } = require('./ipcHandlers');
 const { applyCSPToSession } = require('./csp-config');
+const { applySecuritySettings, setupAppSecurity, applySecurityHeaders, verifyWindowSecurity } = require('./security-config');
 
 let window = null;
 let trayManager = null;
+
+// Set up app-wide security policies
+setupAppSecurity();
 
 // Hide dock icon
 app.dock.hide();
@@ -24,19 +28,28 @@ app.whenReady().then(() => {
   // Apply Content Security Policy to the default session
   applyCSPToSession(session.defaultSession);
   
-  // Create window
-  window = new BrowserWindow({
+  // Apply additional security headers
+  applySecurityHeaders(session.defaultSession);
+  
+  // Create window with security settings
+  const windowOptions = applySecuritySettings({
     width: 380,
     height: 520,
     show: false,
     frame: false,
     resizable: false,
     webPreferences: {
-      nodeIntegration: false,
-      contextIsolation: true,
       preload: __dirname + '/preload.js'
     }
   });
+  
+  window = new BrowserWindow(windowOptions);
+  
+  // Verify window security
+  const securityCheck = verifyWindowSecurity(window);
+  if (!securityCheck.secure) {
+    console.error('Window security violations:', securityCheck.violations);
+  }
 
   window.loadURL('http://localhost:3000');
   

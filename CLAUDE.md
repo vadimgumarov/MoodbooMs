@@ -14,6 +14,15 @@ The app uses a secure Electron architecture with:
 - **Preload Script**: Provides secure APIs via contextBridge
 - **IPC Communication**: All main process functionality accessed through defined channels
 - **Content Security Policy (CSP)**: Strict policies prevent XSS attacks
+- **Security Verification**: Runtime checks ensure security settings
+
+### Security Configuration
+- All windows created with enforced security settings
+- Navigation restricted to allowed origins only
+- Additional security headers (X-Frame-Options, etc.)
+- Remote module disabled
+- WebView tag disabled
+- See `electron/SECURITY_DOCUMENTATION.md` for details
 
 ### Content Security Policy
 - Production: Restrictive policy allowing only self-hosted resources
