@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Sun, CloudSun, Cloud, CloudRain, CloudLightning, Tornado, Heart, Coffee, Candy, IceCream, Cookie } from 'lucide-react';
+import { Sun, CloudSun, Cloud, CloudRain, CloudLightning, Tornado, Heart, Coffee, Candy, IceCream, Cookie, Settings, AlertCircle } from 'lucide-react';
 import Calendar from './Calendar';
 import PhaseDetail from './PhaseDetail';
 import HistoryView from './HistoryView';
 import StatusCard from './StatusCard';
+import SettingsPanel from './SettingsPanel';
 import { createCycleRecord, completeCycleRecord, addCycleToHistory } from '../utils/cycleHistory';
 import { calculateCurrentDay, getCurrentPhase } from '../utils/cycleCalculations';
 
@@ -131,9 +132,13 @@ const MenuBarApp = () => {
   const [testMode, setTestMode] = useState(false);
   const [testDays, setTestDays] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('mood'); // 'mood', 'calendar', or 'history'
+  const [activeTab, setActiveTab] = useState('mood'); // 'mood', 'calendar', 'history', or 'settings'
   const [selectedDate, setSelectedDate] = useState(null);
   const [cycleHistory, setCycleHistory] = useState([]);
+  const [preferences, setPreferences] = useState({
+    notifications: true,
+    theme: 'auto'
+  });
 
   // Load saved data on mount
   useEffect(() => {
@@ -170,8 +175,11 @@ const MenuBarApp = () => {
             await window.electronAPI.store.set('cycleHistory', initialCycle);
           }
           
-          if (savedPreferences?.testMode !== undefined) {
-            setTestMode(savedPreferences.testMode);
+          if (savedPreferences) {
+            setPreferences(savedPreferences);
+            if (savedPreferences.testMode !== undefined) {
+              setTestMode(savedPreferences.testMode);
+            }
           }
         } catch (error) {
           console.error('Error loading saved data:', error);
@@ -234,6 +242,41 @@ const MenuBarApp = () => {
       }
     }
   };
+
+  // Handle settings save
+  const handleSettingsSave = async (newData) => {
+    const { cycleData: newCycleData, preferences: newPreferences } = newData;
+    
+    // Update cycle data
+    setCycleData(newCycleData);
+    setPreferences(newPreferences);
+    
+    // Update test mode state
+    if (newPreferences.testMode !== undefined) {
+      setTestMode(newPreferences.testMode);
+      // Reset test days if test mode is disabled
+      if (!newPreferences.testMode) {
+        setTestDays(0);
+      }
+    }
+    
+    // Save to store
+    if (window.electronAPI && window.electronAPI.store) {
+      try {
+        await window.electronAPI.store.set('cycleData', {
+          startDate: newCycleData.startDate.toISOString(),
+          cycleLength: newCycleData.cycleLength
+        });
+        await window.electronAPI.store.set('preferences', newPreferences);
+      } catch (error) {
+        console.error('Error saving settings:', error);
+      }
+    }
+    
+    // Go back to mood tab
+    setActiveTab('mood');
+  };
+
 
   const handlePeriodStart = async (date = new Date()) => {
     // Complete the current cycle if exists
@@ -368,6 +411,16 @@ const MenuBarApp = () => {
           >
             History
           </button>
+          <button
+            onClick={() => setActiveTab('settings')}
+            className={`py-2 px-3 rounded-md transition-colors text-sm ${
+              activeTab === 'settings' 
+                ? 'bg-white shadow-sm' 
+                : 'hover:bg-gray-200'
+            }`}
+          >
+            <Settings className="w-4 h-4" />
+          </button>
         </div>
 
         {activeTab === 'mood' ? (
@@ -399,32 +452,14 @@ const MenuBarApp = () => {
             />
           </div>
 
-          <div className="flex items-center gap-2">
-            <span>Cycle Length:</span>
-            <input
-              type="number"
-              min="21"
-              max="35"
-              value={cycleData.cycleLength}
-              onChange={(e) => handleLengthChange(parseInt(e.target.value))}
-              className="w-16 p-2 border rounded"
-            />
-            <span>days</span>
-          </div>
-
-          <div className="mt-4 p-3 bg-gray-100 rounded">
-            <div className="flex items-center gap-2 mb-2">
-              <input
-                type="checkbox"
-                checked={testMode}
-                onChange={(e) => handleTestModeChange(e.target.checked)}
-                className="rounded"
-              />
-              <span>Test Mode</span>
-            </div>
-            
-            {testMode && (
+          {testMode && (
+            <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded">
+              <div className="flex items-center gap-2 mb-2">
+                <AlertCircle className="w-4 h-4 text-amber-600" />
+                <span className="text-sm font-medium text-amber-700">Test Mode Active</span>
+              </div>
               <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-600">Test Day:</span>
                 <input
                   type="range"
                   min="0"
@@ -433,10 +468,14 @@ const MenuBarApp = () => {
                   onChange={(e) => setTestDays(parseInt(e.target.value))}
                   className="flex-1"
                 />
-                <span className="w-8 text-right">{testDays}d</span>
+                <span className="w-8 text-right text-sm font-medium">{testDays}</span>
               </div>
-            )}
-          </div>
+              <p className="text-xs text-gray-500 mt-1">
+                Showing day {testDays} of your cycle (actual: day {calculateCurrentDay(cycleData.startDate, new Date())})
+              </p>
+            </div>
+          )}
+
         </div>
         ) : activeTab === 'calendar' ? (
           <div className="space-y-4">
@@ -466,6 +505,13 @@ const MenuBarApp = () => {
             cycleHistory={cycleHistory}
             currentCycleStart={cycleData.startDate}
             onPeriodStart={handlePeriodStart}
+          />
+        ) : activeTab === 'settings' ? (
+          <SettingsPanel
+            cycleData={cycleData}
+            preferences={preferences}
+            onSave={handleSettingsSave}
+            onCancel={() => setActiveTab('mood')}
           />
         ) : null}
       </div>
