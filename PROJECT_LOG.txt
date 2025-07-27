@@ -1,6 +1,18 @@
 PROJECT WORK LOG - MoodBooMs
 ===================================
 
+2025-07-27 14:27: Issue #60 completed - BadAss toggle implemented in app header
+------------------------------------------------------------------------------
+Implemented toggle switch to switch between Professional and BadAss modes:
+
+✅ Added toggle in app header next to "MoodBooMs" title
+✅ Professional mode shows medical terminology (Menstruation, Follicular Phase, etc.)
+✅ BadAss mode shows humorous phrases (Bloody Hell Week, Horny AF, etc.)
+✅ Fixed app crashes with 300ms debounce on phase updates
+✅ Toggle state persists via electron-store
+
+Changed approach from mode selection screen to simple toggle per user feedback.
+
 2025-07-27 12:32: Completed Epic #19 - User Settings & Preferences
 ------------------------------------------------------------------
 Implemented simplified settings panel focused on essential features:
