@@ -64,6 +64,8 @@ function initializeIpcHandlers(ipcMain, mainWindow, trayManager) {
           return storeOperations.getPreferences();
         case 'appState':
           return storeOperations.getAppState();
+        case 'cycleHistory':
+          return storeOperations.getCycleHistory();
         default:
           return storeOperations.get(key);
       }
@@ -81,8 +83,8 @@ function initializeIpcHandlers(ipcMain, mainWindow, trayManager) {
           return storeOperations.setCycleData(value);
         case 'preferences':
           return storeOperations.setPreferences(value);
-        case 'cycleData.history':
-          return storeOperations.addCycleHistory(value);
+        case 'cycleHistory':
+          return storeOperations.addCycleToHistory(value);
         default:
           return storeOperations.set(key, value);
       }
