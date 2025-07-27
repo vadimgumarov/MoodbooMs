@@ -4,7 +4,7 @@
 MoodBooMs is a discreet, professional fertility tracking application that lives in your menu bar. It provides at-a-glance cycle information with a calendar view, safety indicators, and personalized insights.
 
 ## Features
-- 🎯 **Dynamic Menu Bar Icon** - Weather-themed icons that change based on cycle phase (sunny to stormy)
+- 🎯 **Dynamic Menu Bar Icon** - Weather-themed icons that change based on cycle phase (✅ Implemented)
 - 📅 **Interactive Calendar View** - Month view with color-coded fertility days (✅ Implemented)
 - 📊 **Cycle History & Statistics** - Track patterns, averages, and predictions (✅ Implemented)
 - 🌡️ **Fertility Tracking** - Accurate phase detection with percentage calculations (✅ Implemented)
@@ -209,8 +209,39 @@ npm test
 
 # Build for production
 npm run build
-npm run electron-pack
+
+# Run Electron with production build
+npm run electron
+
+# Clean launch menu app (kills existing instances)
+./scripts/launch-menu.sh
+
+# Check if menu is running
+npm run check
 ```
+
+## Troubleshooting
+
+### Production Build Issues
+
+1. **Empty window in production**
+   - Ensure `"homepage": "./"` is in package.json
+   - Run `npm run build` before `npm run electron`
+
+2. **GPU Process Crashes (macOS)**
+   - Hardware acceleration is automatically disabled
+   - If crashes persist, check logs in `logs/` directory
+
+3. **Icons not updating**
+   - Check `logs/phase-updates-*.log` for phase changes
+   - Verify IPC communication in `logs/electron-*.log`
+
+### Log Files
+All logs are stored in the `logs/` directory:
+- `electron-*.log` - Main process logs
+- `app-*.log` - React app logs  
+- `phase-updates-*.log` - Icon update logs
+- `menu-*.log` - Full menu app output
 
 ## Contributing
 Please read our contributing guidelines before submitting PRs.

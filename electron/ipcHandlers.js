@@ -2,6 +2,22 @@ const { app, dialog, nativeTheme, Notification } = require('electron');
 const os = require('os');
 const { storeOperations } = require('./store');
 const { handleCSPViolation } = require('./csp-config');
+const fs = require('fs');
+const path = require('path');
+
+// Log phase updates to file
+function logPhaseUpdate(phase, source = 'unknown') {
+  const logDir = path.join(__dirname, '..', 'logs');
+  const logFile = path.join(logDir, `phase-updates-${new Date().toISOString().split('T')[0]}.log`);
+  const timestamp = new Date().toISOString();
+  const logEntry = `[${timestamp}] Phase update: "${phase}" from ${source}\n`;
+  
+  if (!fs.existsSync(logDir)) {
+    fs.mkdirSync(logDir, { recursive: true });
+  }
+  
+  fs.appendFileSync(logFile, logEntry);
+}
 
 // This module sets up all IPC handlers for the main process
 
@@ -13,10 +29,27 @@ function initializeIpcHandlers(ipcMain, mainWindow, trayManager) {
   });
   // Tray/Icon Management
   ipcMain.on('phase-update', (event, phase) => {
-    console.log('Received phase update:', phase);
-    if (trayManager) {
-      trayManager.updateIcon(phase);
-      trayManager.updateTooltip(`MoodBooMs - ${phase}`);
+    console.log(`=== PHASE UPDATE RECEIVED: "${phase}" ===`);
+    console.log('IPC event details:', { 
+      senderFrame: event.senderFrame?.url,
+      processId: event.processId,
+      frameId: event.frameId 
+    });
+    
+    // Log to file
+    const source = event.senderFrame?.url?.includes('file://') ? 'production' : 'development';
+    logPhaseUpdate(phase, source);
+    
+    try {
+      if (trayManager) {
+        trayManager.updateIcon(phase);
+        trayManager.updateTooltip(`MoodBooMs - ${phase}`);
+      } else {
+        console.error('ERROR: trayManager is null');
+      }
+    } catch (error) {
+      console.error('ERROR in phase-update handler:', error.message);
+      console.error('Stack:', error.stack);
     }
   });
 
@@ -178,6 +211,20 @@ function initializeIpcHandlers(ipcMain, mainWindow, trayManager) {
   ipcMain.on('app-restart', () => {
     app.relaunch();
     app.quit();
+  });
+  ipcMain.on('app-log', (event, message) => {
+    const logDir = path.join(__dirname, '..', 'logs');
+    const logFile = path.join(logDir, `app-${new Date().toISOString().split('T')[0]}.log`);
+    const timestamp = new Date().toISOString();
+    const logEntry = `[${timestamp}] ${message}\n`;
+    
+    console.log(`App log: ${message}`);
+    
+    if (!fs.existsSync(logDir)) {
+      fs.mkdirSync(logDir, { recursive: true });
+    }
+    
+    fs.appendFileSync(logFile, logEntry);
   });
 
   ipcMain.handle('app-get-path', (event, name) => {

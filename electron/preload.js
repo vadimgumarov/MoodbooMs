@@ -79,7 +79,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
     getVersion: () => ipcRenderer.invoke('app-get-version'),
     quit: () => ipcRenderer.send('app-quit'),
     restart: () => ipcRenderer.send('app-restart'),
-    getPath: (name) => ipcRenderer.invoke('app-get-path', name)
+    getPath: (name) => ipcRenderer.invoke('app-get-path', name),
+    log: (message) => ipcRenderer.send('app-log', message)
   },
 
   // Dialog Operations (for data export/import)
