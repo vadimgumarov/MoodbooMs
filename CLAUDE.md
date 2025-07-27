@@ -401,6 +401,75 @@ npm run electron-dev
 - Always prefer editing existing files over creating new ones
 - Keep the codebase simple and maintainable
 
+## App Crashes and Debugging
+
+### Common Crash Scenarios
+
+1. **Exit Code 15 (SIGTERM)**
+   - **Symptom**: App starts but crashes shortly after with "Exit Code: 15"
+   - **Cause**: Process is being terminated, often due to:
+     - Memory issues
+     - Infinite loops in React components
+     - Rapid state updates causing re-render loops
+     - IPC communication errors
+   - **Debugging Steps**:
+     - Check electron logs: `logs/electron-YYYY-MM-DD.log`
+     - Check app logs: `logs/app-YYYY-MM-DD.log`
+     - Look for rapid repeated log entries indicating loops
+     - Enable DevTools: Uncomment `window.webContents.openDevTools()` in main.js
+
+2. **ERR_CONNECTION_REFUSED**
+   - **Symptom**: Electron can't connect to React dev server
+   - **Cause**: React dev server not running or not ready
+   - **Solution**: Ensure `npm start` is running before `npm run electron-dev`
+
+3. **Renderer Process Crashes**
+   - **Symptom**: Window becomes unresponsive or disappears
+   - **Common Causes**:
+     - React errors (check console)
+     - Memory leaks from event listeners
+     - Uncaught promises
+   - **Debug**: Check both Electron and browser console logs
+
+### Debugging Tools
+
+1. **Enable DevTools in Development**
+   ```javascript
+   // In main.js, uncomment:
+   window.webContents.openDevTools();
+   ```
+
+2. **Check All Log Files**
+   - `logs/electron-YYYY-MM-DD.log` - Main process logs
+   - `logs/app-YYYY-MM-DD.log` - Renderer process logs
+   - `/tmp/app-dev.log` - Real-time development logs
+
+3. **Process Monitoring**
+   ```bash
+   # Check if processes are running
+   ps aux | grep -E "electron|npm|node" | grep -v grep
+   
+   # Kill all app processes
+   pkill -f "npm run dev" || pkill -f "electron" || true
+   ```
+
+### Preventing Crashes
+
+1. **Avoid Rapid State Updates**
+   - Use debouncing for frequent updates
+   - Check useEffect dependencies to prevent loops
+   - Use React.memo for expensive components
+
+2. **Handle Errors Properly**
+   - Add error boundaries in React
+   - Handle Promise rejections
+   - Validate IPC messages
+
+3. **Monitor Performance**
+   - Use React DevTools Profiler
+   - Check for memory leaks
+   - Limit concurrent operations
+
 ## Production Build & Deployment
 
 ### Building for Production
