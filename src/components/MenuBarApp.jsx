@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Sun, CloudSun, Cloud, CloudRain, CloudLightning, Tornado, Heart, Coffee, Candy, IceCream, Cookie, Settings, AlertCircle, Soup, Apple, Fish, Salad, Milk, Cherry, Wheat, Carrot, Egg, Nut, Banana } from 'lucide-react';
+import { Sun, CloudSun, Cloud, CloudRain, CloudLightning, Tornado, Heart, Coffee, Candy, IceCream, Cookie, Settings, AlertCircle, Soup, Apple, Fish, Salad, Milk, Cherry, Wheat, Carrot, Egg, Nut, Banana, X } from 'lucide-react';
 import Calendar from './Calendar';
 import PhaseDetail from './PhaseDetail';
 import HistoryView from './HistoryView';
@@ -225,7 +225,6 @@ const MenuBarApp = () => {
         // Get mood and craving from content system
         const mode = preferences.badassMode ? 'king' : 'queen';
         const phaseKey = getPhaseKey(phase.phase);
-        console.log('Mode:', mode, 'BadassMode:', preferences.badassMode, 'PhaseKey:', phaseKey);
         const mood = getRandomPhrase(mode, phaseKey, 'moods');
         const craving = getRandomPhrase(mode, phaseKey, 'cravings');
         
@@ -404,9 +403,10 @@ const MenuBarApp = () => {
       <div className="p-4">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold">MoodBooMs</h2>
-          {/* Queen/King Mode Toggle */}
-          <label className="flex items-center gap-2 cursor-pointer">
-            <span className="text-xs text-gray-600">{preferences.badassMode ? 'King' : 'Queen'}</span>
+          <div className="flex items-center gap-3">
+            {/* Queen/King Mode Toggle */}
+            <label className="flex items-center gap-2 cursor-pointer">
+              <span className="text-xs text-gray-600">{preferences.badassMode ? 'King' : 'Queen'}</span>
             <div className="relative">
               <input
                 type="checkbox"
@@ -436,6 +436,19 @@ const MenuBarApp = () => {
               }`}></div>
             </div>
           </label>
+          {/* Close Button */}
+          <button
+            onClick={() => {
+              if (window.electronAPI && window.electronAPI.app) {
+                window.electronAPI.app.quit();
+              }
+            }}
+            className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+            title="Quit MoodBooMs"
+          >
+            <X className="w-4 h-4" />
+          </button>
+          </div>
         </div>
 
         {/* Tab Navigation */}
