@@ -21,15 +21,31 @@ const schema = {
         items: {
           type: 'object',
           properties: {
+            id: { type: 'string' },
             startDate: { type: 'string' },
-            length: { 
+            cycleLength: { 
               type: 'number',
               minimum: 21,
               maximum: 35
             },
-            notes: { type: 'string' }
+            actualLength: { 
+              type: ['number', 'null'],
+              minimum: 1,
+              maximum: 60
+            },
+            endDate: { type: ['string', 'null'] },
+            notes: { 
+              type: 'object',
+              default: {}
+            },
+            symptoms: { 
+              type: 'object',
+              default: {}
+            },
+            createdAt: { type: 'string' },
+            completedAt: { type: ['string', 'null'] }
           },
-          required: ['startDate', 'length']
+          required: ['id', 'startDate', 'cycleLength', 'createdAt']
         }
       }
     }
@@ -154,24 +170,48 @@ const storeOperations = {
   },
   
   // History operations
-  addCycleHistory: (entry) => {
-    if (!entry.startDate || !entry.length) {
-      throw new Error('History entry must have startDate and length');
+  getCycleHistory: () => store.get('cycleData.history', []),
+  
+  addCycleToHistory: (cycleRecord) => {
+    if (!cycleRecord.id || !cycleRecord.startDate || !cycleRecord.cycleLength) {
+      throw new Error('Cycle record must have id, startDate and cycleLength');
     }
     
     const history = store.get('cycleData.history', []);
-    history.push({
-      ...entry,
-      addedAt: new Date().toISOString()
-    });
     
-    // Keep only last 12 cycles
-    if (history.length > 12) {
-      history.shift();
+    // Check if cycle already exists
+    const existingIndex = history.findIndex(cycle => cycle.id === cycleRecord.id);
+    if (existingIndex >= 0) {
+      // Update existing cycle
+      history[existingIndex] = cycleRecord;
+    } else {
+      // Add new cycle
+      history.push(cycleRecord);
+    }
+    
+    // Sort by start date (newest first)
+    history.sort((a, b) => new Date(b.startDate) - new Date(a.startDate));
+    
+    // Keep only last 24 cycles
+    if (history.length > 24) {
+      history.pop();
     }
     
     store.set('cycleData.history', history);
     return true;
+  },
+  
+  updateCycleInHistory: (cycleId, updates) => {
+    const history = store.get('cycleData.history', []);
+    const cycleIndex = history.findIndex(cycle => cycle.id === cycleId);
+    
+    if (cycleIndex === -1) {
+      throw new Error(`Cycle with id ${cycleId} not found`);
+    }
+    
+    history[cycleIndex] = { ...history[cycleIndex], ...updates };
+    store.set('cycleData.history', history);
+    return history[cycleIndex];
   },
   
   // Delete operations

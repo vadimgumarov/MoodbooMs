@@ -1,0 +1,213 @@
+import React from 'react';
+import { format, differenceInDays } from 'date-fns';
+import { 
+  Calendar, 
+  TrendingUp, 
+  Activity,
+  AlertCircle,
+  BarChart2
+} from 'lucide-react';
+import { 
+  calculateCycleStatistics, 
+  getRecentCycles,
+  predictNextCycleStart 
+} from '../../utils/cycleHistory';
+
+const HistoryView = ({ cycleHistory, currentCycleStart, onPeriodStart }) => {
+  const stats = calculateCycleStatistics(cycleHistory);
+  const recentCycles = getRecentCycles(cycleHistory, 6);
+  const nextPredicted = currentCycleStart ? 
+    predictNextCycleStart(cycleHistory, currentCycleStart) : null;
+
+  const getRegularityColor = (regularity) => {
+    switch (regularity) {
+      case 'very-regular':
+        return 'text-green-600';
+      case 'regular':
+        return 'text-green-500';
+      case 'somewhat-irregular':
+        return 'text-yellow-600';
+      case 'irregular':
+        return 'text-red-600';
+      default:
+        return 'text-gray-600';
+    }
+  };
+
+  const getRegularityText = (regularity) => {
+    switch (regularity) {
+      case 'very-regular':
+        return 'Very Regular';
+      case 'regular':
+        return 'Regular';
+      case 'somewhat-irregular':
+        return 'Somewhat Irregular';
+      case 'irregular':
+        return 'Irregular';
+      default:
+        return 'Calculating...';
+    }
+  };
+
+  return (
+    <div className="p-4 space-y-4">
+      {/* Statistics Overview */}
+      <div className="bg-gray-50 rounded-lg p-4">
+        <h3 className="text-lg font-semibold mb-3 flex items-center">
+          <BarChart2 className="w-5 h-5 mr-2" />
+          Cycle Statistics
+        </h3>
+        
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <p className="text-sm text-gray-600">Average Length</p>
+            <p className="text-xl font-medium">
+              {stats.averageLength || '--'} days
+            </p>
+          </div>
+          
+          <div>
+            <p className="text-sm text-gray-600">Regularity</p>
+            <p className={`text-lg font-medium ${getRegularityColor(stats.cycleRegularity)}`}>
+              {getRegularityText(stats.cycleRegularity)}
+            </p>
+          </div>
+          
+          <div>
+            <p className="text-sm text-gray-600">Shortest Cycle</p>
+            <p className="text-lg">
+              {stats.shortestCycle || '--'} days
+            </p>
+          </div>
+          
+          <div>
+            <p className="text-sm text-gray-600">Longest Cycle</p>
+            <p className="text-lg">
+              {stats.longestCycle || '--'} days
+            </p>
+          </div>
+        </div>
+
+        {stats.completedCycles > 0 && (
+          <div className="mt-3 pt-3 border-t">
+            <p className="text-sm text-gray-600">
+              Based on {stats.completedCycles} completed cycles
+              {stats.standardDeviation && ` (±${stats.standardDeviation} days)`}
+            </p>
+          </div>
+        )}
+      </div>
+
+      {/* Next Period Prediction */}
+      {nextPredicted && currentCycleStart && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div className="flex items-start space-x-2">
+            <TrendingUp className="w-5 h-5 text-blue-600 mt-0.5" />
+            <div className="flex-1">
+              <p className="text-sm font-medium text-blue-900">Next Period Prediction</p>
+              <p className="text-lg text-blue-800">
+                {format(nextPredicted, 'MMMM d, yyyy')}
+              </p>
+              <p className="text-xs text-blue-700 mt-1">
+                In {differenceInDays(nextPredicted, new Date())} days
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Recent Cycles */}
+      <div>
+        <h3 className="text-lg font-semibold mb-3 flex items-center">
+          <Calendar className="w-5 h-5 mr-2" />
+          Recent Cycles
+        </h3>
+        
+        {recentCycles.length === 0 ? (
+          <div className="text-center py-8 text-gray-500">
+            <Activity className="w-12 h-12 mx-auto mb-2 opacity-50" />
+            <p>No cycle history yet</p>
+            <p className="text-sm mt-1">Your cycles will appear here as you track them</p>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {recentCycles.map((cycle, index) => {
+              const startDate = new Date(cycle.startDate);
+              const isCurrentCycle = index === 0 && !cycle.actualLength;
+              
+              return (
+                <div 
+                  key={cycle.id}
+                  className={`p-3 rounded-lg border ${
+                    isCurrentCycle ? 'bg-green-50 border-green-200' : 'bg-white border-gray-200'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-medium">
+                        {format(startDate, 'MMM d, yyyy')}
+                        {isCurrentCycle && (
+                          <span className="ml-2 text-xs bg-green-600 text-white px-2 py-1 rounded">
+                            Current
+                          </span>
+                        )}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        {cycle.actualLength ? 
+                          `${cycle.actualLength} days` : 
+                          `Day ${differenceInDays(new Date(), startDate) + 1}`
+                        }
+                      </p>
+                    </div>
+                    
+                    {cycle.actualLength && cycle.actualLength !== cycle.cycleLength && (
+                      <div className="text-right">
+                        <p className="text-xs text-gray-500">
+                          Expected: {cycle.cycleLength} days
+                        </p>
+                        <p className={`text-xs font-medium ${
+                          Math.abs(cycle.actualLength - cycle.cycleLength) > 5 ? 
+                            'text-red-600' : 'text-yellow-600'
+                        }`}>
+                          {cycle.actualLength > cycle.cycleLength ? '+' : ''}
+                          {cycle.actualLength - cycle.cycleLength} days
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* Show notes or symptoms if any */}
+                  {(Object.keys(cycle.notes || {}).length > 0 || 
+                    Object.keys(cycle.symptoms || {}).length > 0) && (
+                    <div className="mt-2 pt-2 border-t text-xs text-gray-600">
+                      <AlertCircle className="w-3 h-3 inline mr-1" />
+                      {Object.keys(cycle.notes || {}).length} notes, 
+                      {' '}{Object.keys(cycle.symptoms || {}).length} symptom entries
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* Mark New Period Button */}
+      {cycleHistory.length > 0 && (
+        <div className="pt-4">
+          <button
+            onClick={onPeriodStart}
+            className="w-full py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors font-medium"
+          >
+            Mark New Period Start
+          </button>
+          <p className="text-xs text-gray-500 text-center mt-2">
+            Use this when your period starts earlier or later than expected
+          </p>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default HistoryView;
