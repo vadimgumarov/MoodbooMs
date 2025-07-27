@@ -77,26 +77,36 @@ npm test -- --testNamePattern="test name"
 The application consists of:
 
 1. **Electron Layer** (`electron/main.js`):
-   - Creates a frameless 320x450 window
+   - Creates a frameless 420x650 window (expanded for calendar view)
    - Manages system tray icon and click behavior
    - Loads React app from localhost:3000 in development
+   - Secure IPC communication with contextBridge
 
 2. **React Application** (`src/`):
    - Main component: `MenuBarApp.jsx` - handles cycle tracking logic
+   - Calendar component with fertility visualization
+   - History tracking with statistics
+   - PhaseDetail component for selected date information
    - Uses Tailwind CSS for styling
    - Lucide React for icons
+   - date-fns for date calculations
 
 3. **Data Persistence** (`electron/store.js`):
    - Uses electron-store@8.1.0 for secure data storage
-   - Stores cycle data, preferences, and app state
+   - Stores cycle data, preferences, app state, and cycle history
    - Validates data before saving
    - Supports data export/import functionality
+   - Enhanced schema for cycle history tracking
 
 4. **Key Features**:
    - Tracks 6 menstrual cycle phases with humorous messages
+   - Interactive calendar with fertility color coding
+   - Cycle history tracking with statistics and predictions
+   - Phase detection with fertility percentages
    - Allows cycle start date and length customization (21-35 days)
    - Test mode for previewing different cycle days
    - Random mood messages and food cravings per phase
+   - Period start adjustment for irregular cycles
    - Persistent data storage across app sessions
 
 ## Project Structure
@@ -112,7 +122,15 @@ The application consists of:
 │   ├── iconGeneratorLucide.js # Dynamic icon generation
 │   └── package.json      # Electron-specific dependencies
 ├── /src                  # React application
-│   └── /components       # React components
+│   ├── /components       # React components
+│   │   ├── MenuBarApp.jsx    # Main app component
+│   │   ├── /Calendar         # Calendar with fertility colors
+│   │   ├── /HistoryView      # Cycle history and statistics
+│   │   └── /PhaseDetail      # Detailed phase information
+│   └── /utils            # Utility modules
+│       ├── cycleCalculations.js  # Core cycle math
+│       ├── phaseDetection.js     # Fertility detection
+│       └── cycleHistory.js       # History management
 ├── /tests                # All test files
 │   ├── /electron        # Electron-specific tests
 │   ├── /unit           # Unit tests
@@ -511,6 +529,45 @@ Do what has been asked; nothing more, nothing less.
 NEVER create files unless they're absolutely necessary for achieving your goal.
 ALWAYS prefer editing an existing file to creating a new one.
 NEVER proactively create documentation files (*.md) or README files. Only create documentation files if explicitly requested by the User.
+
+## Cycle Calculations and Fertility Tracking
+
+### Cycle Phases
+The app tracks 6 phases with medical accuracy:
+1. **Menstrual** (Days 1-5): "Bloody Hell Week"
+2. **Follicular** (Days 6-13): "Finally Got My Sh*t Together"
+3. **Ovulation** (Days 14-16): "Horny AF"
+4. **Early Luteal** (Days 17-20): "Getting Real Tired of This BS"
+5. **Late Luteal** (Days 21-24): "Pre-Chaos Mood Swings"
+6. **PMS** (Days 25-28): "Apocalypse Countdown"
+
+### Fertility Levels
+- **Very High** (85-100%): Days 13-15 (peak ovulation)
+- **High** (60-85%): Days 11-12, 16
+- **Medium** (30-60%): Days 9-10, 17-18
+- **Low** (10-30%): Days 6-8, 19-23
+- **Very Low** (0-10%): Days 1-5, 24-28
+
+### Calendar Color Coding
+- Red: Menstruation (very low fertility)
+- Yellow: Low fertility
+- Gray: Medium fertility
+- Light Green: High fertility
+- Dark Green: Peak fertility (ovulation)
+
+### Cycle History Features
+- Tracks actual vs expected cycle lengths
+- Calculates average cycle length
+- Determines cycle regularity (very regular to irregular)
+- Predicts next period based on history
+- Allows period start adjustment for irregular cycles
+
+### Testing Coverage
+- 85+ tests across all cycle features
+- Unit tests for calculations
+- Component tests for UI
+- Integration tests for data flow
+- All tests use Jest and React Testing Library
 
 ## Time Zone and Logging
 - ALWAYS use the system's current time when creating log entries
