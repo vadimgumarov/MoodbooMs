@@ -1,35 +1,70 @@
 const { Tray, nativeImage } = require('electron');
-const IconGeneratorLucide = require('./iconGeneratorLucide');
+const { getIconForPhase } = require('./iconFromPNG');
 
 class TrayManager {
   constructor() {
     this.tray = null;
     this.window = null;
-    this.iconGenerator = new IconGeneratorLucide();
     this.currentPhase = null;
   }
 
   // Initialize tray with window reference
   init(window) {
+    console.log('TrayManager.init() called');
     this.window = window;
     
-    // Create initial tray with default icon
-    const defaultIcon = this.iconGenerator.generateIcon('default');
-    this.tray = new Tray(defaultIcon);
-    
-    // Set tooltip
-    this.tray.setToolTip('MoodBooMs');
+    try {
+      // Create initial tray with default icon
+      console.log('Loading default PNG icon...');
+      const defaultIcon = getIconForPhase('default');
+      console.log('Default icon loaded, creating Tray...');
+      this.tray = new Tray(defaultIcon);
+      console.log('Tray created successfully');
+      
+      // Set tooltip
+      this.tray.setToolTip('MoodBooMs');
+      console.log('Tooltip set');
+    } catch (error) {
+      console.error('ERROR in TrayManager.init():', error.message);
+      console.error('Stack:', error.stack);
+      throw error;
+    }
     
     // Set up click handler
     this.tray.on('click', () => {
-      if (this.window) {
-        if (this.window.isVisible()) {
-          this.window.hide();
+      console.log('Tray clicked');
+      try {
+        if (this.window) {
+          if (this.window.isDestroyed()) {
+            console.error('ERROR: Window has been destroyed');
+            return;
+          }
+          
+          if (this.window.isVisible()) {
+            console.log('Window is visible, hiding...');
+            this.window.hide();
+          } else {
+            console.log('Window is hidden, showing...');
+            const bounds = this.tray.getBounds();
+            console.log('Tray bounds:', bounds);
+            
+            // Ensure window positioning is within screen bounds
+            const x = Math.max(0, bounds.x - 190);
+            const y = bounds.y + bounds.height;
+            
+            console.log(`Setting window position to x:${x}, y:${y}`);
+            this.window.setPosition(x, y);
+            
+            console.log('Showing window...');
+            this.window.show();
+            console.log('Window shown');
+          }
         } else {
-          const bounds = this.tray.getBounds();
-          this.window.setPosition(bounds.x - 190, bounds.y + bounds.height);
-          this.window.show();
+          console.error('ERROR: this.window is null in click handler');
         }
+      } catch (error) {
+        console.error('ERROR in tray click handler:', error.message);
+        console.error('Stack:', error.stack);
       }
     });
     
@@ -38,29 +73,42 @@ class TrayManager {
 
   // Update tray icon based on phase
   updateIcon(phase) {
-    if (!this.tray || phase === this.currentPhase) {
+    console.log(`updateIcon called with phase: "${phase}", currentPhase: "${this.currentPhase}"`);
+    
+    if (!this.tray) {
+      console.error('ERROR: tray is null in updateIcon');
+      return;
+    }
+    
+    if (phase === this.currentPhase) {
+      console.log('Phase unchanged, skipping icon update');
       return;
     }
 
     try {
-      console.log(`Updating tray icon for phase: ${phase}`);
-      const newIcon = this.iconGenerator.generateIcon(phase);
+      console.log(`Loading PNG icon for phase: ${phase}`);
+      const newIcon = getIconForPhase(phase);
       
       if (newIcon && !newIcon.isEmpty()) {
+        console.log(`Icon loaded successfully, size: ${newIcon.getSize().width}x${newIcon.getSize().height}`);
+        console.log('Setting new tray image...');
         this.tray.setImage(newIcon);
         this.currentPhase = phase;
         console.log('Tray icon updated successfully');
       } else {
-        console.error('Generated icon is empty');
+        console.error('ERROR: Icon is empty');
       }
     } catch (error) {
-      console.error('Failed to update tray icon:', error);
+      console.error('ERROR in updateIcon:', error.message);
+      console.error('Stack:', error.stack);
       // Fallback to default icon
       try {
-        const defaultIcon = this.iconGenerator.generateIcon('default');
+        console.log('Attempting fallback to default icon...');
+        const defaultIcon = getIconForPhase('default');
         this.tray.setImage(defaultIcon);
+        console.log('Fallback icon set');
       } catch (fallbackError) {
-        console.error('Failed to set fallback icon:', fallbackError);
+        console.error('ERROR setting fallback icon:', fallbackError.message);
       }
     }
   }
@@ -85,9 +133,9 @@ class TrayManager {
     }
   }
 
-  // Clear icon cache
+  // Clear icon cache (not needed for PNG files)
   clearIconCache() {
-    this.iconGenerator.clearCache();
+    // No cache needed with PNG files
   }
 }
 

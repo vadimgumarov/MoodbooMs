@@ -11,7 +11,7 @@ const CSP_POLICIES = {
   // Production CSP - Most restrictive
   production: {
     'default-src': ["'self'"],
-    'script-src': ["'self'"],
+    'script-src': ["'self'", "'unsafe-inline'"], // Required for React production build
     'style-src': ["'self'", "'unsafe-inline'"], // Required for Tailwind CSS
     'img-src': ["'self'", "data:"], // data: for inline images
     'font-src': ["'self'"],

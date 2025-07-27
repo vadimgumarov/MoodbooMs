@@ -1,6 +1,121 @@
 PROJECT WORK LOG - MoodBooMs
 ===================================
 
+2025-07-27 10:54: Completed Epic #13 - Dynamic UI & Tray Icons
+------------------------------------------------------------
+Successfully completed all dynamic UI and tray icon features:
+
+✅ Issue #15: Verify dynamic icon implementation
+✅ Issue #16: Create safety scale component  
+✅ Issue #17: Add status card with phase info
+⏭️ Issue #18: Implement smooth animations (SKIPPED - not essential)
+
+Implementation Details:
+
+Dynamic Icon Implementation (Issue #15):
+- Implemented PNG icon loading using nativeImage.createFromPath()
+- Icons dynamically update based on menstrual cycle phase
+- All 6 phase icons working: sun, cloud-sun, cloud, cloud-rain-wind, cloud-lightning, tornado
+- Icons stored in electron/assets/icons/ directory
+- macOS template image support for proper menubar appearance
+
+Safety Scale Component (Issue #16):
+- Created SafetyScale component showing cycle phase intensity
+- Visual representation using colored bars (green to red)
+- Integrated into mood tab for quick phase assessment
+- Responsive design with Tailwind CSS
+
+Status Card Component (Issue #17):
+- Comprehensive phase information display
+- Shows cycle day, fertility percentage, and phase progress
+- Visual progress bar for current phase
+- Next phase preview with countdown
+- Peak fertility alerts
+- Clean, informative design with proper data hierarchy
+
+Technical Achievements:
+- Fixed all production crashes (GPU, CSP, React build paths)
+- Successful PNG icon implementation after SVG failures
+- Component-based architecture for UI elements
+- Proper IPC communication for phase updates
+- Production-ready stable application
+
+Result: Epic #13 complete with functional dynamic icons and informative UI components. App provides visual feedback through both menubar icons and in-app components.
+
+Next Steps:
+- Choose next epic based on priority
+- Consider Epic #19 (User Settings & Preferences)
+- Or Epic #25 (Production Build & Distribution)
+
+2025-07-27 10:34: Fixed Production Crashes and Icon Implementation
+------------------------------------------------------------
+Resolved critical production issues that prevented app from running:
+
+PRODUCTION FIXES IMPLEMENTED:
+
+1. GPU Process Crashes (Exit Code 15):
+   - Problem: Renderer process crashed after ~40 seconds with GPU errors
+   - Solution: Added app.disableHardwareAcceleration() in main.js
+   - Result: App now runs stable without crashes
+
+2. CSP Blocking React in Production:
+   - Problem: Content Security Policy blocked React's inline scripts
+   - Solution: Added 'unsafe-inline' to script-src in production CSP
+   - Technical: React production build requires inline scripts to function
+
+3. React Build Path Issues:
+   - Problem: React build used absolute paths (/static/js/...) incompatible with file://
+   - Solution: Added "homepage": "./" to package.json
+   - Result: Build now uses relative paths that work with Electron
+
+4. Phase Updates Not Working:
+   - Problem: React useEffect wasn't firing phase updates in production
+   - Solution: Added isLoading check to prevent updates during initialization
+   - Result: Tray icons now update correctly when changing test mode
+
+ICON IMPLEMENTATION:
+
+Successfully implemented PNG icon loading for menubar:
+- Created iconFromPNG.js module using nativeImage.createFromPath()
+- Icons load from electron/assets/icons/ directory
+- macOS template image support via setTemplateImage(true)
+- All 6 phase icons working: sun, cloud-sun, cloud, cloud-rain-wind, cloud-lightning, tornado
+
+Icon Mapping:
+- "Bloody Hell Week" → cloud-lightning.png
+- "Finally Got My Sh*t Together" → sun.png
+- "Horny AF" → cloud-sun.png
+- "Getting Real Tired of This BS" → cloud.png
+- "Pre-Chaos Mood Swings" → cloud-rain-wind.png
+- "Apocalypse Countdown" → tornado.png
+
+TECHNICAL DISCOVERIES:
+- SVG data URLs don't work with macOS menubar (createFromDataURL returns empty)
+- PNG files work reliably with createFromPath()
+- Production debugging requires extensive logging due to limited DevTools access
+- React build configuration crucial for Electron compatibility
+
+Files Modified:
+- package.json (added homepage)
+- electron/main.js (disabled hardware acceleration)
+- electron/csp-config.js (fixed production CSP)
+- src/components/MenuBarApp.jsx (fixed phase updates)
+- electron/iconFromPNG.js (new - PNG icon loader)
+- electron/trayManager.js (switched to PNG icons)
+
+Testing:
+- Created launch-menu.sh script for consistent testing
+- Added comprehensive logging for production debugging
+- Verified all crashes resolved
+- Confirmed icons update dynamically
+
+Result: Production app now runs stable with dynamic PNG icons that match the React app exactly.
+
+Next Steps:
+- Continue with Epic #13 remaining issues
+- Add status card with phase info (Issue #17)
+- Implement smooth animations (Issue #18)
+
 2025-07-26 17:21: Completed Epic #7 - Calendar & Date Calculations
 ------------------------------------------------------------
 Successfully completed all calendar and date calculation features:

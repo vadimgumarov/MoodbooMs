@@ -46,9 +46,15 @@ class IconGeneratorLucide {
   // Create base canvas
   createCanvas() {
     const size = this.iconSize;
-    const scale = 2; // 2x for retina
-    const buffer = Buffer.alloc(size * scale * size * scale * 4, 0);
-    return { buffer, size: size * scale, displaySize: size };
+    // Initialize with transparent pixels (RGBA: 0,0,0,0)
+    const buffer = Buffer.alloc(size * size * 4);
+    for (let i = 0; i < buffer.length; i += 4) {
+      buffer[i] = 0;     // R
+      buffer[i + 1] = 0; // G
+      buffer[i + 2] = 0; // B
+      buffer[i + 3] = 0; // A (transparent)
+    }
+    return { buffer, size: size, displaySize: size };
   }
 
   // Draw a path-like shape
@@ -78,7 +84,7 @@ class IconGeneratorLucide {
     }
     
     const icon = nativeImage.createFromBuffer(buffer, { width: size, height: size });
-    return icon.resize({ width: displaySize, height: displaySize });
+    return icon;
   }
 
   // Cloud with sun icon
@@ -105,7 +111,7 @@ class IconGeneratorLucide {
     this.drawCloud(buffer, size, size * 0.45, size * 0.65, [200, 200, 200, 255]);
     
     const icon = nativeImage.createFromBuffer(buffer, { width: size, height: size });
-    return icon.resize({ width: displaySize, height: displaySize });
+    return icon;
   }
 
   // Cloud icon
@@ -116,7 +122,7 @@ class IconGeneratorLucide {
     this.drawCloud(buffer, size, size * 0.5, size * 0.5, [150, 150, 150, 255]);
     
     const icon = nativeImage.createFromBuffer(buffer, { width: size, height: size });
-    return icon.resize({ width: displaySize, height: displaySize });
+    return icon;
   }
 
   // Cloud with rain icon
@@ -134,7 +140,7 @@ class IconGeneratorLucide {
     }
     
     const icon = nativeImage.createFromBuffer(buffer, { width: size, height: size });
-    return icon.resize({ width: displaySize, height: displaySize });
+    return icon;
   }
 
   // Cloud with lightning icon
@@ -158,7 +164,7 @@ class IconGeneratorLucide {
     this.drawPolygon(buffer, size, boltPath, [255, 255, 0, 255]);
     
     const icon = nativeImage.createFromBuffer(buffer, { width: size, height: size });
-    return icon.resize({ width: displaySize, height: displaySize });
+    return icon;
   }
 
   // Tornado icon
@@ -177,17 +183,27 @@ class IconGeneratorLucide {
     }
     
     const icon = nativeImage.createFromBuffer(buffer, { width: size, height: size });
-    return icon.resize({ width: displaySize, height: displaySize });
+    return icon;
   }
 
   // Default icon
   createDefaultIcon() {
-    const { buffer, size, displaySize } = this.createCanvas();
-    
-    this.drawFilledCircle(buffer, size, size/2, size/2, size/3, [200, 100, 200, 255]);
-    
-    const icon = nativeImage.createFromBuffer(buffer, { width: size, height: size });
-    return icon.resize({ width: displaySize, height: displaySize });
+    console.log('createDefaultIcon() called');
+    try {
+      const { buffer, size, displaySize } = this.createCanvas();
+      console.log(`Canvas created: size=${size}, buffer length=${buffer.length}`);
+      
+      this.drawFilledCircle(buffer, size, size/2, size/2, size/3, [200, 100, 200, 255]);
+      console.log('Circle drawn');
+      
+      const icon = nativeImage.createFromBuffer(buffer, { width: size, height: size });
+      console.log(`Icon created: ${icon.getSize().width}x${icon.getSize().height}, isEmpty=${icon.isEmpty()}`);
+      return icon;
+    } catch (error) {
+      console.error('ERROR in createDefaultIcon():', error.message);
+      console.error('Stack:', error.stack);
+      throw error;
+    }
   }
 
   // Helper: Draw filled circle

@@ -2,19 +2,23 @@
   "name": "moodbooms",
   "version": "1.0.0",
   "main": "electron/main.js",
+  "homepage": "./",
   "scripts": {
     "start": "BROWSER=none react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "electron": "electron .",
-    "electron-dev": "electron .",
-    "dev": "concurrently \"npm run start\" \"npm run electron-dev\""
+    "electron-dev": "wait-on http://localhost:3000 && ELECTRON_DEV=true REACT_DEV_URL=true electron .",
+    "dev": "concurrently \"npm run start\" \"npm run electron-dev\"",
+    "app": "npm run build && npm run electron",
+    "check": "node check-menu.js"
   },
   "dependencies": {
     "concurrently": "^8.2.0",
     "date-fns": "^4.1.0",
     "electron-store": "^8.1.0",
+    "lucide": "^0.526.0",
     "lucide-react": "^0.263.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -22,7 +26,6 @@
   },
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
-    "@tauri-apps/cli": "^2.7.1",
     "@testing-library/jest-dom": "^6.6.4",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",

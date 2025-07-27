@@ -378,110 +378,62 @@ npm run electron-dev
 - Always prefer editing existing files over creating new ones
 - Keep the codebase simple and maintainable
 
-## Debugging Electron Menubar on macOS 15.5 (Sequoia)
+## Production Build & Deployment
 
-### CRITICAL ISSUES AND SOLUTIONS:
+### Building for Production
+```bash
+# Build React app with relative paths
+npm run build
 
-1. **Tray Icon Loading Failures**
-   - **Problem**: Standard icon loading crashes with "invalid icon" errors
-   - **Solution**: Use empty image with text instead
-   ```javascript
-   const image = nativeImage.createEmpty();
-   tray = new Tray(image);
-   tray.setTitle('MB'); // Use text instead of icon
-   ```
-
-2. **Electron Version Crashes**
-   - **Problem**: Electron 37.x crashes after ~10 seconds
-   - **Solution**: Use Electron 28.3.3 for stability
-   ```bash
-   npm install electron@28.3.3 --save-dev
-   ```
-
-3. **Window Resize Crashes**
-   - **Problem**: Any resize operation causes immediate crash
-   - **Solution**: Disable ALL resize options
-   ```javascript
-   window = new BrowserWindow({
-     resizable: false,
-     minimizable: false,
-     maximizable: false,
-     fullscreenable: false
-   });
-   ```
-
-4. **App Timeout Issues**
-   - **Problem**: App quits after command timeout
-   - **Solution**: Add keep-alive interval
-   ```javascript
-   setInterval(() => {}, 1000);
-   ```
-
-### Working Menubar Configuration:
-```javascript
-// Minimal working setup for macOS 15.5
-app.dock.hide(); // Hide dock icon
-
-const window = new BrowserWindow({
-  width: 380,
-  height: 520,
-  show: false,
-  frame: false,
-  resizable: false,
-  webPreferences: {
-    nodeIntegration: false,
-    contextIsolation: true
-  }
-});
-
-const image = nativeImage.createEmpty();
-const tray = new Tray(image);
-tray.setTitle('MB');
+# Run Electron with built files
+npm run electron
 ```
 
-### Failed Approaches (Don't Use):
-- Tauri framework - icon loading issues
-- menubar npm package - incompatible versions
-- PNG/template icons - cause crashes
-- Electron 37.x - timeout crashes
+### Critical Production Fixes
 
-### WORKING ICON SOLUTIONS (Implemented):
+1. **React Build Path Issue**
+   - **Problem**: React build uses absolute paths (`/static/js/...`) which fail with `file://` protocol
+   - **Solution**: Add `"homepage": "./"` to package.json
+   ```json
+   {
+     "name": "moodbooms",
+     "homepage": "./",
+     ...
+   }
+   ```
 
-#### Static Programmatic Icon (Initial Fix)
-Instead of loading PNG files (which crash on macOS 15.5), we create a programmatic icon:
+2. **Hardware Acceleration Crashes**
+   - **Problem**: GPU process crashes with exit code 15 on macOS
+   - **Solution**: Disable hardware acceleration in main.js
+   ```javascript
+   app.disableHardwareAcceleration();
+   ```
+
+3. **Content Security Policy**
+   - **Problem**: CSP blocks React's inline scripts in production
+   - **Solution**: Allow 'unsafe-inline' for production in csp-config.js
+   ```javascript
+   production: {
+     'script-src': ["'self'", "'unsafe-inline'"],
+     'style-src': ["'self'", "'unsafe-inline'"]
+   }
+   ```
+
+### Dynamic Tray Icons
+
+The app uses programmatically generated weather icons that update based on cycle phase:
+
 ```javascript
-// Create a colored circle icon in memory
-const size = 16;
-const buffer = Buffer.alloc(size * size * 4);
-// Draw purple/pink circle...
-const icon = nativeImage.createFromBuffer(buffer, { width: size, height: size });
-tray = new Tray(icon);
-```
-
-#### Dynamic Weather Icons (Current Implementation)
-Implemented dynamic tray icons that change based on menstrual cycle phase:
-```javascript
-// Architecture:
-// 1. IconGeneratorLucide.js - Creates weather-themed icons
-// 2. TrayManager.js - Manages tray and icon updates
-// 3. IPC communication via preload.js for phase updates
-// 4. React component sends phase updates to main process
-
-// Icon mapping:
+// Icon mapping (matches React app icons):
+// CloudLightning ⛈️ - "Bloody Hell Week"
 // Sun ☀️ - "Finally Got My Sh*t Together"
-// Cloud+Sun 🌤️ - "Horny AF"
+// CloudSun 🌤️ - "Horny AF"
 // Cloud ☁️ - "Getting Real Tired of This BS"
-// Cloud+Rain 🌧️ - "Pre-Chaos Mood Swings"
-// Cloud+Lightning ⛈️ - "Bloody Hell Week"
+// CloudRain 🌧️ - "Pre-Chaos Mood Swings"
 // Tornado 🌪️ - "Apocalypse Countdown"
 ```
 
-Key discoveries:
-- PNG files fail to load on macOS 15.5 (always return empty)
-- Programmatic icon generation using Buffer works reliably
-- Icons need to be 22x22 for macOS menubar clarity
-- 2x resolution (44x44) then scaled down improves quality
-- Simple shapes work better than complex details at small sizes
+Icons are generated using Canvas API in `IconGeneratorLucide.js` to ensure compatibility with macOS menubar requirements (22x22 pixels).
 
 ## Data Persistence with electron-store
 
@@ -574,3 +526,5 @@ The app tracks 6 phases with medical accuracy:
 - The system is in PST/PDT (Pacific Time)
 - Use the command `date '+%Y-%m-%d %H:%M'` to get the correct timestamp
 - Format for PROJECT_LOG.txt: "YYYY-MM-DD HH:MM: Entry Title"
+- **IMPORTANT**: New entries in PROJECT_LOG.txt must be added at the TOP of the file
+- The log follows reverse chronological order (newest entries first)

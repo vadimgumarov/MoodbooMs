@@ -3,7 +3,9 @@ import { Sun, CloudSun, Cloud, CloudRain, CloudLightning, Tornado, Heart, Coffee
 import Calendar from './Calendar';
 import PhaseDetail from './PhaseDetail';
 import HistoryView from './HistoryView';
+import StatusCard from './StatusCard';
 import { createCycleRecord, completeCycleRecord, addCycleToHistory } from '../utils/cycleHistory';
+import { calculateCurrentDay, getCurrentPhase } from '../utils/cycleCalculations';
 
 const moodMessages = {
   'Bloody Hell Week': [
@@ -75,40 +77,46 @@ const getRandomFood = () => {
 
 const calculatePhase = (startDate, cycleLength = 28) => {
   const today = new Date();
-  const start = new Date(startDate);
-  const daysDiff = Math.floor((today - start) / (1000 * 60 * 60 * 24));
-  const currentDay = daysDiff % cycleLength;
-
-  if (currentDay < 5) return { 
-    phase: 'Bloody Hell Week', 
-    icon: CloudLightning,
-    description: 'F*ck this sh*t. Where\'s the chocolate?'
+  const currentDay = calculateCurrentDay(startDate, today, cycleLength);
+  const medicalPhase = getCurrentPhase(currentDay, cycleLength);
+  
+  // Map medical phases to funny phases for display and icons
+  const phaseMapping = {
+    'menstrual': {
+      phase: 'Bloody Hell Week',
+      icon: CloudLightning,
+      description: 'F*ck this sh*t. Where\'s the chocolate?'
+    },
+    'follicular': {
+      phase: 'Finally Got My Sh*t Together',
+      icon: Sun,
+      description: 'Look at me being a functional human being!'
+    },
+    'ovulation': {
+      phase: 'Horny AF',
+      icon: CloudSun,
+      description: 'Is it hot in here or is it just my hormones?'
+    },
+    'luteal': {
+      // In luteal phase, check if we're in late luteal for different moods
+      phase: currentDay >= cycleLength - 7 ? 'Pre-Chaos Mood Swings' : 'Getting Real Tired of This BS',
+      icon: currentDay >= cycleLength - 7 ? CloudRain : Cloud,
+      description: currentDay >= cycleLength - 7 
+        ? 'Don\'t even look at me wrong today'
+        : 'Starting to question my life choices...'
+    }
   };
-  if (currentDay < 14) return { 
-    phase: 'Finally Got My Sh*t Together', 
-    icon: Sun,
-    description: 'Look at me being a functional human being!'
-  };
-  if (currentDay < 17) return { 
-    phase: 'Horny AF', 
-    icon: CloudSun,
-    description: 'Is it hot in here or is it just my hormones?'
-  };
-  if (currentDay < 21) return { 
-    phase: 'Getting Real Tired of This BS', 
-    icon: Cloud,
-    description: 'Starting to question my life choices...'
-  };
-  if (currentDay < 25) return { 
-    phase: 'Pre-Chaos Mood Swings', 
-    icon: CloudRain,
-    description: 'Don\'t even look at me wrong today'
-  };
-  return { 
-    phase: 'Apocalypse Countdown', 
-    icon: Tornado,
-    description: 'If you value your life, bring snacks'
-  };
+  
+  // Special case for very late luteal (last 3 days)
+  if (currentDay >= cycleLength - 3) {
+    return {
+      phase: 'Apocalypse Countdown',
+      icon: Tornado,
+      description: 'If you value your life, bring snacks'
+    };
+  }
+  
+  return phaseMapping[medicalPhase] || phaseMapping['luteal'];
 };
 
 const MenuBarApp = () => {
@@ -130,6 +138,11 @@ const MenuBarApp = () => {
   // Load saved data on mount
   useEffect(() => {
     const loadSavedData = async () => {
+      // Debug logging
+      if (window.electronAPI && window.electronAPI.app) {
+        window.electronAPI.app.log('MenuBarApp: Starting to load saved data');
+      }
+      
       if (window.electronAPI && window.electronAPI.store) {
         try {
           const savedCycleData = await window.electronAPI.store.get('cycleData');
@@ -154,9 +167,7 @@ const MenuBarApp = () => {
             );
             setCycleHistory([initialCycle]);
             // Save the initial cycle
-            if (window.electronAPI && window.electronAPI.store) {
-              await window.electronAPI.store.set('cycleHistory', initialCycle);
-            }
+            await window.electronAPI.store.set('cycleHistory', initialCycle);
           }
           
           if (savedPreferences?.testMode !== undefined) {
@@ -167,25 +178,46 @@ const MenuBarApp = () => {
         }
       }
       setIsLoading(false);
+      
+      // Debug logging
+      if (window.electronAPI && window.electronAPI.app) {
+        window.electronAPI.app.log('MenuBarApp: Finished loading, isLoading = false');
+      }
     };
     
     loadSavedData();
   }, []);
 
   useEffect(() => {
-    const phase = calculatePhase(
-      testMode ? new Date(new Date().getTime() - testDays * 24 * 60 * 60 * 1000) : cycleData.startDate, 
-      cycleData.cycleLength
-    );
-    setCurrentPhase(phase);
-    setCurrentMood(getRandomMood(phase.phase));
-    setCurrentCraving(getRandomFood());
+    if (isLoading) return; // Don't update phase while loading
     
-    // Update tray icon via IPC
-    if (window.electronAPI && window.electronAPI.tray) {
-      window.electronAPI.tray.updatePhase(phase.phase);
+    // Debug logging
+    if (window.electronAPI && window.electronAPI.app) {
+      window.electronAPI.app.log(`MenuBarApp: Phase update effect triggered, isLoading=${isLoading}`);
     }
-  }, [cycleData, testDays, testMode]);
+    
+    const updatePhaseAndIcon = async () => {
+      const phase = calculatePhase(
+        testMode ? new Date(new Date().getTime() - testDays * 24 * 60 * 60 * 1000) : cycleData.startDate, 
+        cycleData.cycleLength
+      );
+      setCurrentPhase(phase);
+      setCurrentMood(getRandomMood(phase.phase));
+      setCurrentCraving(getRandomFood());
+      
+      // Update tray icon via unified API
+      if (window.electronAPI && window.electronAPI.tray) {
+        if (window.electronAPI.app) {
+          window.electronAPI.app.log(`MenuBarApp: Updating phase to "${phase.phase}"`);
+        }
+        window.electronAPI.tray.updatePhase(phase.phase);
+      } else if (window.electronAPI && window.electronAPI.app) {
+        window.electronAPI.app.log('MenuBarApp: electronAPI.tray not available');
+      }
+    };
+    
+    updatePhaseAndIcon();
+  }, [cycleData, testDays, testMode, isLoading]);
 
   const handleDateChange = async (newDate) => {
     setCycleData(prev => ({ ...prev, startDate: newDate }));
@@ -340,15 +372,12 @@ const MenuBarApp = () => {
 
         {activeTab === 'mood' ? (
           <div className="space-y-4">
-          <div className="p-3 bg-gray-100 rounded">
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                {currentPhase.icon && <currentPhase.icon className="w-5 h-5" />}
-                <span className="font-bold">{currentPhase.phase}</span>
-              </div>
-              <p className="text-sm text-gray-600 italic">{currentPhase.description}</p>
-            </div>
-          </div>
+          <StatusCard 
+            cycleData={cycleData}
+            currentPhase={currentPhase}
+            testMode={testMode}
+            testDays={testDays}
+          />
 
           <div className="p-3 bg-gray-100 rounded">
             <p className="text-sm font-medium">Today's Mood:</p>
@@ -409,7 +438,7 @@ const MenuBarApp = () => {
             )}
           </div>
         </div>
-        ) : (
+        ) : activeTab === 'calendar' ? (
           <div className="space-y-4">
             <Calendar 
               cycleStartDate={testMode 
