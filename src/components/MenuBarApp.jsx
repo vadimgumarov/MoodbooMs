@@ -53,9 +53,57 @@ const moodMessages = {
   ]
 };
 
-const getRandomMood = (phase) => {
-  const moods = moodMessages[phase] || [];
-  return moods[Math.floor(Math.random() * moods.length)] || "Loading sass...";
+const professionalMoodMessages = {
+  'Menstruation': [
+    "Rest and hydration are important today",
+    "Light exercise may help with cramps",
+    "Iron-rich foods recommended",
+    "This phase typically lasts 3-7 days",
+    "Your body is resetting for a new cycle"
+  ],
+  'Follicular Phase': [
+    "Energy levels are increasing",
+    "Great time to start new projects",
+    "Your body is preparing for ovulation",
+    "Focus and creativity peak during this phase",
+    "Exercise tolerance is higher"
+  ],
+  'Ovulation': [
+    "Peak fertility window",
+    "Energy and confidence at monthly high",
+    "Body temperature slightly elevated",
+    "Optimal time for social activities",
+    "Enhanced communication skills"
+  ],
+  'Luteal Phase': [
+    "Progesterone levels rising",
+    "Energy may start to decline",
+    "Focus on completing tasks",
+    "Good time for detail-oriented work",
+    "Metabolism slightly increased"
+  ],
+  'Late Luteal Phase': [
+    "PMS symptoms may appear",
+    "Increased need for rest",
+    "Magnesium-rich foods may help",
+    "Gentle movement recommended",
+    "Self-care is important"
+  ],
+  'Pre-Menstrual': [
+    "Prepare for upcoming menstruation",
+    "Stock up on comfort items",
+    "Reduce caffeine intake",
+    "Practice stress management",
+    "Rest is essential"
+  ]
+};
+
+const getRandomMood = (phase, isBadassMode = true) => {
+  const moods = isBadassMode ? moodMessages[phase] : professionalMoodMessages[phase];
+  if (!moods || moods.length === 0) {
+    return isBadassMode ? "Loading sass..." : "Tracking your cycle...";
+  }
+  return moods[Math.floor(Math.random() * moods.length)];
 };
 
 const getRandomFood = () => {
@@ -76,13 +124,40 @@ const getRandomFood = () => {
   return foods[Math.floor(Math.random() * foods.length)];
 };
 
-const calculatePhase = (startDate, cycleLength = 28) => {
+const calculatePhase = (startDate, cycleLength = 28, isBadassMode = true) => {
   const today = new Date();
   const currentDay = calculateCurrentDay(startDate, today, cycleLength);
   const medicalPhase = getCurrentPhase(currentDay, cycleLength);
   
-  // Map medical phases to funny phases for display and icons
-  const phaseMapping = {
+  // Professional mode content
+  const professionalMapping = {
+    'menstrual': {
+      phase: 'Menstruation',
+      icon: CloudLightning,
+      description: 'Days 1-5 of your cycle. Rest and self-care recommended.'
+    },
+    'follicular': {
+      phase: 'Follicular Phase',
+      icon: Sun,
+      description: 'Energy levels rising. Good time for new activities.'
+    },
+    'ovulation': {
+      phase: 'Ovulation',
+      icon: CloudSun,
+      description: 'Peak fertility window. Highest energy levels.'
+    },
+    'luteal': {
+      // In luteal phase, check if we're in late luteal for different moods
+      phase: currentDay >= cycleLength - 7 ? 'Late Luteal Phase' : 'Luteal Phase',
+      icon: currentDay >= cycleLength - 7 ? CloudRain : Cloud,
+      description: currentDay >= cycleLength - 7 
+        ? 'PMS symptoms may occur. Practice self-compassion.'
+        : 'Progesterone rising. Energy may decrease.'
+    }
+  };
+  
+  // Badass mode content
+  const badassMapping = {
     'menstrual': {
       phase: 'Bloody Hell Week',
       icon: CloudLightning,
@@ -109,15 +184,22 @@ const calculatePhase = (startDate, cycleLength = 28) => {
   };
   
   // Special case for very late luteal (last 3 days)
-  if (currentDay >= cycleLength - 3) {
+  if (currentDay >= cycleLength - 3 && isBadassMode) {
     return {
       phase: 'Apocalypse Countdown',
       icon: Tornado,
       description: 'If you value your life, bring snacks'
     };
+  } else if (currentDay >= cycleLength - 3 && !isBadassMode) {
+    return {
+      phase: 'Pre-Menstrual',
+      icon: Tornado,
+      description: 'Cycle ending soon. Prepare for menstruation.'
+    };
   }
   
-  return phaseMapping[medicalPhase] || phaseMapping['luteal'];
+  const mapping = isBadassMode ? badassMapping : professionalMapping;
+  return mapping[medicalPhase] || mapping['luteal'];
 };
 
 const MenuBarApp = () => {
@@ -137,7 +219,8 @@ const MenuBarApp = () => {
   const [cycleHistory, setCycleHistory] = useState([]);
   const [preferences, setPreferences] = useState({
     notifications: true,
-    theme: 'auto'
+    theme: 'auto',
+    badassMode: true // Default to badass mode
   });
 
   // Load saved data on mount
@@ -176,7 +259,11 @@ const MenuBarApp = () => {
           }
           
           if (savedPreferences) {
-            setPreferences(savedPreferences);
+            setPreferences({
+              ...preferences,
+              ...savedPreferences,
+              badassMode: savedPreferences.badassMode !== undefined ? savedPreferences.badassMode : true
+            });
             if (savedPreferences.testMode !== undefined) {
               setTestMode(savedPreferences.testMode);
             }
@@ -204,28 +291,34 @@ const MenuBarApp = () => {
       window.electronAPI.app.log(`MenuBarApp: Phase update effect triggered, isLoading=${isLoading}`);
     }
     
-    const updatePhaseAndIcon = async () => {
-      const phase = calculatePhase(
-        testMode ? new Date(new Date().getTime() - testDays * 24 * 60 * 60 * 1000) : cycleData.startDate, 
-        cycleData.cycleLength
-      );
-      setCurrentPhase(phase);
-      setCurrentMood(getRandomMood(phase.phase));
-      setCurrentCraving(getRandomFood());
-      
-      // Update tray icon via unified API
-      if (window.electronAPI && window.electronAPI.tray) {
-        if (window.electronAPI.app) {
-          window.electronAPI.app.log(`MenuBarApp: Updating phase to "${phase.phase}"`);
+    // Debounce phase updates to prevent rapid re-renders
+    const timer = setTimeout(() => {
+      const updatePhaseAndIcon = async () => {
+        const phase = calculatePhase(
+          testMode ? new Date(new Date().getTime() - testDays * 24 * 60 * 60 * 1000) : cycleData.startDate, 
+          cycleData.cycleLength,
+          preferences.badassMode !== false
+        );
+        setCurrentPhase(phase);
+        setCurrentMood(getRandomMood(phase.phase, preferences.badassMode !== false));
+        setCurrentCraving(getRandomFood());
+        
+        // Update tray icon via unified API
+        if (window.electronAPI && window.electronAPI.tray) {
+          if (window.electronAPI.app) {
+            window.electronAPI.app.log(`MenuBarApp: Updating phase to "${phase.phase}"`);
+          }
+          window.electronAPI.tray.updatePhase(phase.phase);
+        } else if (window.electronAPI && window.electronAPI.app) {
+          window.electronAPI.app.log('MenuBarApp: electronAPI.tray not available');
         }
-        window.electronAPI.tray.updatePhase(phase.phase);
-      } else if (window.electronAPI && window.electronAPI.app) {
-        window.electronAPI.app.log('MenuBarApp: electronAPI.tray not available');
-      }
-    };
+      };
+      
+      updatePhaseAndIcon();
+    }, 300); // 300ms debounce
     
-    updatePhaseAndIcon();
-  }, [cycleData, testDays, testMode, isLoading]);
+    return () => clearTimeout(timer); // Clean up timer
+  }, [cycleData, testDays, testMode, isLoading, preferences]);
 
   const handleDateChange = async (newDate) => {
     setCycleData(prev => ({ ...prev, startDate: newDate }));
@@ -276,6 +369,7 @@ const MenuBarApp = () => {
     // Go back to mood tab
     setActiveTab('mood');
   };
+
 
 
   const handlePeriodStart = async (date = new Date()) => {
@@ -372,11 +466,44 @@ const MenuBarApp = () => {
     );
   }
 
+
   return (
     <div className="w-96">
       <div className="p-4">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold">MoodBooMs</h2>
+          {/* Badass Mode Toggle */}
+          <label className="flex items-center gap-2 cursor-pointer">
+            <span className="text-xs text-gray-600">BadAss</span>
+            <div className="relative">
+              <input
+                type="checkbox"
+                checked={preferences.badassMode || false}
+                onChange={async (e) => {
+                  const newPreferences = {
+                    ...preferences,
+                    badassMode: e.target.checked
+                  };
+                  setPreferences(newPreferences);
+                  
+                  if (window.electronAPI && window.electronAPI.store) {
+                    try {
+                      await window.electronAPI.store.set('preferences', newPreferences);
+                    } catch (error) {
+                      console.error('Error saving badass mode:', error);
+                    }
+                  }
+                }}
+                className="sr-only"
+              />
+              <div className={`block w-10 h-6 rounded-full transition-colors ${
+                preferences.badassMode ? 'bg-purple-500' : 'bg-gray-300'
+              }`}></div>
+              <div className={`absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform ${
+                preferences.badassMode ? 'translate-x-4' : ''
+              }`}></div>
+            </div>
+          </label>
         </div>
 
         {/* Tab Navigation */}

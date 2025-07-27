@@ -184,10 +184,10 @@ app.whenReady().then(() => {
       logToFile(`Preload script loaded correctly: ${hasAPI}`);
     });
     
-    // Open DevTools in production to see errors (commented out for clean experience)
-    // if (!isDev) {
-    //   window.webContents.openDevTools({ mode: 'detach' });
-    // }
+    // Open DevTools in development for debugging
+    if (isDev) {
+      window.webContents.openDevTools({ mode: 'detach' });
+    }
   });
   
   window.webContents.on('render-process-gone', (event, details) => {
