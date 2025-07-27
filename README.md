@@ -78,15 +78,15 @@ Implement calendar view with fertility tracking logic
 - ✅ #12 Add cycle history tracking
 - ✅ #51 Add period start adjustment functionality
 
-### Epic 3: Dynamic UI & Tray Icons
+### Epic 3: Dynamic UI & Tray Icons ✅ COMPLETED
 Create responsive UI with dynamic menubar icons
 
 **Issues:**
-- #11 Design and create tray icon set for all phases
-- #12 Implement dynamic tray icon switching
-- #13 Create safety scale component
-- #14 Add status card with phase information
-- #15 Implement smooth transitions and animations
+- ✅ #14 Design and create tray icon set for all phases
+- ✅ #15 Implement dynamic tray icon switching
+- ✅ #16 Create safety scale component
+- ✅ #17 Add status card with phase information
+- ⏭️ #18 Implement smooth transitions and animations (skipped)
 
 ### Epic 4: User Settings & Preferences
 Add customization options and data management

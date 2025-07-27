@@ -258,26 +258,49 @@ We use modified versions of standard workflow scripts that automatically handle 
 When completing an epic (all child issues done):
 
 1. **Pre-completion Checklist**
-   - ✓ All child issues closed
+   - ✓ All child issues closed with proper comments
    - ✓ All branches merged to epic branch
    - ✓ Unit tests pass (`npm test`)
    - ✓ Security tests pass (`npx electron tests/electron/security-test.js`)
    - ✓ Manual testing complete (`npm run dev`)
+   - ✓ Build succeeds (`npm run build`)
 
-2. **Use fw.sh Script**
-   - Run `fw` while on epic branch
+2. **Close Child Issues Properly**
+   ```bash
+   # Close each issue with completion comment
+   gh issue close <issue-number> --comment "✅ Completed: <what was done>"
+   
+   # For skipped issues
+   gh issue close <issue-number> --comment "⏭️ Skipped: <reason>"
+   ```
+
+3. **Update Documentation**
+   - Update PROJECT_LOG.txt with epic completion (newest entries at TOP)
+   - Update README.md if new features added
+   - Commit documentation changes
+
+4. **Complete Epic Using fw.sh or Manually**
+   
+   **Option A: Using fw.sh Script**
+   - Run `./scripts/fw.sh` while on epic branch
    - Choose "Complete this epic? (y/N)"
-   - Script will:
-     - Check for open child issues
-     - Guide through test verification
-     - Create PR to main branch
-     - Merge and close epic
-     - Clean up child branches
+   - Script handles PR creation and merging
+   
+   **Option B: Manual Process**
+   ```bash
+   # Create PR
+   gh pr create --title "feat: Complete Epic #X - <Epic Title>" \
+     --body "## Summary\n<what was completed>\n\nCloses #X" \
+     --base main
+   
+   # Merge PR
+   gh pr merge <pr-number> --merge --delete-branch
+   ```
 
-3. **Post-completion**
-   - Update PROJECT_LOG.txt
-   - Verify documentation is current
-   - Begin next epic in priority order
+5. **Post-completion**
+   - Verify epic issue is closed (should auto-close with "Closes #X" in PR)
+   - Switch back to main: `git checkout main && git pull`
+   - Choose next epic based on priority
 
 ## Commit Message Format
 
