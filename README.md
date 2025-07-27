@@ -5,11 +5,13 @@ MoodBooMs is a discreet, professional fertility tracking application that lives 
 
 ## Features
 - 🎯 **Dynamic Menu Bar Icon** - Weather-themed icons that change based on cycle phase (sunny to stormy)
-- 📅 **Calendar View** - Month view with color-coded fertility days
-- 🌡️ **Safety Scale** - Visual indicator showing current fertility level
-- 💬 **Smart Status Messages** - Contextual phrases for your current phase
-- 💾 **Data Persistence** - Your data saves automatically between sessions
-- 🔔 **Optional Notifications** - Customizable reminders and alerts
+- 📅 **Interactive Calendar View** - Month view with color-coded fertility days (✅ Implemented)
+- 📊 **Cycle History & Statistics** - Track patterns, averages, and predictions (✅ Implemented)
+- 🌡️ **Fertility Tracking** - Accurate phase detection with percentage calculations (✅ Implemented)
+- 💬 **Smart Status Messages** - Humorous phrases for your current phase (✅ Implemented)
+- 💾 **Data Persistence** - Your data saves automatically between sessions (✅ Implemented)
+- 🔄 **Period Adjustment** - Mark new period start for irregular cycles (✅ Implemented)
+- 🔔 **Optional Notifications** - Customizable reminders and alerts (Planned)
 
 ### Dynamic Weather Icons
 The menubar icon changes to reflect your cycle phase:
@@ -55,25 +57,26 @@ Transform MoodBooMs into a professional fertility tracking menubar app with dyna
 
 ## Development Roadmap
 
-### Epic 1: Core Infrastructure & Security
+### Epic 1: Core Infrastructure & Security ✅ COMPLETED
 Establish secure Electron architecture and data persistence
 
 **Issues:**
-- #1 Implement secure Electron preload script with contextBridge
-- #2 Set up electron-store for data persistence
-- #3 Create IPC communication layer for main/renderer
-- #4 Add Content Security Policy (CSP)
-- #5 Remove nodeIntegration and enable contextIsolation
+- ✅ #2 Implement secure Electron preload script with contextBridge
+- ✅ #3 Set up electron-store for data persistence
+- ✅ #4 Create IPC communication layer for main/renderer
+- ✅ #5 Add Content Security Policy (CSP)
+- ✅ #6 Remove nodeIntegration and enable contextIsolation
 
-### Epic 2: Calendar & Date Calculations  
+### Epic 2: Calendar & Date Calculations ✅ COMPLETED
 Implement calendar view with fertility tracking logic
 
 **Issues:**
-- #6 Create cycle calculation utility module
-- #7 Implement calendar component with color coding
-- #8 Add date selection and navigation
-- #9 Create fertility phase detection logic
-- #10 Add cycle history tracking
+- ✅ #8 Create cycle calculation utility module
+- ✅ #9 Implement calendar component with color coding
+- ✅ #10 Add date selection and navigation
+- ✅ #11 Create fertility phase detection logic
+- ✅ #12 Add cycle history tracking
+- ✅ #51 Add period start adjustment functionality
 
 ### Epic 3: Dynamic UI & Tray Icons
 Create responsive UI with dynamic menubar icons

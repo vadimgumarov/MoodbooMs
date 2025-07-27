@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Sun, CloudSun, Cloud, CloudRain, CloudLightning, Tornado, Heart, Coffee, Candy, IceCream, Cookie } from 'lucide-react';
+import Calendar from './Calendar';
+import PhaseDetail from './PhaseDetail';
+import HistoryView from './HistoryView';
+import { createCycleRecord, completeCycleRecord, addCycleToHistory } from '../utils/cycleHistory';
 
 const moodMessages = {
   'Bloody Hell Week': [
@@ -119,6 +123,9 @@ const MenuBarApp = () => {
   const [testMode, setTestMode] = useState(false);
   const [testDays, setTestDays] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('mood'); // 'mood', 'calendar', or 'history'
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [cycleHistory, setCycleHistory] = useState([]);
 
   // Load saved data on mount
   useEffect(() => {
@@ -127,6 +134,7 @@ const MenuBarApp = () => {
         try {
           const savedCycleData = await window.electronAPI.store.get('cycleData');
           const savedPreferences = await window.electronAPI.store.get('preferences');
+          const savedHistory = await window.electronAPI.store.get('cycleHistory');
           
           if (savedCycleData) {
             setCycleData({
@@ -134,6 +142,21 @@ const MenuBarApp = () => {
               cycleLength: savedCycleData.cycleLength || 28,
               notifications: savedPreferences?.notifications ?? true
             });
+          }
+          
+          if (savedHistory && Array.isArray(savedHistory)) {
+            setCycleHistory(savedHistory);
+          } else if (savedCycleData) {
+            // Create initial cycle record if no history exists
+            const initialCycle = createCycleRecord(
+              new Date(savedCycleData.startDate), 
+              savedCycleData.cycleLength || 28
+            );
+            setCycleHistory([initialCycle]);
+            // Save the initial cycle
+            if (window.electronAPI && window.electronAPI.store) {
+              await window.electronAPI.store.set('cycleHistory', initialCycle);
+            }
           }
           
           if (savedPreferences?.testMode !== undefined) {
@@ -174,6 +197,43 @@ const MenuBarApp = () => {
           startDate: newDate.toISOString(),
           cycleLength: cycleData.cycleLength
         });
+      } catch (error) {
+        console.error('Error saving cycle data:', error);
+      }
+    }
+  };
+
+  const handlePeriodStart = async (date = new Date()) => {
+    // Complete the current cycle if exists
+    const currentCycle = cycleHistory.find(cycle => 
+      new Date(cycle.startDate).getTime() === cycleData.startDate.getTime()
+    );
+    
+    let updatedHistory = [...cycleHistory];
+    
+    if (currentCycle && !currentCycle.actualLength) {
+      // Complete the current cycle
+      const completedCycle = completeCycleRecord(currentCycle, date);
+      const cycleIndex = updatedHistory.findIndex(c => c.id === currentCycle.id);
+      updatedHistory[cycleIndex] = completedCycle;
+    }
+    
+    // Create new cycle record
+    const newCycle = createCycleRecord(date, cycleData.cycleLength);
+    updatedHistory.unshift(newCycle);
+    
+    // Update state
+    setCycleData(prev => ({ ...prev, startDate: date }));
+    setCycleHistory(updatedHistory);
+    
+    // Save to store
+    if (window.electronAPI && window.electronAPI.store) {
+      try {
+        await window.electronAPI.store.set('cycleData', {
+          startDate: date.toISOString(),
+          cycleLength: cycleData.cycleLength
+        });
+        await window.electronAPI.store.set('cycleHistory', newCycle);
       } catch (error) {
         console.error('Error saving cycle data:', error);
       }
@@ -238,13 +298,48 @@ const MenuBarApp = () => {
   }
 
   return (
-    <div className="w-80">
+    <div className="w-96">
       <div className="p-4">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold">MoodBooMs</h2>
         </div>
 
-        <div className="space-y-4">
+        {/* Tab Navigation */}
+        <div className="flex mb-4 bg-gray-100 rounded-lg p-1">
+          <button
+            onClick={() => setActiveTab('mood')}
+            className={`flex-1 py-2 px-3 rounded-md transition-colors text-sm ${
+              activeTab === 'mood' 
+                ? 'bg-white shadow-sm' 
+                : 'hover:bg-gray-200'
+            }`}
+          >
+            Mood
+          </button>
+          <button
+            onClick={() => setActiveTab('calendar')}
+            className={`flex-1 py-2 px-3 rounded-md transition-colors text-sm ${
+              activeTab === 'calendar' 
+                ? 'bg-white shadow-sm' 
+                : 'hover:bg-gray-200'
+            }`}
+          >
+            Calendar
+          </button>
+          <button
+            onClick={() => setActiveTab('history')}
+            className={`flex-1 py-2 px-3 rounded-md transition-colors text-sm ${
+              activeTab === 'history' 
+                ? 'bg-white shadow-sm' 
+                : 'hover:bg-gray-200'
+            }`}
+          >
+            History
+          </button>
+        </div>
+
+        {activeTab === 'mood' ? (
+          <div className="space-y-4">
           <div className="p-3 bg-gray-100 rounded">
             <div className="space-y-2">
               <div className="flex items-center gap-2">
@@ -314,6 +409,36 @@ const MenuBarApp = () => {
             )}
           </div>
         </div>
+        ) : (
+          <div className="space-y-4">
+            <Calendar 
+              cycleStartDate={testMode 
+                ? new Date(new Date().getTime() - testDays * 24 * 60 * 60 * 1000) 
+                : cycleData.startDate
+              }
+              cycleLength={cycleData.cycleLength}
+              onDateSelect={(date) => setSelectedDate(date)}
+            />
+            {selectedDate && (
+              <div className="border-t pt-4">
+                <PhaseDetail
+                  selectedDate={selectedDate}
+                  cycleStartDate={testMode 
+                    ? new Date(new Date().getTime() - testDays * 24 * 60 * 60 * 1000) 
+                    : cycleData.startDate
+                  }
+                  cycleLength={cycleData.cycleLength}
+                />
+              </div>
+            )}
+          </div>
+        ) : activeTab === 'history' ? (
+          <HistoryView 
+            cycleHistory={cycleHistory}
+            currentCycleStart={cycleData.startDate}
+            onPeriodStart={handlePeriodStart}
+          />
+        ) : null}
       </div>
     </div>
   );

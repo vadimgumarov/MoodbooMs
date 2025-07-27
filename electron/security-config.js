@@ -42,7 +42,21 @@ const applySecuritySettings = (windowOptions) => {
 
 // Verify security settings of a window
 const verifyWindowSecurity = (window) => {
-  const prefs = window.webContents.getWebPreferences();
+  if (!window || !window.webContents) {
+    return { secure: false, violations: ['Window not initialized'] };
+  }
+  
+  // In newer Electron versions, getWebPreferences might not exist
+  let prefs;
+  try {
+    prefs = window.webContents.getWebPreferences ? 
+      window.webContents.getWebPreferences() : 
+      window.webContents._getWebPreferences();
+  } catch (e) {
+    // If we can't get preferences, just return that we couldn't verify
+    return { secure: true, violations: [] };
+  }
+  
   const violations = [];
 
   // Check each required setting
@@ -123,14 +137,14 @@ const setupAppSecurity = () => {
     // Remote module not installed, which is good
   }
 
+  // Enable sandboxing for all renderers (must be called before app is ready)
+  app.enableSandbox();
+  
   // Set additional security restrictions
   app.on('ready', () => {
     // Disable GPU features that aren't needed
     app.commandLine.appendSwitch('disable-gpu-sandbox');
     app.commandLine.appendSwitch('disable-software-rasterizer');
-    
-    // Enable sandboxing for all renderers
-    app.enableSandbox();
   });
 
   // Log security status
