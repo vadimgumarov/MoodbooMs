@@ -3,7 +3,7 @@ import { Calendar, Target, TrendingUp, AlertCircle } from 'lucide-react';
 import { calculateCurrentDay, getCurrentPhase, getFertilityLevel } from '../utils/cycleCalculations';
 import { calculateFertilityPercentage } from '../utils/phaseDetection';
 
-const StatusCard = ({ cycleData, currentPhase, testMode, testDays }) => {
+const StatusCard = ({ cycleData, currentPhase, testMode, testDays, isBadassMode = true }) => {
   // Calculate cycle day
   const currentDate = testMode 
     ? new Date(new Date().getTime() - testDays * 24 * 60 * 60 * 1000)
@@ -30,7 +30,7 @@ const StatusCard = ({ cycleData, currentPhase, testMode, testDays }) => {
   };
   
   // Calculate days until next phase
-  const phaseDurations = {
+  const badassPhases = {
     'Bloody Hell Week': 5,
     'Finally Got My Sh*t Together': 8,
     'Horny AF': 3,
@@ -39,7 +39,18 @@ const StatusCard = ({ cycleData, currentPhase, testMode, testDays }) => {
     'Apocalypse Countdown': cycleData.cycleLength - 24
   };
   
-  const phaseOrder = [
+  const professionalPhases = {
+    'Menstruation': 5,
+    'Follicular Phase': 8,
+    'Ovulation': 3,
+    'Luteal Phase': 4,
+    'Late Luteal Phase': 4,
+    'Pre-Menstrual': cycleData.cycleLength - 24
+  };
+  
+  const phaseDurations = isBadassMode ? badassPhases : professionalPhases;
+  
+  const badassOrder = [
     'Bloody Hell Week',
     'Finally Got My Sh*t Together', 
     'Horny AF',
@@ -47,6 +58,17 @@ const StatusCard = ({ cycleData, currentPhase, testMode, testDays }) => {
     'Pre-Chaos Mood Swings',
     'Apocalypse Countdown'
   ];
+  
+  const professionalOrder = [
+    'Menstruation',
+    'Follicular Phase',
+    'Ovulation',
+    'Luteal Phase',
+    'Late Luteal Phase',
+    'Pre-Menstrual'
+  ];
+  
+  const phaseOrder = isBadassMode ? badassOrder : professionalOrder;
   
   const currentPhaseIndex = phaseOrder.indexOf(currentPhase.phase);
   const nextPhaseIndex = (currentPhaseIndex + 1) % phaseOrder.length;
@@ -61,7 +83,8 @@ const StatusCard = ({ cycleData, currentPhase, testMode, testDays }) => {
   }
   
   daysIntoPhase = cycleDay - phaseStartDay + 1;
-  const daysUntilNextPhase = phaseDurations[currentPhase.phase] - daysIntoPhase + 1;
+  const currentPhaseDuration = phaseDurations[currentPhase.phase] || 4; // Default to 4 if phase not found
+  const daysUntilNextPhase = Math.max(1, currentPhaseDuration - daysIntoPhase + 1);
   
   // Fertility level to color mapping
   const fertilityColors = {
@@ -111,12 +134,12 @@ const StatusCard = ({ cycleData, currentPhase, testMode, testDays }) => {
       <div className="space-y-1">
         <div className="flex justify-between text-xs text-gray-600">
           <span>Phase Progress</span>
-          <span>{daysIntoPhase} of {phaseDurations[currentPhase.phase]} days</span>
+          <span>{daysIntoPhase} of {currentPhaseDuration} days</span>
         </div>
         <div className="w-full bg-gray-200 rounded-full h-2">
           <div 
             className="bg-indigo-500 h-2 rounded-full transition-all duration-300"
-            style={{ width: `${(daysIntoPhase / phaseDurations[currentPhase.phase]) * 100}%` }}
+            style={{ width: `${Math.min(100, (daysIntoPhase / currentPhaseDuration) * 100)}%` }}
           />
         </div>
       </div>
@@ -136,7 +159,9 @@ const StatusCard = ({ cycleData, currentPhase, testMode, testDays }) => {
       {fertilityInfo.level === 'Very High' && (
         <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 flex items-center gap-2">
           <AlertCircle className="w-4 h-4 text-amber-600" />
-          <span className="text-sm text-amber-700">Peak fertility window!</span>
+          <span className="text-sm text-amber-700">
+            {isBadassMode ? "High energy mode - Handle with care!" : "Peak energy - I could conquer the world!"}
+          </span>
         </div>
       )}
     </div>

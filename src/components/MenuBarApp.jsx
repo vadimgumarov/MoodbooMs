@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Sun, CloudSun, Cloud, CloudRain, CloudLightning, Tornado, Heart, Coffee, Candy, IceCream, Cookie, Settings, AlertCircle } from 'lucide-react';
+import { Sun, CloudSun, Cloud, CloudRain, CloudLightning, Tornado, Heart, Coffee, Candy, IceCream, Cookie, Settings, AlertCircle, Soup, Apple, Fish, Salad, Milk, Cherry, Wheat, Carrot, Egg, Nut, Banana } from 'lucide-react';
 import Calendar from './Calendar';
 import PhaseDetail from './PhaseDetail';
 import HistoryView from './HistoryView';
@@ -7,157 +7,55 @@ import StatusCard from './StatusCard';
 import SettingsPanel from './SettingsPanel';
 import { createCycleRecord, completeCycleRecord, addCycleToHistory } from '../utils/cycleHistory';
 import { calculateCurrentDay, getCurrentPhase } from '../utils/cycleCalculations';
+import { modeContent, getRandomPhrase, resetPhraseTracking, getUIText } from '../content/modeContent';
 
-const moodMessages = {
-  'Bloody Hell Week': [
-    "Warning: Will cry at pet food commercials",
-    "Current status: Wrapped in blanket burrito",
-    "Accepting chocolate-based bribes only",
-    "Don't talk to me until I've had my 5th painkiller",
-    "Today's mood: Everything hurts and I'm dying"
-  ],
-  'Finally Got My Sh*t Together': [
-    "Look who's wearing real pants today!",
-    "Productivity level: Actually answered emails",
-    "Today's goal: World domination (or laundry)",
-    "Finally remembered to buy groceries",
-    "Energy level: Could actually make dinner"
-  ],
-  'Horny AF': [
-    "Everyone looking like a snack today",
-    "BRB downloading dating apps again",
-    "Is it hot in here or is it just everyone?",
-    "Warning: May slide into DMs",
-    "Looking respectfully 👀"
-  ],
-  'Getting Real Tired of This BS': [
-    "Tolerance for BS: -9000",
-    "Don't test me, I will cry",
-    "Current status: Questioning all life choices",
-    "Energy level: Running on spite",
-    "Just need a nap... or 7"
-  ],
-  'Pre-Chaos Mood Swings': [
-    "Simultaneously want hugs and murder",
-    "Drama level: Reality TV worthy",
-    "Current mood: Unhinged",
-    "Warning: May bite",
-    "Emotional stability who?"
-  ],
-  'Apocalypse Countdown': [
-    "Accepting offerings by the door only",
-    "Current status: One minor inconvenience away from losing it",
-    "Do not perceive me",
-    "Warning: Might set something on fire",
-    "Distance from sanity: Astronomical"
-  ]
+// Icon mapping for food items
+const foodIconMap = {
+  'Soup': Soup,
+  'Apple': Apple,
+  'Fish': Fish,
+  'Salad': Salad,
+  'Milk': Milk,
+  'Cherry': Cherry,
+  'Wheat': Wheat,
+  'Coffee': Coffee,
+  'Carrot': Carrot,
+  'Egg': Egg,
+  'Nut': Nut,
+  'Banana': Banana,
+  'Cookie': Cookie,
+  'IceCream': IceCream,
+  'Candy': Candy
 };
 
-const professionalMoodMessages = {
-  'Menstruation': [
-    "Rest and hydration are important today",
-    "Light exercise may help with cramps",
-    "Iron-rich foods recommended",
-    "This phase typically lasts 3-7 days",
-    "Your body is resetting for a new cycle"
-  ],
-  'Follicular Phase': [
-    "Energy levels are increasing",
-    "Great time to start new projects",
-    "Your body is preparing for ovulation",
-    "Focus and creativity peak during this phase",
-    "Exercise tolerance is higher"
-  ],
-  'Ovulation': [
-    "Peak fertility window",
-    "Energy and confidence at monthly high",
-    "Body temperature slightly elevated",
-    "Optimal time for social activities",
-    "Enhanced communication skills"
-  ],
-  'Luteal Phase': [
-    "Progesterone levels rising",
-    "Energy may start to decline",
-    "Focus on completing tasks",
-    "Good time for detail-oriented work",
-    "Metabolism slightly increased"
-  ],
-  'Late Luteal Phase': [
-    "PMS symptoms may appear",
-    "Increased need for rest",
-    "Magnesium-rich foods may help",
-    "Gentle movement recommended",
-    "Self-care is important"
-  ],
-  'Pre-Menstrual': [
-    "Prepare for upcoming menstruation",
-    "Stock up on comfort items",
-    "Reduce caffeine intake",
-    "Practice stress management",
-    "Rest is essential"
-  ]
+// Helper to map phase names to content keys
+const getPhaseKey = (phaseName) => {
+  const phaseKeyMap = {
+    // Queen mode
+    'Bloody Hell Week': 'menstrual',
+    'Finally Got My Sh*t Together': 'follicular',
+    'Horny AF': 'ovulation',
+    'Getting Real Tired of This BS': 'luteal',
+    'Pre-Chaos Mood Swings': 'lateLuteal',
+    'Apocalypse Countdown': 'premenstrual',
+    // King mode
+    'Code Red Alert': 'menstrual',
+    'Safe Zone Active': 'follicular',
+    'High Energy Warning': 'ovulation',
+    'Patience Level: Low': 'luteal',
+    'Volatility Alert': 'lateLuteal',
+    'DEFCON 1': 'premenstrual'
+  };
+  return phaseKeyMap[phaseName] || 'menstrual';
 };
 
-const getRandomMood = (phase, isBadassMode = true) => {
-  const moods = isBadassMode ? moodMessages[phase] : professionalMoodMessages[phase];
-  if (!moods || moods.length === 0) {
-    return isBadassMode ? "Loading sass..." : "Tracking your cycle...";
-  }
-  return moods[Math.floor(Math.random() * moods.length)];
-};
-
-const getRandomFood = () => {
-  const foods = [
-    { icon: Candy, text: "an entire bag of gummy bears" },
-    { icon: Cookie, text: "ALL the cookies" },
-    { icon: Coffee, text: "a venti coffee with 12 espresso shots" },
-    { icon: IceCream, text: "ice cream for breakfast" },
-    { icon: Candy, text: "chocolate. Just chocolate. Only chocolate" },
-    { icon: Cookie, text: "raw cookie dough straight from the tube" },
-    { icon: Coffee, text: "anything with caffeine, literally anything" },
-    { icon: IceCream, text: "a gallon of rocky road" },
-    { icon: Candy, text: "an entire box of chocolates meant for sharing" },
-    { icon: Cookie, text: "grandma's secret recipe cookies" },
-    { icon: Coffee, text: "enough coffee to worry a doctor" },
-    { icon: IceCream, text: "every flavor in the ice cream shop" }
-  ];
-  return foods[Math.floor(Math.random() * foods.length)];
-};
-
-const calculatePhase = (startDate, cycleLength = 28, isBadassMode = true) => {
+const calculatePhase = (startDate, cycleLength = 28, isKingMode = false) => {
   const today = new Date();
   const currentDay = calculateCurrentDay(startDate, today, cycleLength);
   const medicalPhase = getCurrentPhase(currentDay, cycleLength);
   
-  // Professional mode content
-  const professionalMapping = {
-    'menstrual': {
-      phase: 'Menstruation',
-      icon: CloudLightning,
-      description: 'Days 1-5 of your cycle. Rest and self-care recommended.'
-    },
-    'follicular': {
-      phase: 'Follicular Phase',
-      icon: Sun,
-      description: 'Energy levels rising. Good time for new activities.'
-    },
-    'ovulation': {
-      phase: 'Ovulation',
-      icon: CloudSun,
-      description: 'Peak fertility window. Highest energy levels.'
-    },
-    'luteal': {
-      // In luteal phase, check if we're in late luteal for different moods
-      phase: currentDay >= cycleLength - 7 ? 'Late Luteal Phase' : 'Luteal Phase',
-      icon: currentDay >= cycleLength - 7 ? CloudRain : Cloud,
-      description: currentDay >= cycleLength - 7 
-        ? 'PMS symptoms may occur. Practice self-compassion.'
-        : 'Progesterone rising. Energy may decrease.'
-    }
-  };
-  
-  // Badass mode content
-  const badassMapping = {
+  // Queen mode content (female first-person perspective)
+  const queenMapping = {
     'menstrual': {
       phase: 'Bloody Hell Week',
       icon: CloudLightning,
@@ -183,22 +81,45 @@ const calculatePhase = (startDate, cycleLength = 28, isBadassMode = true) => {
     }
   };
   
+  // King mode content (partner/observer perspective)
+  const kingMapping = {
+    'menstrual': {
+      phase: 'Code Red Alert',
+      icon: CloudLightning,
+      description: 'Approach with chocolate. And caution.'
+    },
+    'follicular': {
+      phase: 'Safe Zone Active',
+      icon: Sun,
+      description: 'She\'s back! Quick, make plans!'
+    },
+    'ovulation': {
+      phase: 'High Energy Warning',
+      icon: CloudSun,
+      description: 'Buckle up, cowboy. You\'re needed.'
+    },
+    'luteal': {
+      // In luteal phase, check if we're in late luteal for different moods
+      phase: currentDay >= cycleLength - 7 ? 'Volatility Alert' : 'Patience Level: Low',
+      icon: currentDay >= cycleLength - 7 ? CloudRain : Cloud,
+      description: currentDay >= cycleLength - 7 
+        ? 'Emotional turbulence ahead. Fasten seatbelts.'
+        : 'Her patience is running low. Proceed carefully.'
+    }
+  };
+  
   // Special case for very late luteal (last 3 days)
-  if (currentDay >= cycleLength - 3 && isBadassMode) {
+  if (currentDay >= cycleLength - 3) {
     return {
-      phase: 'Apocalypse Countdown',
+      phase: isKingMode ? 'DEFCON 1' : 'Apocalypse Countdown',
       icon: Tornado,
-      description: 'If you value your life, bring snacks'
-    };
-  } else if (currentDay >= cycleLength - 3 && !isBadassMode) {
-    return {
-      phase: 'Pre-Menstrual',
-      icon: Tornado,
-      description: 'Cycle ending soon. Prepare for menstruation.'
+      description: isKingMode 
+        ? 'Maximum danger. Bring chocolate. Leave chocolate. Run.'
+        : 'If you value your life, bring snacks'
     };
   }
   
-  const mapping = isBadassMode ? badassMapping : professionalMapping;
+  const mapping = isKingMode ? kingMapping : queenMapping;
   return mapping[medicalPhase] || mapping['luteal'];
 };
 
@@ -220,7 +141,7 @@ const MenuBarApp = () => {
   const [preferences, setPreferences] = useState({
     notifications: true,
     theme: 'auto',
-    badassMode: true // Default to badass mode
+    badassMode: false // Default to Queen mode (female perspective)
   });
 
   // Load saved data on mount
@@ -262,7 +183,7 @@ const MenuBarApp = () => {
             setPreferences({
               ...preferences,
               ...savedPreferences,
-              badassMode: savedPreferences.badassMode !== undefined ? savedPreferences.badassMode : true
+              badassMode: savedPreferences.badassMode !== undefined ? savedPreferences.badassMode : false
             });
             if (savedPreferences.testMode !== undefined) {
               setTestMode(savedPreferences.testMode);
@@ -297,11 +218,22 @@ const MenuBarApp = () => {
         const phase = calculatePhase(
           testMode ? new Date(new Date().getTime() - testDays * 24 * 60 * 60 * 1000) : cycleData.startDate, 
           cycleData.cycleLength,
-          preferences.badassMode !== false
+          preferences.badassMode === true
         );
         setCurrentPhase(phase);
-        setCurrentMood(getRandomMood(phase.phase, preferences.badassMode !== false));
-        setCurrentCraving(getRandomFood());
+        
+        // Get mood and craving from content system
+        const mode = preferences.badassMode ? 'king' : 'queen';
+        const phaseKey = getPhaseKey(phase.phase);
+        console.log('Mode:', mode, 'BadassMode:', preferences.badassMode, 'PhaseKey:', phaseKey);
+        const mood = getRandomPhrase(mode, phaseKey, 'moods');
+        const craving = getRandomPhrase(mode, phaseKey, 'cravings');
+        
+        setCurrentMood(mood);
+        setCurrentCraving({
+          icon: foodIconMap[craving.icon] || Candy,
+          text: craving.text
+        });
         
         // Update tray icon via unified API
         if (window.electronAPI && window.electronAPI.tray) {
@@ -318,7 +250,7 @@ const MenuBarApp = () => {
     }, 300); // 300ms debounce
     
     return () => clearTimeout(timer); // Clean up timer
-  }, [cycleData, testDays, testMode, isLoading, preferences]);
+  }, [cycleData.startDate, cycleData.cycleLength, testDays, testMode, isLoading, preferences.badassMode]);
 
   const handleDateChange = async (newDate) => {
     setCycleData(prev => ({ ...prev, startDate: newDate }));
@@ -472,9 +404,9 @@ const MenuBarApp = () => {
       <div className="p-4">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold">MoodBooMs</h2>
-          {/* Badass Mode Toggle */}
+          {/* Queen/King Mode Toggle */}
           <label className="flex items-center gap-2 cursor-pointer">
-            <span className="text-xs text-gray-600">BadAss</span>
+            <span className="text-xs text-gray-600">{preferences.badassMode ? 'King' : 'Queen'}</span>
             <div className="relative">
               <input
                 type="checkbox"
@@ -516,7 +448,7 @@ const MenuBarApp = () => {
                 : 'hover:bg-gray-200'
             }`}
           >
-            Mood
+            {getUIText(preferences.badassMode ? 'king' : 'queen', 'tabs', 'mood')}
           </button>
           <button
             onClick={() => setActiveTab('calendar')}
@@ -526,7 +458,7 @@ const MenuBarApp = () => {
                 : 'hover:bg-gray-200'
             }`}
           >
-            Calendar
+            {getUIText(preferences.badassMode ? 'king' : 'queen', 'tabs', 'calendar')}
           </button>
           <button
             onClick={() => setActiveTab('history')}
@@ -536,7 +468,7 @@ const MenuBarApp = () => {
                 : 'hover:bg-gray-200'
             }`}
           >
-            History
+            {getUIText(preferences.badassMode ? 'king' : 'queen', 'tabs', 'history')}
           </button>
           <button
             onClick={() => setActiveTab('settings')}
@@ -557,17 +489,18 @@ const MenuBarApp = () => {
             currentPhase={currentPhase}
             testMode={testMode}
             testDays={testDays}
+            isBadassMode={preferences.badassMode !== false}
           />
 
           <div className="p-3 bg-gray-100 rounded">
-            <p className="text-sm font-medium">Today's Mood:</p>
+            <p className="text-sm font-medium">{preferences.badassMode ? "Her Status:" : "My Mood:"}</p>
             <p className="text-sm italic text-gray-600">{currentMood}</p>
           </div>
 
           <div className="p-3 bg-gray-100 rounded flex items-center gap-2">
-            <p className="text-sm">Current Craving:</p>
+            <p className="text-sm">{preferences.badassMode ? "She Needs:" : "I Need:"}</p>
             <currentCraving.icon className="w-4 h-4" />
-            <p className="text-sm italic">Need {currentCraving.text} ASAP</p>
+            <p className="text-sm italic">{preferences.badassMode ? `Get her ${currentCraving.text}` : `Need ${currentCraving.text} ASAP`}</p>
           </div>
 
           <div className="flex items-center gap-2">
@@ -613,6 +546,7 @@ const MenuBarApp = () => {
               }
               cycleLength={cycleData.cycleLength}
               onDateSelect={(date) => setSelectedDate(date)}
+              isBadassMode={preferences.badassMode !== false}
             />
             {selectedDate && (
               <div className="border-t pt-4">
@@ -623,6 +557,7 @@ const MenuBarApp = () => {
                     : cycleData.startDate
                   }
                   cycleLength={cycleData.cycleLength}
+                  isBadassMode={preferences.badassMode !== false}
                 />
               </div>
             )}
@@ -632,6 +567,7 @@ const MenuBarApp = () => {
             cycleHistory={cycleHistory}
             currentCycleStart={cycleData.startDate}
             onPeriodStart={handlePeriodStart}
+            isBadassMode={preferences.badassMode !== false}
           />
         ) : activeTab === 'settings' ? (
           <SettingsPanel

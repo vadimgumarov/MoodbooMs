@@ -19,7 +19,7 @@ import {
   getCurrentPhase 
 } from '../../utils/cycleCalculations';
 
-const Calendar = ({ cycleStartDate, cycleLength = 28, onDateSelect }) => {
+const Calendar = ({ cycleStartDate, cycleLength = 28, onDateSelect, isBadassMode = true }) => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const today = new Date();
 
@@ -143,27 +143,27 @@ const Calendar = ({ cycleStartDate, cycleLength = 28, onDateSelect }) => {
 
       {/* Legend */}
       <div className="mt-6 space-y-2">
-        <h3 className="text-sm font-medium text-gray-700">Fertility Legend</h3>
+        <h3 className="text-sm font-medium text-gray-700">{isBadassMode ? "Mood Warning System" : "My Cycle Map"}</h3>
         <div className="grid grid-cols-2 gap-2 text-xs">
           <div className="flex items-center space-x-2">
             <div className="w-4 h-4 bg-red-500 rounded"></div>
-            <span>Menstruation</span>
+            <span>{isBadassMode ? "Maximum Danger - Bring Offerings" : "The Red Wedding"}</span>
           </div>
           <div className="flex items-center space-x-2">
             <div className="w-4 h-4 bg-yellow-200 rounded"></div>
-            <span>Low Fertility</span>
+            <span>{isBadassMode ? "Relatively Safe" : "Chill Zone"}</span>
           </div>
           <div className="flex items-center space-x-2">
             <div className="w-4 h-4 bg-gray-300 rounded"></div>
-            <span>Medium Fertility</span>
+            <span>{isBadassMode ? "Proceed With Caution" : "Feeling Good"}</span>
           </div>
           <div className="flex items-center space-x-2">
             <div className="w-4 h-4 bg-green-300 rounded"></div>
-            <span>High Fertility</span>
+            <span>{isBadassMode ? "High Energy - Stay Alert" : "Peak Power"}</span>
           </div>
           <div className="flex items-center space-x-2">
             <div className="w-4 h-4 bg-green-500 rounded"></div>
-            <span>Peak Fertility (Ovulation)</span>
+            <span>{isBadassMode ? "Maximum Energy - She's Unstoppable" : "I'm Invincible Mode"}</span>
           </div>
         </div>
       </div>
