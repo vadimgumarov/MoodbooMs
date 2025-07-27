@@ -1,11 +1,10 @@
 const { Tray, nativeImage } = require('electron');
-const IconGeneratorLucide = require('./iconGeneratorLucide');
+const { getIconForPhase } = require('./iconFromPNG');
 
 class TrayManager {
   constructor() {
     this.tray = null;
     this.window = null;
-    this.iconGenerator = new IconGeneratorLucide();
     this.currentPhase = null;
   }
 
@@ -16,9 +15,9 @@ class TrayManager {
     
     try {
       // Create initial tray with default icon
-      console.log('Generating default icon...');
-      const defaultIcon = this.iconGenerator.generateIcon('default');
-      console.log('Default icon generated, creating Tray...');
+      console.log('Loading default PNG icon...');
+      const defaultIcon = getIconForPhase('default');
+      console.log('Default icon loaded, creating Tray...');
       this.tray = new Tray(defaultIcon);
       console.log('Tray created successfully');
       
@@ -87,17 +86,17 @@ class TrayManager {
     }
 
     try {
-      console.log(`Generating new icon for phase: ${phase}`);
-      const newIcon = this.iconGenerator.generateIcon(phase);
+      console.log(`Loading PNG icon for phase: ${phase}`);
+      const newIcon = getIconForPhase(phase);
       
       if (newIcon && !newIcon.isEmpty()) {
-        console.log(`Icon generated successfully, size: ${newIcon.getSize().width}x${newIcon.getSize().height}`);
+        console.log(`Icon loaded successfully, size: ${newIcon.getSize().width}x${newIcon.getSize().height}`);
         console.log('Setting new tray image...');
         this.tray.setImage(newIcon);
         this.currentPhase = phase;
         console.log('Tray icon updated successfully');
       } else {
-        console.error('ERROR: Generated icon is empty');
+        console.error('ERROR: Icon is empty');
       }
     } catch (error) {
       console.error('ERROR in updateIcon:', error.message);
@@ -105,7 +104,7 @@ class TrayManager {
       // Fallback to default icon
       try {
         console.log('Attempting fallback to default icon...');
-        const defaultIcon = this.iconGenerator.generateIcon('default');
+        const defaultIcon = getIconForPhase('default');
         this.tray.setImage(defaultIcon);
         console.log('Fallback icon set');
       } catch (fallbackError) {
@@ -134,9 +133,9 @@ class TrayManager {
     }
   }
 
-  // Clear icon cache
+  // Clear icon cache (not needed for PNG files)
   clearIconCache() {
-    this.iconGenerator.clearCache();
+    // No cache needed with PNG files
   }
 }
 

@@ -3,6 +3,7 @@ import { Sun, CloudSun, Cloud, CloudRain, CloudLightning, Tornado, Heart, Coffee
 import Calendar from './Calendar';
 import PhaseDetail from './PhaseDetail';
 import HistoryView from './HistoryView';
+import StatusCard from './StatusCard';
 import { createCycleRecord, completeCycleRecord, addCycleToHistory } from '../utils/cycleHistory';
 import { calculateCurrentDay, getCurrentPhase } from '../utils/cycleCalculations';
 
@@ -371,15 +372,12 @@ const MenuBarApp = () => {
 
         {activeTab === 'mood' ? (
           <div className="space-y-4">
-          <div className="p-3 bg-gray-100 rounded">
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                {currentPhase.icon && <currentPhase.icon className="w-5 h-5" />}
-                <span className="font-bold">{currentPhase.phase}</span>
-              </div>
-              <p className="text-sm text-gray-600 italic">{currentPhase.description}</p>
-            </div>
-          </div>
+          <StatusCard 
+            cycleData={cycleData}
+            currentPhase={currentPhase}
+            testMode={testMode}
+            testDays={testDays}
+          />
 
           <div className="p-3 bg-gray-100 rounded">
             <p className="text-sm font-medium">Today's Mood:</p>

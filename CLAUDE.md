@@ -526,3 +526,5 @@ The app tracks 6 phases with medical accuracy:
 - The system is in PST/PDT (Pacific Time)
 - Use the command `date '+%Y-%m-%d %H:%M'` to get the correct timestamp
 - Format for PROJECT_LOG.txt: "YYYY-MM-DD HH:MM: Entry Title"
+- **IMPORTANT**: New entries in PROJECT_LOG.txt must be added at the TOP of the file
+- The log follows reverse chronological order (newest entries first)
