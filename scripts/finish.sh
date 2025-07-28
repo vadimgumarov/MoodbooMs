@@ -127,6 +127,8 @@ git commit -m "$COMMIT_MESSAGE"
 # Push to remote
 echo -e "${BLUE}📤 Pushing to remote...${NC}"
 git push -u origin "$BRANCH_NAME"
+echo ""
+echo -e "${GREEN}✅ Changes pushed successfully!${NC}"
 
 # Check if we should merge to parent branch
 if [[ "$BRANCH_NAME" =~ ^feat/epic-[0-9]+/issue- ]]; then
@@ -134,7 +136,19 @@ if [[ "$BRANCH_NAME" =~ ^feat/epic-[0-9]+/issue- ]]; then
     EPIC_BRANCH=$(echo "$BRANCH_NAME" | sed 's/\/issue-.*//')
     echo ""
     echo -e "${CYAN}This is an issue branch within an epic${NC}"
-    read -p "Merge to epic branch $EPIC_BRANCH? (Y/n): " MERGE_TO_EPIC
+    echo ""
+    echo -e "${YELLOW}════════════════════════════════════════════════════════${NC}"
+    echo -e "${YELLOW}❓ ACTION REQUIRED:${NC}"
+    echo -e "${CYAN}Question: Merge to epic branch $EPIC_BRANCH? (Y/n)${NC}"
+    echo -e "${YELLOW}════════════════════════════════════════════════════════${NC}"
+    echo ""
+    # Add some blank lines to ensure visibility
+    echo ""
+    echo ""
+    # Duplicate the prompt as a reminder
+    echo -e "${YELLOW}[WAITING FOR YOUR RESPONSE ABOVE ⬆️ ]${NC}"
+    echo -e "${CYAN}→ Merge to epic branch $EPIC_BRANCH? (Y/n):${NC}"
+    read -p "" MERGE_TO_EPIC
     
     if [[ "$MERGE_TO_EPIC" != "n" && "$MERGE_TO_EPIC" != "N" ]]; then
         echo -e "${BLUE}🔀 Merging to epic branch...${NC}"
@@ -161,14 +175,27 @@ elif [[ "$BRANCH_NAME" =~ ^feat/epic-[0-9]+- ]]; then
     # Extract epic number from branch name
     EPIC_NUM=$(echo "$BRANCH_NAME" | sed 's/^feat\/epic-\([0-9]\+\).*/\1/')
     
+    echo -e "${YELLOW}════════════════════════════════════════════════════════${NC}"
+    echo -e "${YELLOW}❓ EPIC COMPLETION - ACTION REQUIRED:${NC}"
+    echo -e "${YELLOW}════════════════════════════════════════════════════════${NC}"
+    echo ""
+    echo -e "${GREEN}✅ Changes pushed successfully to epic branch: $BRANCH_NAME${NC}"
+    echo ""
     echo -e "${CYAN}Epic completion checklist:${NC}"
     echo "1. Verify all child issues are closed"
     echo "2. Run comprehensive tests"
     echo "3. Test the application manually"
     echo "4. Create PR and merge to main"
     echo ""
-    
-    read -p "Complete this epic? (y/N): " COMPLETE_EPIC
+    echo -e "${CYAN}Question: Complete this epic? (y/N)${NC}"
+    echo -e "${YELLOW}════════════════════════════════════════════════════════${NC}"
+    echo ""
+    echo ""
+    echo ""
+    # Duplicate the prompt as a reminder
+    echo -e "${YELLOW}[WAITING FOR YOUR RESPONSE ABOVE ⬆️ ]${NC}"
+    echo -e "${CYAN}→ Complete this epic? (y/N):${NC}"
+    read -p "" COMPLETE_EPIC
     if [[ "$COMPLETE_EPIC" == "y" || "$COMPLETE_EPIC" == "Y" ]]; then
         echo ""
         echo -e "${BLUE}🔍 Checking child issues...${NC}"
