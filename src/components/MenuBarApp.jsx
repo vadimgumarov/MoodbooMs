@@ -257,7 +257,7 @@ const MenuBarApp = () => {
     }, 300); // 300ms debounce
     
     return () => clearTimeout(timer); // Clean up timer
-  }, [cycleData.startDate, cycleData.cycleLength, testDays, testMode, isLoading, isKingMode]);
+  }, [cycleData.startDate, cycleData.cycleLength, testDays, testMode, isLoading, currentMode]); // Use currentMode instead of isKingMode
 
   const handleDateChange = async (newDate) => {
     setCycleData(prev => ({ ...prev, startDate: newDate }));
@@ -419,7 +419,12 @@ const MenuBarApp = () => {
               <input
                 type="checkbox"
                 checked={isKingMode}
-                onChange={() => toggleMode()}
+                onChange={(e) => {
+                  e.stopPropagation();
+                  if (!isSwitching) {
+                    toggleMode();
+                  }
+                }}
                 disabled={isSwitching}
                 className="sr-only"
               />

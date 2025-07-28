@@ -2,6 +2,39 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## CRITICAL RULES - READ FIRST
+
+### 1. NO CONFIDENT STATEMENTS UNLESS CERTAIN
+- NEVER state "the app is working" or "everything is fine" based on partial log output
+- VERIFY processes are actually running: `ps aux | grep -E "electron|npm"`
+- CHECK crash logs and heartbeat files
+- Only state facts you have verified
+
+### 2. NO APOLOGIES
+- Don't apologize for errors or misunderstandings
+- Focus on identifying and fixing issues
+- Be direct and factual
+
+### 3. ISSUE IDENTIFICATION IS PRIMARY GOAL
+- THINK before responding
+- Don't jump to the first assumption
+- Identify the exact:
+  - Error location
+  - Module causing the issue
+  - Line of code
+  - Stack trace
+- Test fixes before claiming they work
+- Use proper debugging tools and logs
+
+### 4. VERIFICATION BEFORE STATEMENTS
+- If logs show "React app loaded: true" - verify the app is STILL running
+- Check multiple sources:
+  - Process list
+  - Heartbeat files
+  - Crash logs
+  - Console output
+- State only what you can prove
+
 ## Project Overview
 
 MoodBooMs is an Electron-based menubar application that tracks menstrual cycle phases with humor. It combines a React frontend with Electron to create a macOS menubar app that displays cycle phase information and mood messages.
@@ -410,6 +443,7 @@ chore: update dependencies or configs
    - `🤖 Generated with [Claude Code](https://claude.ai/code)`
    - `Co-Authored-By: Claude <noreply@anthropic.com>`
    - Any AI-related signatures, links, or co-authorship mentions
+   - NEVER use any Claude signatures or AI-related text in commit messages
 
 ## Testing Standards
 

@@ -104,6 +104,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // Development/Debug (only in dev mode)
   dev: {
     openDevTools: () => ipcRenderer.send('dev-open-devtools'),
-    reload: () => ipcRenderer.send('dev-reload')
+    reload: () => ipcRenderer.send('dev-reload'),
+    log: (data) => ipcRenderer.send('dev-log', data)
   }
 });

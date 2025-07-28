@@ -91,11 +91,14 @@ if [ -n "$ISSUE_NUM" ]; then
 fi
 
 # Get commit message
-echo -e "${CYAN}Commit message (press Enter for auto-generated):${NC}"
 if [ -n "$AUTO_MESSAGE" ]; then
-    echo -e "${YELLOW}[Auto: $AUTO_MESSAGE]${NC}"
+    echo -e "${CYAN}Using auto-generated commit message:${NC}"
+    echo -e "${YELLOW}$AUTO_MESSAGE${NC}"
+    USER_MESSAGE=""
+else
+    echo -e "${CYAN}Commit message:${NC}"
+    read -r USER_MESSAGE
 fi
-read -r USER_MESSAGE
 
 # Use auto-generated if user didn't provide one
 if [ -z "$USER_MESSAGE" ]; then
