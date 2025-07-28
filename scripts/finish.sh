@@ -137,37 +137,20 @@ if [[ "$BRANCH_NAME" =~ ^feat/epic-[0-9]+/issue- ]]; then
     echo ""
     echo -e "${CYAN}This is an issue branch within an epic${NC}"
     echo ""
-    echo -e "${YELLOW}════════════════════════════════════════════════════════${NC}"
-    echo -e "${YELLOW}❓ ACTION REQUIRED:${NC}"
-    echo -e "${CYAN}Question: Merge to epic branch $EPIC_BRANCH? (Y/n)${NC}"
-    echo -e "${YELLOW}════════════════════════════════════════════════════════${NC}"
-    echo ""
-    # Add some blank lines to ensure visibility
-    echo ""
-    echo ""
-    # Duplicate the prompt as a reminder
-    echo -e "${YELLOW}[WAITING FOR YOUR RESPONSE ABOVE ⬆️ ]${NC}"
-    echo -e "${CYAN}→ Merge to epic branch $EPIC_BRANCH? (Y/n):${NC}"
-    read -p "" MERGE_TO_EPIC
+    echo -e "${BLUE}🔀 Automatically merging to epic branch $EPIC_BRANCH...${NC}"
+    git checkout "$EPIC_BRANCH"
+    git pull origin "$EPIC_BRANCH" 2>/dev/null || true
+    git merge --no-ff "$BRANCH_NAME" -m "Merge issue branch '$BRANCH_NAME' into $EPIC_BRANCH"
+    git push origin "$EPIC_BRANCH"
     
-    if [[ "$MERGE_TO_EPIC" != "n" && "$MERGE_TO_EPIC" != "N" ]]; then
-        echo -e "${BLUE}🔀 Merging to epic branch...${NC}"
-        git checkout "$EPIC_BRANCH"
-        git pull origin "$EPIC_BRANCH" 2>/dev/null || true
-        git merge --no-ff "$BRANCH_NAME" -m "Merge issue branch '$BRANCH_NAME' into $EPIC_BRANCH"
-        git push origin "$EPIC_BRANCH"
-        
-        # Optionally delete the issue branch
-        echo ""
-        read -p "Delete issue branch $BRANCH_NAME? (y/N): " DELETE_BRANCH
-        if [[ "$DELETE_BRANCH" == "y" || "$DELETE_BRANCH" == "Y" ]]; then
-            git branch -d "$BRANCH_NAME"
-            git push origin --delete "$BRANCH_NAME" 2>/dev/null || true
-            echo -e "${GREEN}✅ Issue branch deleted${NC}"
-        fi
-        
-        echo -e "${GREEN}✅ Merged to epic branch${NC}"
-    fi
+    # Automatically delete the issue branch after merging
+    echo ""
+    echo -e "${RED}🗑️  Deleting issue branch...${NC}"
+    git branch -d "$BRANCH_NAME"
+    git push origin --delete "$BRANCH_NAME" 2>/dev/null || true
+    echo -e "${GREEN}✅ Issue branch deleted${NC}"
+    
+    echo -e "${GREEN}✅ Successfully merged to epic branch${NC}"
 elif [[ "$BRANCH_NAME" =~ ^feat/epic-[0-9]+- ]]; then
     echo ""
     echo -e "${YELLOW}This is an epic branch${NC}"
