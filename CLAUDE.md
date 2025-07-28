@@ -6,6 +6,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 MoodBooMs is an Electron-based menubar application that tracks menstrual cycle phases with humor. It combines a React frontend with Electron to create a macOS menubar app that displays cycle phase information and mood messages.
 
+### Current Development Status (July 2025)
+- **Active Branch**: `feat/epic-68-modular-architecture`
+- **Mode System**: Queen (female first-person) / King (partner warning system) modes
+- **Content**: 360+ unique mood messages and cravings per mode
+- **Architecture**: Transitioning to modular Queen/King architecture (Epic #68)
+
 ## Security Architecture
 
 The app uses a secure Electron architecture with:
@@ -108,6 +114,40 @@ The application consists of:
    - Random mood messages and food cravings per phase
    - Period start adjustment for irregular cycles
    - Persistent data storage across app sessions
+   - Queen/King mode toggle for different perspectives
+
+## Queen/King Mode System
+
+### Overview
+The app features two distinct modes with different perspectives:
+- **Queen Mode** (toggle OFF): Female first-person experience ("I'm dealing with this")
+- **King Mode** (toggle ON): Partner warning system ("She's in this state")
+
+### Content Architecture
+```javascript
+// Current Implementation (transitioning to modular)
+modeContent.js: 900+ lines with all mood messages and cravings
+MenuBarApp.jsx: Phase names and descriptions
+
+// Mode Selection
+const mode = preferences.badassMode ? 'king' : 'queen';
+```
+
+### Phase Names by Mode
+| Medical Phase | Queen Mode | King Mode |
+|--------------|------------|-----------|
+| Menstrual | Bloody Hell Week | Code Red Alert |
+| Follicular | Finally Got My Sh*t Together | Safe Zone Active |
+| Ovulation | Horny AF | High Energy Warning |
+| Luteal | Getting Real Tired of This BS | Patience Level: Low |
+| Late Luteal | Pre-Chaos Mood Swings | Volatility Alert |
+| Pre-Menstrual | Apocalypse Countdown | DEFCON 1 |
+
+### Content Details
+- 360+ unique mood messages per mode (30+ per phase)
+- 360+ unique food cravings per mode
+- Phrase tracking system prevents repetition for 6 months
+- Different UI text for tabs, buttons, and labels
 
 ## Project Structure
 
@@ -217,6 +257,23 @@ We use modified versions of standard workflow scripts that automatically handle 
 1. **Epic Branch**: `feat/epic-{number}-{description}`
 2. **Issue Branch**: `feat/epic-{number}/issue-{number}-{description}`
 3. **Merge Pattern**: Issue → Epic → Main
+
+### Current Development Focus (Epic #68)
+
+**Modular Queen/King Architecture** - Separating modes into distinct modules:
+1. **Issue #69**: Extract shared core functionality
+2. **Issue #70**: Create Queen mode module  
+3. **Issue #71**: Create King mode module
+4. **Issue #72**: Implement mode switching
+
+**Branch Status**:
+- Active: `feat/epic-68-modular-architecture`
+- Previous: `feat/epic-59/issue-66-comprehensive-phrase-sets` (Queen/King content)
+
+**Key Files to Know**:
+- `src/content/modeContent.js` - All mood messages and cravings (900+ lines)
+- `src/components/MenuBarApp.jsx` - Main app logic and phase calculations
+- `electron/iconFromPNG.js` - Tray icon mapping (must match phase names)
 
 ### Standard Development Flow
 1. **Identify & Clarify Requirements**
@@ -412,6 +469,7 @@ npm run electron-dev
      - Infinite loops in React components
      - Rapid state updates causing re-render loops
      - IPC communication errors
+   - **Solution**: Add debouncing to phase updates (300ms delay)
    - **Debugging Steps**:
      - Check electron logs: `logs/electron-YYYY-MM-DD.log`
      - Check app logs: `logs/app-YYYY-MM-DD.log`
@@ -430,6 +488,17 @@ npm run electron-dev
      - Memory leaks from event listeners
      - Uncaught promises
    - **Debug**: Check both Electron and browser console logs
+
+4. **Icon Update Issues**
+   - **Symptom**: Tray icon doesn't update when switching modes
+   - **Cause**: Icon mapping not updated for new phase names
+   - **Solution**: Update `iconFromPNG.js` phaseIconMap with all phase names
+   - **Note**: Must restart Electron for icon changes to take effect
+
+5. **Mode Toggle Re-render Loop**
+   - **Symptom**: Rapid switching between modes causes performance issues
+   - **Cause**: useEffect dependencies triggering cascading updates
+   - **Solution**: Debounce phase updates, optimize useEffect dependencies
 
 ### Debugging Tools
 
@@ -577,13 +646,17 @@ NEVER proactively create documentation files (*.md) or README files. Only create
 ## Cycle Calculations and Fertility Tracking
 
 ### Cycle Phases
-The app tracks 6 phases with medical accuracy:
-1. **Menstrual** (Days 1-5): "Bloody Hell Week"
-2. **Follicular** (Days 6-13): "Finally Got My Sh*t Together"
-3. **Ovulation** (Days 14-16): "Horny AF"
-4. **Early Luteal** (Days 17-20): "Getting Real Tired of This BS"
-5. **Late Luteal** (Days 21-24): "Pre-Chaos Mood Swings"
-6. **PMS** (Days 25-28): "Apocalypse Countdown"
+The app tracks 6 phases with medical accuracy and mode-specific names:
+
+#### Phase Name Mapping
+| Medical Phase | Queen Mode | King Mode | Days |
+|--------------|------------|-----------|------|
+| Menstrual | Bloody Hell Week | Code Red Alert | 1-5 |
+| Follicular | Finally Got My Sh*t Together | Safe Zone Active | 6-13 |
+| Ovulation | Horny AF | High Energy Warning | 14-16 |
+| Early Luteal | Getting Real Tired of This BS | Patience Level: Low | 17-20 |
+| Late Luteal | Pre-Chaos Mood Swings | Volatility Alert | 21-24 |
+| PMS | Apocalypse Countdown | DEFCON 1 | 25-28 |
 
 ### Fertility Levels
 - **Very High** (85-100%): Days 13-15 (peak ovulation)
@@ -620,3 +693,54 @@ The app tracks 6 phases with medical accuracy:
 - Format for PROJECT_LOG.txt: "YYYY-MM-DD HH:MM: Entry Title"
 - **IMPORTANT**: New entries in PROJECT_LOG.txt must be added at the TOP of the file
 - The log follows reverse chronological order (newest entries first)
+
+## Critical Notes for Context Recovery
+
+### If Starting Fresh (Lost Context)
+1. **Check Current Branch**: `git branch --show-current`
+   - Should be on `feat/epic-68-modular-architecture`
+   - If not, switch to it: `git checkout feat/epic-68-modular-architecture`
+
+2. **Current Mode System**:
+   - Queen Mode = Female perspective (toggle OFF)
+   - King Mode = Partner warning system (toggle ON)
+   - NOT Professional/BadAss anymore - those were replaced
+
+3. **Common Issues & Quick Fixes**:
+   - **App crashes**: Kill all processes: `pkill -f "npm run dev" || pkill -f "electron" || true`
+   - **Icon not updating**: Restart Electron (icon changes require full restart)
+   - **Re-render loops**: Check for missing debouncing in useEffect
+
+4. **Running the App**:
+   ```bash
+   # Kill any existing processes first
+   pkill -f "npm run dev" || pkill -f "electron" || true
+   # Then start
+   npm run dev
+   ```
+
+5. **Key Implementation Details**:
+   - `preferences.badassMode` still used internally (true = King, false = Queen)
+   - Phase names differ between modes (see Phase Name Mapping table in Cycle Calculations section)
+   - Content is in `modeContent.js`, phase logic in `MenuBarApp.jsx`
+
+6. **Next Steps (Epic #68)**:
+   - Working on modular architecture to separate Queen/King into distinct modules
+   - Start with Issue #69: Extract shared core functionality
+
+### Emergency Recovery Commands
+```bash
+# Check status
+git status
+gh issue list --assignee @me
+
+# View current epic
+gh issue view 68
+
+# Check logs for errors
+tail -50 logs/electron-*.log | grep -i error
+
+# Reset if needed
+git stash
+git checkout feat/epic-68-modular-architecture
+```

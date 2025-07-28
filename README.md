@@ -1,7 +1,7 @@
 # MoodBooMs - Fertility Tracking Menu Bar App
 
 ## Overview
-MoodBooMs is a discreet, professional fertility tracking application that lives in your menu bar. It provides at-a-glance cycle information with a calendar view, safety indicators, and personalized insights.
+MoodBooMs is a discreet, humorous fertility tracking application that lives in your menu bar. It provides at-a-glance cycle information with a calendar view, mood messages, and personalized insights. Features two distinct modes: Queen (female perspective) and King (partner warning system).
 
 ## Features
 - 🎯 **Dynamic Menu Bar Icon** - Weather-themed icons that change based on cycle phase (✅ Implemented)
@@ -13,14 +13,27 @@ MoodBooMs is a discreet, professional fertility tracking application that lives 
 - 🔄 **Period Adjustment** - Mark new period start for irregular cycles (✅ Implemented)
 - 🔔 **Optional Notifications** - Customizable reminders and alerts (Planned)
 
+### Queen/King Mode System
+MoodBooMs features two distinct experience modes:
+
+**Queen Mode** (Female First-Person):
+- "I'm dealing with this sh*t" perspective
+- Direct, personal mood messages
+- Self-focused cravings and needs
+
+**King Mode** (Partner Warning System):
+- "She's in this state" perspective  
+- Warning messages for partners
+- Guidance on how to support
+
 ### Dynamic Weather Icons
 The menubar icon changes to reflect your cycle phase:
-- ☀️ **Sun** - "Finally Got My Sh*t Together" (follicular phase)
-- 🌤️ **Partly Cloudy** - "Horny AF" (ovulation)
-- ☁️ **Cloudy** - "Getting Real Tired of This BS" (early luteal)
-- 🌧️ **Rainy** - "Pre-Chaos Mood Swings" (late luteal)
-- ⛈️ **Thunderstorm** - "Bloody Hell Week" (menstruation)
-- 🌪️ **Tornado** - "Apocalypse Countdown" (PMS)
+- ☀️ **Sun** - "Finally Got My Sh*t Together" / "Safe Zone Active"
+- 🌤️ **Partly Cloudy** - "Horny AF" / "High Energy Warning"
+- ☁️ **Cloudy** - "Getting Real Tired of This BS" / "Patience Level: Low"
+- 🌧️ **Rainy** - "Pre-Chaos Mood Swings" / "Volatility Alert"
+- ⛈️ **Thunderstorm** - "Bloody Hell Week" / "Code Red Alert"
+- 🌪️ **Tornado** - "Apocalypse Countdown" / "DEFCON 1"
 
 ## Project Redesign Plan
 
@@ -87,6 +100,21 @@ Create responsive UI with dynamic menubar icons
 - ✅ #16 Create safety scale component
 - ✅ #17 Add status card with phase information
 - ⏭️ #18 Implement smooth transitions and animations (skipped)
+
+### Epic 68: Modular Queen/King Architecture 🚧 IN PROGRESS
+Refactor Queen/King modes into separate, maintainable modules
+
+**Issues:**
+- 🔄 #69 Extract shared core functionality
+- #70 Create Queen mode module
+- #71 Create King mode module  
+- #72 Implement mode switching infrastructure
+
+**Goals:**
+- Separate mode-specific UI and logic
+- Enable independent mode development
+- Improve maintainability and testability
+- Allow for future mode extensions
 
 ### Epic 4: User Settings & Preferences
 Add customization options and data management
