@@ -54,6 +54,15 @@ process.on('unhandledRejection', (reason, promise) => {
 app.whenReady().then(() => {
   console.log('App is ready, creating window and tray...');
   
+  // Run store migrations
+  try {
+    const { storeOperations } = require('./store');
+    storeOperations.migrate();
+    console.log('Store migrations completed');
+  } catch (error) {
+    console.error('Store migration error:', error);
+  }
+  
   // Apply Content Security Policy to the default session
   applyCSPToSession(session.defaultSession);
   

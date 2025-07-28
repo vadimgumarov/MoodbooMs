@@ -78,6 +78,15 @@ const schema = {
       testMode: {
         type: 'boolean',
         default: false
+      },
+      mode: {
+        type: 'string',
+        enum: ['queen', 'king'],
+        default: 'queen'
+      },
+      badassMode: {
+        type: 'boolean',
+        default: false
       }
     }
   },
@@ -135,6 +144,10 @@ const validatePreferences = (prefs) => {
   
   if (prefs.theme && !['light', 'dark', 'auto'].includes(prefs.theme)) {
     throw new Error('Invalid theme: must be light, dark, or auto');
+  }
+  
+  if (prefs.mode && !['queen', 'king'].includes(prefs.mode)) {
+    throw new Error('Invalid mode: must be queen or king');
   }
   
   return true;
@@ -237,9 +250,17 @@ const storeOperations = {
   migrate: () => {
     const version = store.get('appState.version', '1.0.0');
     
-    // Example migration logic
+    // Migrate from badassMode to mode field
+    const preferences = store.get('preferences', {});
+    if (preferences.badassMode !== undefined && preferences.mode === undefined) {
+      // Convert badassMode (true = king, false = queen) to mode field
+      preferences.mode = preferences.badassMode ? 'king' : 'queen';
+      store.set('preferences', preferences);
+      console.log(`Migrated badassMode (${preferences.badassMode}) to mode (${preferences.mode})`);
+    }
+    
+    // Update version
     if (version === '1.0.0') {
-      // Future migrations go here
       store.set('appState.version', '1.0.1');
     }
     

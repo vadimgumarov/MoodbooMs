@@ -7,6 +7,7 @@ import StatusCard from './StatusCard';
 import SettingsPanel from './SettingsPanel';
 import { createCycleRecord, completeCycleRecord, addCycleToHistory, calculateCurrentDay, getCurrentPhase } from '../core/utils';
 import { modeContent, getRandomPhrase, resetPhraseTracking, getUIText } from '../content/modeContent';
+import { useMode, MODES } from '../core/contexts/SimpleModeContext';
 
 // Icon mapping for food items
 const foodIconMap = {
@@ -123,6 +124,9 @@ const calculatePhase = (startDate, cycleLength = 28, isKingMode = false) => {
 };
 
 const MenuBarApp = () => {
+  // Use mode context
+  const { currentMode, isKingMode, toggleMode, isSwitching } = useMode();
+  
   const [cycleData, setCycleData] = useState({
     startDate: new Date(),
     cycleLength: 28,
@@ -140,7 +144,7 @@ const MenuBarApp = () => {
   const [preferences, setPreferences] = useState({
     notifications: true,
     theme: 'auto',
-    badassMode: false // Default to Queen mode (female perspective)
+    badassMode: false // Keep for backward compatibility
   });
   
   // Use ref to track previous phase to prevent unnecessary updates
@@ -184,8 +188,7 @@ const MenuBarApp = () => {
           if (savedPreferences) {
             setPreferences({
               ...preferences,
-              ...savedPreferences,
-              badassMode: savedPreferences.badassMode !== undefined ? savedPreferences.badassMode : false
+              ...savedPreferences
             });
             if (savedPreferences.testMode !== undefined) {
               setTestMode(savedPreferences.testMode);
@@ -220,7 +223,7 @@ const MenuBarApp = () => {
         const phase = calculatePhase(
           testMode ? new Date(new Date().getTime() - testDays * 24 * 60 * 60 * 1000) : cycleData.startDate, 
           cycleData.cycleLength,
-          preferences.badassMode === true
+          isKingMode
         );
         
         // Only update if phase actually changed
@@ -238,7 +241,7 @@ const MenuBarApp = () => {
         }
         
         // Always update mood and craving to get new random content
-        const mode = preferences.badassMode ? 'king' : 'queen';
+        const mode = currentMode; // Use mode from context
         const phaseKey = getPhaseKey(phase.phase);
         const mood = getRandomPhrase(mode, phaseKey, 'moods');
         const craving = getRandomPhrase(mode, phaseKey, 'cravings');
@@ -254,7 +257,7 @@ const MenuBarApp = () => {
     }, 300); // 300ms debounce
     
     return () => clearTimeout(timer); // Clean up timer
-  }, [cycleData.startDate, cycleData.cycleLength, testDays, testMode, isLoading, preferences.badassMode]);
+  }, [cycleData.startDate, cycleData.cycleLength, testDays, testMode, isLoading, isKingMode]);
 
   const handleDateChange = async (newDate) => {
     setCycleData(prev => ({ ...prev, startDate: newDate }));
@@ -410,34 +413,21 @@ const MenuBarApp = () => {
           <h2 className="text-lg font-semibold">MoodBooMs</h2>
           <div className="flex items-center gap-3">
             {/* Queen/King Mode Toggle */}
-            <label className="flex items-center gap-2 cursor-pointer">
-              <span className="text-xs text-gray-600">{preferences.badassMode ? 'King' : 'Queen'}</span>
+            <label className={`flex items-center gap-2 ${isSwitching ? 'cursor-wait opacity-50' : 'cursor-pointer'}`}>
+              <span className="text-xs text-gray-600">{isKingMode ? 'King' : 'Queen'}</span>
             <div className="relative">
               <input
                 type="checkbox"
-                checked={preferences.badassMode || false}
-                onChange={async (e) => {
-                  const newPreferences = {
-                    ...preferences,
-                    badassMode: e.target.checked
-                  };
-                  setPreferences(newPreferences);
-                  
-                  if (window.electronAPI && window.electronAPI.store) {
-                    try {
-                      await window.electronAPI.store.set('preferences', newPreferences);
-                    } catch (error) {
-                      console.error('Error saving badass mode:', error);
-                    }
-                  }
-                }}
+                checked={isKingMode}
+                onChange={() => toggleMode()}
+                disabled={isSwitching}
                 className="sr-only"
               />
               <div className={`block w-10 h-6 rounded-full transition-colors ${
-                preferences.badassMode ? 'bg-purple-500' : 'bg-gray-300'
+                isKingMode ? 'bg-purple-500' : 'bg-gray-300'
               }`}></div>
               <div className={`absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform ${
-                preferences.badassMode ? 'translate-x-4' : ''
+                isKingMode ? 'translate-x-4' : ''
               }`}></div>
             </div>
           </label>
@@ -466,7 +456,7 @@ const MenuBarApp = () => {
                 : 'hover:bg-gray-200'
             }`}
           >
-            {getUIText(preferences.badassMode ? 'king' : 'queen', 'tabs', 'mood')}
+            {getUIText(currentMode, 'tabs', 'mood')}
           </button>
           <button
             onClick={() => setActiveTab('calendar')}
@@ -476,7 +466,7 @@ const MenuBarApp = () => {
                 : 'hover:bg-gray-200'
             }`}
           >
-            {getUIText(preferences.badassMode ? 'king' : 'queen', 'tabs', 'calendar')}
+            {getUIText(currentMode, 'tabs', 'calendar')}
           </button>
           <button
             onClick={() => setActiveTab('history')}
@@ -486,7 +476,7 @@ const MenuBarApp = () => {
                 : 'hover:bg-gray-200'
             }`}
           >
-            {getUIText(preferences.badassMode ? 'king' : 'queen', 'tabs', 'history')}
+            {getUIText(currentMode, 'tabs', 'history')}
           </button>
           <button
             onClick={() => setActiveTab('settings')}
@@ -507,18 +497,18 @@ const MenuBarApp = () => {
             currentPhase={currentPhase}
             testMode={testMode}
             testDays={testDays}
-            isBadassMode={preferences.badassMode !== false}
+            isBadassMode={isKingMode}
           />
 
           <div className="p-3 bg-gray-100 rounded">
-            <p className="text-sm font-medium">{preferences.badassMode ? "Her Status:" : "My Mood:"}</p>
+            <p className="text-sm font-medium">{isKingMode ? "Her Status:" : "My Mood:"}</p>
             <p className="text-sm italic text-gray-600">{currentMood}</p>
           </div>
 
           <div className="p-3 bg-gray-100 rounded flex items-center gap-2">
-            <p className="text-sm">{preferences.badassMode ? "She Needs:" : "I Need:"}</p>
+            <p className="text-sm">{isKingMode ? "She Needs:" : "I Need:"}</p>
             <currentCraving.icon className="w-4 h-4" />
-            <p className="text-sm italic">{preferences.badassMode ? `Get her ${currentCraving.text}` : `Need ${currentCraving.text} ASAP`}</p>
+            <p className="text-sm italic">{isKingMode ? `Get her ${currentCraving.text}` : `Need ${currentCraving.text} ASAP`}</p>
           </div>
 
           <div className="flex items-center gap-2">
@@ -564,7 +554,7 @@ const MenuBarApp = () => {
               }
               cycleLength={cycleData.cycleLength}
               onDateSelect={(date) => setSelectedDate(date)}
-              isBadassMode={preferences.badassMode !== false}
+              isBadassMode={isKingMode}
             />
             {selectedDate && (
               <div className="border-t pt-4">
@@ -575,7 +565,7 @@ const MenuBarApp = () => {
                     : cycleData.startDate
                   }
                   cycleLength={cycleData.cycleLength}
-                  isBadassMode={preferences.badassMode !== false}
+                  isBadassMode={isKingMode}
                 />
               </div>
             )}
@@ -585,7 +575,7 @@ const MenuBarApp = () => {
             cycleHistory={cycleHistory}
             currentCycleStart={cycleData.startDate}
             onPeriodStart={handlePeriodStart}
-            isBadassMode={preferences.badassMode !== false}
+            isBadassMode={isKingMode}
           />
         ) : activeTab === 'settings' ? (
           <SettingsPanel
