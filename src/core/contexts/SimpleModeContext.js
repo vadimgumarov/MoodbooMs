@@ -45,10 +45,13 @@ export function ModeProvider({ children }) {
     loadMode();
   }, []); // Empty dependency array - only run once
   
+  // Use ref to track switching state to avoid closure issues
+  const switchingRef = useRef(false);
+  
   // Switch mode with debouncing
   const switchMode = useCallback(async (newMode) => {
     // Prevent rapid switching
-    if (isSwitching) return false;
+    if (switchingRef.current || isSwitching) return false;
     
     // Validate mode
     if (!Object.values(MODES).includes(newMode)) {
@@ -56,7 +59,11 @@ export function ModeProvider({ children }) {
       return false;
     }
     
+    // Don't switch if already in that mode
+    if (newMode === currentMode) return false;
+    
     try {
+      switchingRef.current = true;
       setIsSwitching(true);
       
       // Update local state immediately
@@ -85,10 +92,11 @@ export function ModeProvider({ children }) {
     } finally {
       // Allow next switch after delay
       setTimeout(() => {
+        switchingRef.current = false;
         setIsSwitching(false);
-      }, 300);
+      }, 1000); // Increased delay to prevent rapid toggling
     }
-  }, [isSwitching]);
+  }, [currentMode, isSwitching]);
   
   // Toggle between modes
   const toggleMode = useCallback(() => {

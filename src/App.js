@@ -1,18 +1,18 @@
 import React from 'react';
 import MenuBarApp from './components/MenuBarApp';
-import TestQueenMinimal from './components/TestQueenMinimal';
+import TestKingMode from './components/TestKingMode';
 import { ModeProvider } from './core/contexts/SimpleModeContext';
 import ErrorBoundary from './components/ErrorBoundary';
 
 function App() {
-  // Toggle this to test Queen mode
-  const testQueenMode = false;
+  // Toggle this to test the new King mode module
+  const testKingMode = false;
   
   return (
     <ErrorBoundary>
       <ModeProvider>
         <div className="App">
-          {testQueenMode ? <TestQueenMinimal /> : <MenuBarApp />}
+          {testKingMode ? <TestKingMode /> : <MenuBarApp />}
         </div>
       </ModeProvider>
     </ErrorBoundary>

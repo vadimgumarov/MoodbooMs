@@ -1,0 +1,107 @@
+/* King Mode Styles - Partner Warning System Theme */
+
+/* Root King Mode Variables */
+:root {
+  --king-primary: #FF6B6B;
+  --king-secondary: #4ECDC4;
+  --king-accent: #FFA07A;
+  --king-danger: #DC2626;
+  --king-warning: #F59E0B;
+  --king-safe: #10B981;
+  --king-bg: #1F2937;
+  --king-surface: #374151;
+  --king-card: #4B5563;
+  --king-border: #6B7280;
+  --king-text: #F9FAFB;
+  --king-text-secondary: #D1D5DB;
+  --king-font-tactical: 'SF Pro Display', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+}
+
+/* King Mode App Container */
+.king-mode-app {
+  --king-primary: #FF6B6B;
+  --king-secondary: #4ECDC4;
+  --king-accent: #FFA07A;
+  --king-danger: #DC2626;
+  --king-warning: #F59E0B;
+  --king-safe: #10B981;
+  --king-bg: #1F2937;
+  --king-surface: #374151;
+  --king-card: #4B5563;
+  --king-border: #6B7280;
+  --king-text: #F9FAFB;
+  --king-text-secondary: #D1D5DB;
+}
+
+/* King Mode Wrapper */
+.king-mode-wrapper {
+  position: relative;
+  background-color: var(--king-bg);
+  color: var(--king-text);
+  font-family: var(--king-font-tactical);
+  overflow: hidden;
+}
+
+/* Background Pattern */
+.king-mode-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  opacity: 0.03;
+  pointer-events: none;
+}
+
+.alert-pattern {
+  width: 100%;
+  height: 100%;
+  background-image: 
+    repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 20px,
+      var(--king-warning) 20px,
+      var(--king-warning) 22px
+    );
+}
+
+/* Content Container */
+.king-mode-content {
+  position: relative;
+  z-index: 1;
+}
+
+/* Animation for critical alerts */
+@keyframes pulse-border {
+  0%, 100% {
+    border-color: var(--king-danger);
+    opacity: 1;
+  }
+  50% {
+    border-color: rgba(220, 38, 38, 0.5);
+    opacity: 0.8;
+  }
+}
+
+/* Ensure King mode tab content fills container */
+.king-mode-tab-content {
+  color: var(--king-text);
+}
+
+.king-mode-tab-content h2,
+.king-mode-tab-content h3 {
+  color: var(--king-text);
+}
+
+.king-mode-tab-content .text-gray-600 {
+  color: var(--king-text-secondary) !important;
+}
+
+.king-mode-tab-content .bg-gray-100 {
+  background-color: var(--king-surface) !important;
+}
+
+.king-mode-tab-content .border-gray-200 {
+  border-color: var(--king-border) !important;
+}
