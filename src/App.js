@@ -9,7 +9,7 @@ function App() {
   // Toggle this to test the new King mode module
   const testKingMode = false;
   // Toggle this to test the phrase configuration system
-  const testPhraseSystem = true;
+  const testPhraseSystem = false;
   
   return (
     <ErrorBoundary>
