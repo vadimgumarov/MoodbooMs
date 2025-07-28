@@ -1,7 +1,8 @@
 #!/bin/bash
 
-# rt.sh - Run Tests
+# test.sh - Run Tests
 # Smart test runner that auto-detects changed files and runs relevant tests
+# Usage: test [test-file|component|issue-number]
 
 set -e
 
@@ -44,8 +45,12 @@ find_test_file() {
 if [ $# -gt 0 ]; then
     TEST_ARG="$1"
     
-    # Try to find matching test file
-    if [ -f "$TEST_ARG" ]; then
+    # Check if issue number provided
+    if [[ "$TEST_ARG" =~ ^[0-9]+$ ]]; then
+        echo -e "${CYAN}Running tests for issue #$TEST_ARG...${NC}"
+        # For issue numbers, run all tests since we don't know which files are affected
+        SPECIFIC_TEST="all"
+    elif [ -f "$TEST_ARG" ]; then
         # Full path provided
         SPECIFIC_TEST="$TEST_ARG"
     elif [ -f "tests/$TEST_ARG" ]; then

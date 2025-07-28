@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# cs - Claude Start shortcut
-cs() {
+# status - Project Status shortcut
+status() {
     # Auto-clear for fresh view
     clear
     
@@ -115,9 +115,9 @@ cs() {
     # Interactive menu - enhanced with new scripts
     echo "Quick Actions:"
     echo "  [Enter] Continue with current work"
-    echo "  [1] Start new issue (wi)"
-    echo "  [2] Finish current work (fw)"
-    echo "  [3] Run tests (rt)"
+    echo "  [1] Start new issue (start)"
+    echo "  [2] Finish current work (finish)"
+    echo "  [3] Run tests (test)"
     echo "  [4] Show all epics"
     echo "  [issue#] View specific issue"
     echo ""
@@ -127,8 +127,8 @@ cs() {
     case "$choice" in
         1)
             # Use the new wi script
-            if [ -x "./scripts/wi.sh" ]; then
-                ./scripts/wi.sh
+            if [ -x "./scripts/start.sh" ]; then
+                ./scripts/start.sh
             else
                 echo -n "Issue # to start work on: "
                 read issue_num
@@ -139,16 +139,16 @@ cs() {
             ;;
         2)
             # Use the new fw script
-            if [ -x "./scripts/fw.sh" ]; then
-                ./scripts/fw.sh
+            if [ -x "./scripts/finish.sh" ]; then
+                ./scripts/finish.sh
             else
-                echo "fw.sh script not found"
+                echo "finish.sh script not found"
             fi
             ;;
         3)
             # Use the new rt script
-            if [ -x "./scripts/rt.sh" ]; then
-                ./scripts/rt.sh
+            if [ -x "./scripts/test.sh" ]; then
+                ./scripts/test.sh
             else
                 echo ""
                 echo "Running tests..."
@@ -169,6 +169,6 @@ cs() {
     esac
 }
 
-# Auto-run when script is executed directly OR when sourced with 'cs' command
-# This ensures 'cs' command works without confirmation
-cs
+# Auto-run when script is executed directly OR when sourced with 'status' command
+# This ensures 'status' command works without confirmation
+status

@@ -130,7 +130,7 @@ modeContent.js: 900+ lines with all mood messages and cravings
 MenuBarApp.jsx: Phase names and descriptions
 
 // Mode Selection
-const mode = preferences.badassMode ? 'king' : 'queen';
+const mode = preferences.mode || 'queen'; // 'queen' or 'king'
 ```
 
 ### Phase Names by Mode
@@ -148,6 +148,35 @@ const mode = preferences.badassMode ? 'king' : 'queen';
 - 360+ unique food cravings per mode
 - Phrase tracking system prevents repetition for 6 months
 - Different UI text for tabs, buttons, and labels
+
+### SimpleModeContext Implementation
+The mode system uses React Context for centralized state management:
+
+```javascript
+// src/core/contexts/SimpleModeContext.js
+import { ModeProvider, useMode, MODES } from './core/contexts';
+
+// Available modes
+MODES = {
+  QUEEN: 'queen',
+  KING: 'king'
+}
+
+// Using in components
+const { currentMode, isQueenMode, isKingMode, toggleMode, isSwitching } = useMode();
+
+// Mode persistence
+- Stored in electron-store as preferences.mode
+- Automatic migration from legacy badassMode
+- Debounced switching to prevent rapid toggles
+```
+
+Key features:
+- Centralized mode state across entire app
+- Persistence through electron-store
+- Loading state management (isReady)
+- Switch animation support (isSwitching)
+- Backward compatibility with legacy data
 
 ## Project Structure
 
@@ -226,8 +255,8 @@ We use modified versions of standard workflow scripts that automatically handle 
 
 1. **Starting Work on Any Issue (Epic or Regular)**
    ```bash
-   ./scripts/wi.sh
-   # Or directly: ./scripts/wi.sh <issue-number>
+   ./scripts/start.sh
+   # Or directly: ./scripts/start.sh <issue-number>
    ```
    - Automatically detects if issue is an Epic
    - Creates epic branches from main
@@ -236,7 +265,7 @@ We use modified versions of standard workflow scripts that automatically handle 
 
 2. **Finishing Work (Commit, Push, and Merge)**
    ```bash
-   ./scripts/fw.sh
+   ./scripts/finish.sh
    ```
    - Commits and pushes changes
    - For issue branches: offers to merge to parent epic branch
@@ -245,11 +274,11 @@ We use modified versions of standard workflow scripts that automatically handle 
 
 3. **Other Useful Scripts**
    ```bash
-   ./scripts/cs.sh   # Check status and current work
-   ./scripts/rt.sh   # Run tests
-   ./scripts/qa.sh   # Quality assurance checks
-   ./scripts/pl.sh   # Update project log
-   ./scripts/fix.sh  # Quick fixes
+   ./scripts/status.sh  # Check status and current work
+   ./scripts/test.sh    # Run tests
+   ./scripts/check.sh   # Quality assurance checks
+   ./scripts/log.sh     # Update project log
+   ./scripts/hotfix.sh  # Quick fixes
    ```
 
 #### Manual Workflow (if needed):
@@ -336,10 +365,10 @@ When completing an epic (all child issues done):
    - Update README.md if new features added
    - Commit documentation changes
 
-4. **Complete Epic Using fw.sh or Manually**
+4. **Complete Epic Using finish.sh or Manually**
    
-   **Option A: Using fw.sh Script**
-   - Run `./scripts/fw.sh` while on epic branch
+   **Option A: Using finish.sh Script**
+   - Run `./scripts/finish.sh` while on epic branch
    - Choose "Complete this epic? (y/N)"
    - Script handles PR creation and merging
    
@@ -637,6 +666,33 @@ Icons are generated using Canvas API in `IconGeneratorLucide.js` to ensure compa
 ### Testing
 Run store tests with: `npx electron tests/electron/test-store-electron.js`
 
+# Important Assistant Behavior Guidelines
+
+## Context-Aware Suggestions
+When providing "What's next?" suggestions, ALWAYS:
+1. **Prioritize immediate findings** - If a tool/command revealed issues, suggest fixing those FIRST
+2. **Group by urgency**:
+   - 🔴 Immediate Actions (findings from current task)
+   - 🟡 Standard Workflow (logical next steps)
+   - 🟢 Optional/Future (nice-to-have)
+3. **Logical ordering within groups**:
+   - Fix critical issues → Update docs → Commit → Test → Next task
+4. **Be specific** - Don't just say "update docs", say what needs updating
+
+Example after running `review`:
+```
+## What's next?
+### 🔴 Immediate Actions (from Review findings):
+1. Update CLAUDE.md - Fix old script names
+2. Remove duplicate sections between docs
+3. Add missing screenshots to README
+
+### 🟡 Standard Workflow:
+4. finish - Commit changes
+5. log - Update documentation
+6. start #X - Next development task
+```
+
 # important-instruction-reminders
 Do what has been asked; nothing more, nothing less.
 NEVER create files unless they're absolutely necessary for achieving your goal.
@@ -704,7 +760,7 @@ The app tracks 6 phases with medical accuracy and mode-specific names:
 2. **Current Mode System**:
    - Queen Mode = Female perspective (toggle OFF)
    - King Mode = Partner warning system (toggle ON)
-   - NOT Professional/BadAss anymore - those were replaced
+   - NOT Professional/BadAss anymore - now using Queen/King modes
 
 3. **Common Issues & Quick Fixes**:
    - **App crashes**: Kill all processes: `pkill -f "npm run dev" || pkill -f "electron" || true`
@@ -720,7 +776,8 @@ The app tracks 6 phases with medical accuracy and mode-specific names:
    ```
 
 5. **Key Implementation Details**:
-   - `preferences.badassMode` still used internally (true = King, false = Queen)
+   - `preferences.mode` stores the current mode ('queen' or 'king')
+   - Legacy `preferences.badassMode` automatically migrated (true = 'king', false = 'queen')
    - Phase names differ between modes (see Phase Name Mapping table in Cycle Calculations section)
    - Content is in `modeContent.js`, phase logic in `MenuBarApp.jsx`
 

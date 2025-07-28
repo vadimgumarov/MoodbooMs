@@ -304,7 +304,7 @@ implement_fixes() {
     esac
     
     echo ""
-    echo "Implement your changes now. Use 'fw' when ready to commit."
+    echo "Implement your changes now. Use 'finish' when ready to commit."
     read -p "Press Enter when implementation is complete..."
 }
 
@@ -315,8 +315,8 @@ test_changes() {
     echo "Running tests..."
     
     # Use rt.sh if available
-    if [ -x "./scripts/rt.sh" ]; then
-        ./scripts/rt.sh
+    if [ -x "./scripts/test.sh" ]; then
+        ./scripts/test.sh
     else
         pytest tests/ --cov=modules --cov=strategies --cov=utils --cov=cli -v
     fi
@@ -366,9 +366,9 @@ submit_changes() {
     echo -e "${BLUE}📤 Step 7: Submit${NC}"
     
     # Use fw.sh if available
-    if [ -x "./scripts/fw.sh" ]; then
-        echo "Using fw to commit and push..."
-        ./scripts/fw.sh
+    if [ -x "./scripts/finish.sh" ]; then
+        echo "Using finish to commit and push..."
+        ./scripts/finish.sh
     else
         echo "Committing changes..."
         git add -A
@@ -417,7 +417,7 @@ complete_workflow() {
     echo "1. Wait for PR approval and CI checks"
     echo "2. Merge PR when approved"
     echo "3. Delete local and remote branch"
-    echo "4. Update PROJECT_LOG with 'pl'"
+    echo "4. Update PROJECT_LOG with 'log'"
     echo ""
     echo -e "${GREEN}🎉 Workflow complete for Issue #$ISSUE_NUM!${NC}"
 }

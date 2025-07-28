@@ -1,7 +1,8 @@
 #!/bin/bash
 
-# wi.sh - Work on Issue
+# start.sh - Start work on issue
 # Streamlines starting work on a GitHub issue
+# Usage: start [issue-number]
 
 set -e
 
@@ -13,19 +14,25 @@ GREEN='\033[0;32m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-echo -e "${BLUE}🎯 Starting work on issue...${NC}"
-echo ""
-
-# Get open issues assigned to @me or unassigned
-echo "Fetching issues..."
-ISSUES=$(gh issue list --assignee @me --state open --json number,title,labels,assignees --limit 50)
-UNASSIGNED=$(gh issue list --assignee "" --state open --json number,title,labels,assignees --limit 50)
-
-# Combine and deduplicate issues
-COMBINED=$(echo "$ISSUES" "$UNASSIGNED" | jq -s 'add | unique_by(.number) | sort_by(.number)')
-
-# Parse and display issues with priority indicators
-echo -e "Select an issue to work on:\n"
+# Check if issue number provided as argument
+if [ $# -eq 1 ] && [[ "$1" =~ ^[0-9]+$ ]]; then
+    ISSUE_NUM="$1"
+    echo -e "${BLUE}🎯 Starting work on issue #$ISSUE_NUM...${NC}"
+    echo ""
+else
+    echo -e "${BLUE}🎯 Starting work on issue...${NC}"
+    echo ""
+    
+    # Get open issues assigned to @me or unassigned
+    echo "Fetching issues..."
+    ISSUES=$(gh issue list --assignee @me --state open --json number,title,labels,assignees --limit 50)
+    UNASSIGNED=$(gh issue list --assignee "" --state open --json number,title,labels,assignees --limit 50)
+    
+    # Combine and deduplicate issues
+    COMBINED=$(echo "$ISSUES" "$UNASSIGNED" | jq -s 'add | unique_by(.number) | sort_by(.number)')
+    
+    # Parse and display issues with priority indicators
+    echo -e "Select an issue to work on:\n"
 
 # Function to get priority indicator
 get_priority_indicator() {
@@ -41,44 +48,45 @@ get_priority_indicator() {
     fi
 }
 
-# Display issues
-i=1
-declare -a issue_numbers
-while IFS= read -r issue; do
-    number=$(echo "$issue" | jq -r '.number')
-    title=$(echo "$issue" | jq -r '.title')
-    labels=$(echo "$issue" | jq -r '.labels[].name' | tr '\n' ' ')
-    assignees=$(echo "$issue" | jq -r '.assignees[].login' | tr '\n' ' ')
+    # Display issues
+    i=1
+    declare -a issue_numbers
+    while IFS= read -r issue; do
+        number=$(echo "$issue" | jq -r '.number')
+        title=$(echo "$issue" | jq -r '.title')
+        labels=$(echo "$issue" | jq -r '.labels[].name' | tr '\n' ' ')
+        assignees=$(echo "$issue" | jq -r '.assignees[].login' | tr '\n' ' ')
+        
+        # Skip epics
+        if echo "$labels" | grep -q "type:epic"; then
+            continue
+        fi
+        
+        priority=$(get_priority_indicator "$labels")
+        assigned=""
+        if [ -n "$assignees" ]; then
+            assigned=" (assigned)"
+        fi
     
-    # Skip epics
-    if echo "$labels" | grep -q "type:epic"; then
-        continue
-    fi
-    
-    priority=$(get_priority_indicator "$labels")
-    assigned=""
-    if [ -n "$assignees" ]; then
-        assigned=" (assigned)"
-    fi
-    
-    printf "%2d %s #%-4d: %s%s\n" "$i" "$priority" "$number" "$title" "$assigned"
-    issue_numbers[$i]=$number
-    ((i++))
-done < <(echo "$COMBINED" | jq -c '.[]')
+        printf "%2d %s #%-4d: %s%s\n" "$i" "$priority" "$number" "$title" "$assigned"
+        issue_numbers[$i]=$number
+        ((i++))
+    done < <(echo "$COMBINED" | jq -c '.[]')
 
-echo ""
-read -p "Issue # to work on (or issue number): " selection
-
-# Handle direct issue number or selection
-if [[ "$selection" =~ ^[0-9]+$ ]]; then
-    if [ "$selection" -le "${#issue_numbers[@]}" ]; then
-        ISSUE_NUM="${issue_numbers[$selection]}"
+    echo ""
+    read -p "Issue # to work on (or issue number): " selection
+    
+    # Handle direct issue number or selection
+    if [[ "$selection" =~ ^[0-9]+$ ]]; then
+        if [ "$selection" -le "${#issue_numbers[@]}" ]; then
+            ISSUE_NUM="${issue_numbers[$selection]}"
+        else
+            ISSUE_NUM="$selection"
+        fi
     else
-        ISSUE_NUM="$selection"
+        echo -e "${RED}Invalid selection${NC}"
+        exit 1
     fi
-else
-    echo -e "${RED}Invalid selection${NC}"
-    exit 1
 fi
 
 # Get issue details
@@ -186,7 +194,7 @@ gh issue view "$ISSUE_NUM"
 echo ""
 echo -e "${BLUE}Next steps:${NC}"
 echo "1. Write code and tests for this issue"
-echo "2. Run tests with: rt (or pytest tests/)"
-echo "3. When done, use: fw (finish work)"
+echo "2. Run tests with: test (or npm test)"
+echo "3. When done, use: finish (finish work)"
 echo ""
 echo -e "${YELLOW}Current branch: $BRANCH_NAME${NC}"

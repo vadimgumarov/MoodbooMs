@@ -133,19 +133,19 @@ show_help() {
     echo -e "${BLUE}📚 Command Help${NC}"
     echo "────────────────────────────────────────────"
     echo ""
-    echo -e "${GREEN}cs${NC}  - Claude Start"
+    echo -e "${GREEN}status${NC}  - Status Check"
     echo "      Shows project status, recent progress, and issue overview"
     echo ""
-    echo -e "${GREEN}wi${NC}  - Work on Issue"
+    echo -e "${GREEN}start${NC}  - Start Work on Issue"
     echo "      Select an issue, create branch, and start working"
     echo ""
-    echo -e "${GREEN}fw${NC}  - Finish Work"
+    echo -e "${GREEN}finish${NC}  - Finish Work"
     echo "      Commit changes, push to remote, update issue, and log progress"
     echo ""
-    echo -e "${GREEN}rt${NC}  - Run Tests"
+    echo -e "${GREEN}test${NC}  - Run Tests"
     echo "      Smart test runner that detects changes and runs relevant tests"
     echo ""
-    echo -e "${GREEN}pl${NC}  - Project Log"
+    echo -e "${GREEN}log${NC}  - Project Log"
     echo "      Update PROJECT_LOG.txt with daily progress"
     echo ""
     echo -e "${GREEN}pr${NC}  - Create PR"
@@ -163,11 +163,11 @@ clear
 echo -e "${MAGENTA}⚡ Quick Actions${NC}"
 echo "────────────────────────────────────────────"
 echo ""
-echo -e "  ${GREEN}wi${NC}     - Work on Issue (select & start)"
-echo -e "  ${GREEN}fw${NC}     - Finish Work (commit, push, update)"
-echo -e "  ${GREEN}rt${NC}     - Run Tests (smart test runner)"
-echo -e "  ${GREEN}cs${NC}     - Claude Start (session overview)"
-echo -e "  ${GREEN}pl${NC}     - Project Log (update log)"
+echo -e "  ${GREEN}start${NC}  - Start work on issue"
+echo -e "  ${GREEN}finish${NC} - Finish work (commit, push, update)"
+echo -e "  ${GREEN}test${NC}   - Run tests (smart test runner)"
+echo -e "  ${GREEN}status${NC} - Status check (session overview)"
+echo -e "  ${GREEN}log${NC}    - Project log (update log)"
 echo ""
 echo -e "  ${CYAN}pr${NC}     - Create PR for current branch"
 echo -e "  ${CYAN}sync${NC}   - Sync with main branch"
@@ -180,20 +180,20 @@ echo -n "Action: "
 read action
 
 case "$action" in
-    wi)
-        ./scripts/wi.sh
+    start)
+        ./scripts/start.sh
         ;;
-    fw)
-        ./scripts/fw.sh
+    finish)
+        ./scripts/finish.sh
         ;;
-    rt)
-        ./scripts/rt.sh
+    test)
+        ./scripts/test.sh
         ;;
-    cs)
-        bash scripts/cs.sh
+    status)
+        bash scripts/status.sh
         ;;
-    pl)
-        bash scripts/pl.sh
+    log)
+        bash scripts/log.sh
         ;;
     pr)
         create_pr

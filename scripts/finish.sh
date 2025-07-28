@@ -1,7 +1,8 @@
 #!/bin/bash
 
-# fw.sh - Finish Work
+# finish.sh - Finish Work
 # Handles complete workflow: commit, push, update issues, log progress
+# Usage: finish [issue-number]
 
 set -e
 
@@ -13,7 +14,13 @@ BLUE='\033[0;34m'
 CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
-echo -e "${BLUE}🏁 Finishing work session...${NC}"
+# Check if issue number provided as argument
+if [ $# -eq 1 ] && [[ "$1" =~ ^[0-9]+$ ]]; then
+    PROVIDED_ISSUE_NUM="$1"
+    echo -e "${BLUE}🏁 Finishing work on issue #$PROVIDED_ISSUE_NUM...${NC}"
+else
+    echo -e "${BLUE}🏁 Finishing work session...${NC}"
+fi
 echo ""
 
 # Check for uncommitted changes
@@ -22,7 +29,7 @@ if [ -z "$(git status --porcelain)" ]; then
     echo ""
     read -p "Run project log anyway? (Y/n): " run_pl
     if [[ "$run_pl" != "n" && "$run_pl" != "N" ]]; then
-        bash scripts/pl.sh
+        bash scripts/log.sh
     fi
     exit 0
 fi
@@ -32,10 +39,13 @@ echo -e "${CYAN}📝 Changes to commit:${NC}"
 git status --short
 echo ""
 
-# Extract issue number from branch name
+# Extract issue number from branch name or use provided one
 BRANCH_NAME=$(git branch --show-current)
 ISSUE_NUM=""
-if [[ "$BRANCH_NAME" =~ ^[^/]+/([0-9]+)- ]]; then
+if [ -n "${PROVIDED_ISSUE_NUM:-}" ]; then
+    ISSUE_NUM="$PROVIDED_ISSUE_NUM"
+    echo -e "${GREEN}Working on issue #$ISSUE_NUM${NC}"
+elif [[ "$BRANCH_NAME" =~ ^[^/]+/([0-9]+)- ]]; then
     ISSUE_NUM="${BASH_REMATCH[1]}"
     echo -e "${GREEN}Working on issue #$ISSUE_NUM${NC}"
 else
@@ -279,8 +289,8 @@ fi
 # Run project log
 echo ""
 echo -e "${BLUE}📋 Updating project log...${NC}"
-bash scripts/pl.sh
+bash scripts/log.sh
 
 echo ""
 echo -e "${GREEN}✨ Work session completed!${NC}"
-echo -e "${CYAN}Next: Use 'cs' to see status or 'wi' to work on next issue${NC}"
+echo -e "${CYAN}Next: Use 'status' to see status or 'start' to work on next issue${NC}"
