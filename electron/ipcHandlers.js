@@ -4,6 +4,7 @@ const { storeOperations } = require('./store');
 const { handleCSPViolation } = require('./csp-config');
 const fs = require('fs');
 const path = require('path');
+const { updateRendererHeartbeat, logRendererCrash, logCrash } = require('./crash-monitor');
 
 // Log phase updates to file
 function logPhaseUpdate(phase, source = 'unknown') {
@@ -281,6 +282,27 @@ function initializeIpcHandlers(ipcMain, mainWindow, trayManager) {
     ipcMain.on('dev-reload', () => {
       if (mainWindow && !mainWindow.isDestroyed()) {
         mainWindow.reload();
+      }
+    });
+    
+    // Enhanced crash monitoring
+    ipcMain.on('dev-log', (event, logData) => {
+      const { channel, data } = logData;
+      
+      if (channel === 'heartbeat') {
+        updateRendererHeartbeat();
+      } else if (channel === 'crash-report') {
+        logRendererCrash(data);
+      } else if (channel === 'app-log') {
+        // Log to console and file
+        const timestamp = new Date().toISOString();
+        const logEntry = `[${timestamp}] [${data.level}] ${data.message}`;
+        console.log(logEntry, data.data || '');
+        
+        // Also append to app log
+        const logDir = path.join(__dirname, '..', 'logs');
+        const appLogFile = path.join(logDir, `app-${new Date().toISOString().split('T')[0]}.log`);
+        fs.appendFileSync(appLogFile, `${logEntry}\n${data.data ? JSON.stringify(data.data, null, 2) + '\n' : ''}`);
       }
     });
   }

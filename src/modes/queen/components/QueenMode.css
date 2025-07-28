@@ -1,0 +1,131 @@
+/* Queen Mode Styles */
+
+.queen-mode {
+  background-color: var(--queen-bg);
+  color: var(--queen-text-primary);
+  font-family: var(--queen-font-primary);
+}
+
+.queen-mode h1,
+.queen-mode h2,
+.queen-mode h3 {
+  font-family: var(--queen-font-display);
+  font-weight: 900;
+  color: var(--queen-text-accent);
+}
+
+.queen-mode .phase-badge {
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.queen-mode .btn-primary {
+  background-color: var(--queen-primary);
+  color: white;
+  border: none;
+  font-weight: 700;
+  text-transform: uppercase;
+  transition: all 150ms ease-in-out;
+  cursor: pointer;
+}
+
+.queen-mode .btn-primary:hover {
+  background-color: #F50057;
+  transform: scale(1.05);
+}
+
+.queen-mode .btn-primary:active {
+  background-color: #C51162;
+  transform: scale(0.95);
+}
+
+.queen-mode .card {
+  background-color: var(--queen-surface);
+  border: 1px solid #3D3D3D;
+  transition: all 200ms ease-in-out;
+}
+
+.queen-mode .card:hover {
+  border: 1px solid var(--queen-primary);
+  box-shadow: 0 0 20px rgba(255, 23, 68, 0.3);
+}
+
+/* Phase-specific colors */
+.queen-mode .phase-menstrual {
+  background-color: #B71C1C;
+  color: white;
+}
+
+.queen-mode .phase-follicular {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.queen-mode .phase-ovulation {
+  background-color: #FF4081;
+  color: white;
+}
+
+.queen-mode .phase-luteal {
+  background-color: #FF9800;
+  color: white;
+}
+
+.queen-mode .phase-lateLuteal {
+  background-color: #9C27B0;
+  color: white;
+}
+
+.queen-mode .phase-premenstrual {
+  background-color: #D32F2F;
+  color: white;
+}
+
+/* Animations */
+@keyframes queen-pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+@keyframes queen-shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-2px); }
+  20%, 40%, 60%, 80% { transform: translateX(2px); }
+}
+
+@keyframes queen-glow {
+  0% { box-shadow: 0 0 5px rgba(255, 23, 68, 0.5); }
+  50% { box-shadow: 0 0 20px rgba(255, 23, 68, 0.8); }
+  100% { box-shadow: 0 0 5px rgba(255, 23, 68, 0.5); }
+}
+
+.queen-mode .pulse {
+  animation: queen-pulse 2s ease-in-out infinite;
+}
+
+.queen-mode .shake {
+  animation: queen-shake 0.5s ease-in-out;
+}
+
+.queen-mode .glow {
+  animation: queen-glow 2s ease-in-out infinite;
+}
+
+/* Attitude indicators */
+.queen-mode .attitude-high {
+  color: var(--queen-accent);
+  font-weight: 900;
+}
+
+.queen-mode .warning-text {
+  color: #FF9800;
+  font-weight: 700;
+}
+
+.queen-mode .danger-text {
+  color: #F44336;
+  font-weight: 900;
+  text-transform: uppercase;
+}

@@ -91,11 +91,14 @@ if [ -n "$ISSUE_NUM" ]; then
 fi
 
 # Get commit message
-echo -e "${CYAN}Commit message (press Enter for auto-generated):${NC}"
 if [ -n "$AUTO_MESSAGE" ]; then
-    echo -e "${YELLOW}[Auto: $AUTO_MESSAGE]${NC}"
+    echo -e "${CYAN}Using auto-generated commit message:${NC}"
+    echo -e "${YELLOW}$AUTO_MESSAGE${NC}"
+    USER_MESSAGE=""
+else
+    echo -e "${CYAN}Commit message:${NC}"
+    read -r USER_MESSAGE
 fi
-read -r USER_MESSAGE
 
 # Use auto-generated if user didn't provide one
 if [ -z "$USER_MESSAGE" ]; then
@@ -124,6 +127,8 @@ git commit -m "$COMMIT_MESSAGE"
 # Push to remote
 echo -e "${BLUE}📤 Pushing to remote...${NC}"
 git push -u origin "$BRANCH_NAME"
+echo ""
+echo -e "${GREEN}✅ Changes pushed successfully!${NC}"
 
 # Check if we should merge to parent branch
 if [[ "$BRANCH_NAME" =~ ^feat/epic-[0-9]+/issue- ]]; then
@@ -131,26 +136,21 @@ if [[ "$BRANCH_NAME" =~ ^feat/epic-[0-9]+/issue- ]]; then
     EPIC_BRANCH=$(echo "$BRANCH_NAME" | sed 's/\/issue-.*//')
     echo ""
     echo -e "${CYAN}This is an issue branch within an epic${NC}"
-    read -p "Merge to epic branch $EPIC_BRANCH? (Y/n): " MERGE_TO_EPIC
+    echo ""
+    echo -e "${BLUE}🔀 Automatically merging to epic branch $EPIC_BRANCH...${NC}"
+    git checkout "$EPIC_BRANCH"
+    git pull origin "$EPIC_BRANCH" 2>/dev/null || true
+    git merge --no-ff "$BRANCH_NAME" -m "Merge issue branch '$BRANCH_NAME' into $EPIC_BRANCH"
+    git push origin "$EPIC_BRANCH"
     
-    if [[ "$MERGE_TO_EPIC" != "n" && "$MERGE_TO_EPIC" != "N" ]]; then
-        echo -e "${BLUE}🔀 Merging to epic branch...${NC}"
-        git checkout "$EPIC_BRANCH"
-        git pull origin "$EPIC_BRANCH" 2>/dev/null || true
-        git merge --no-ff "$BRANCH_NAME" -m "Merge issue branch '$BRANCH_NAME' into $EPIC_BRANCH"
-        git push origin "$EPIC_BRANCH"
-        
-        # Optionally delete the issue branch
-        echo ""
-        read -p "Delete issue branch $BRANCH_NAME? (y/N): " DELETE_BRANCH
-        if [[ "$DELETE_BRANCH" == "y" || "$DELETE_BRANCH" == "Y" ]]; then
-            git branch -d "$BRANCH_NAME"
-            git push origin --delete "$BRANCH_NAME" 2>/dev/null || true
-            echo -e "${GREEN}✅ Issue branch deleted${NC}"
-        fi
-        
-        echo -e "${GREEN}✅ Merged to epic branch${NC}"
-    fi
+    # Automatically delete the issue branch after merging
+    echo ""
+    echo -e "${RED}🗑️  Deleting issue branch...${NC}"
+    git branch -d "$BRANCH_NAME"
+    git push origin --delete "$BRANCH_NAME" 2>/dev/null || true
+    echo -e "${GREEN}✅ Issue branch deleted${NC}"
+    
+    echo -e "${GREEN}✅ Successfully merged to epic branch${NC}"
 elif [[ "$BRANCH_NAME" =~ ^feat/epic-[0-9]+- ]]; then
     echo ""
     echo -e "${YELLOW}This is an epic branch${NC}"
@@ -158,14 +158,27 @@ elif [[ "$BRANCH_NAME" =~ ^feat/epic-[0-9]+- ]]; then
     # Extract epic number from branch name
     EPIC_NUM=$(echo "$BRANCH_NAME" | sed 's/^feat\/epic-\([0-9]\+\).*/\1/')
     
+    echo -e "${YELLOW}════════════════════════════════════════════════════════${NC}"
+    echo -e "${YELLOW}❓ EPIC COMPLETION - ACTION REQUIRED:${NC}"
+    echo -e "${YELLOW}════════════════════════════════════════════════════════${NC}"
+    echo ""
+    echo -e "${GREEN}✅ Changes pushed successfully to epic branch: $BRANCH_NAME${NC}"
+    echo ""
     echo -e "${CYAN}Epic completion checklist:${NC}"
     echo "1. Verify all child issues are closed"
     echo "2. Run comprehensive tests"
     echo "3. Test the application manually"
     echo "4. Create PR and merge to main"
     echo ""
-    
-    read -p "Complete this epic? (y/N): " COMPLETE_EPIC
+    echo -e "${CYAN}Question: Complete this epic? (y/N)${NC}"
+    echo -e "${YELLOW}════════════════════════════════════════════════════════${NC}"
+    echo ""
+    echo ""
+    echo ""
+    # Duplicate the prompt as a reminder
+    echo -e "${YELLOW}[WAITING FOR YOUR RESPONSE ABOVE ⬆️ ]${NC}"
+    echo -e "${CYAN}→ Complete this epic? (y/N):${NC}"
+    read -p "" COMPLETE_EPIC
     if [[ "$COMPLETE_EPIC" == "y" || "$COMPLETE_EPIC" == "Y" ]]; then
         echo ""
         echo -e "${BLUE}🔍 Checking child issues...${NC}"
