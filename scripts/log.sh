@@ -322,19 +322,74 @@ fi
 # Add next steps
 echo ""
 echo -e "${CYAN}Next priority tasks:${NC}"
-echo "Select priority issues for next session (1-5, space-separated, or Enter for none):"
+
+# Check if we're on an epic branch
+current_branch=$(git branch --show-current)
+epic_filter=""
+epic_message=""
+
+if [[ "$current_branch" =~ ^feat/epic-([0-9]+) ]]; then
+    epic_num="${BASH_REMATCH[1]}"
+    echo -e "${YELLOW}On Epic #$epic_num branch - showing only child issues${NC}"
+    epic_filter="epic-$epic_num"
+    epic_message=" for Epic #$epic_num"
+else
+    echo "Showing all open issues (including epics)"
+fi
+
+echo "Select priority issues for next session$epic_message (1-10, space-separated, or Enter for none):"
 echo ""
 
-# Get high priority issues
-gh issue list --state open --limit 10 --json number,title,labels | \
-    jq -r '.[] | 
-    select(.labels | map(.name) | contains(["type:epic"]) | not) |
-    (if (.labels | map(.name) | contains(["priority:critical"])) then "🔴 CRITICAL" 
-     elif (.labels | map(.name) | contains(["priority:high"])) then "🟠 HIGH" 
-     elif (.labels | map(.name) | contains(["priority:medium"])) then "🟡 MEDIUM" 
-     else "⚪ LOW" end) + 
-    " #\(.number): \(.title)"' | \
-    cat -n
+# Get issues based on context (epic branch or all)
+if [ -n "$epic_filter" ]; then
+    # On epic branch - show only child issues
+    issues_data=$(gh issue list --state open --label "$epic_filter" --limit 20 --json number,title,labels | \
+        jq -r '.[] | 
+        select(.labels | map(.name) | contains(["type:epic"]) | not) |
+        {number, title, 
+         priority: (if (.labels | map(.name) | contains(["priority:critical"])) then "1🔴 CRITICAL" 
+                   elif (.labels | map(.name) | contains(["priority:high"])) then "2🟠 HIGH" 
+                   elif (.labels | map(.name) | contains(["priority:medium"])) then "3🟡 MEDIUM" 
+                   else "4⚪ LOW" end)}' | \
+        jq -s 'sort_by(.priority) | .[]')
+else
+    # Not on epic branch - show all issues including epics
+    issues_data=$(gh issue list --state open --limit 20 --json number,title,labels | \
+        jq -r '.[] | 
+        {number, title, 
+         priority: (if (.labels | map(.name) | contains(["priority:critical"])) then "1🔴 CRITICAL" 
+                   elif (.labels | map(.name) | contains(["priority:high"])) then "2🟠 HIGH" 
+                   elif (.labels | map(.name) | contains(["priority:medium"])) then "3🟡 MEDIUM" 
+                   else "4⚪ LOW" end),
+         is_epic: (.labels | map(.name) | contains(["type:epic"]))}' | \
+        jq -s 'sort_by(.priority) | .[]')
+fi
+
+# Store issue numbers in array and display
+declare -a issue_numbers
+i=1
+while IFS= read -r issue_json; do
+    if [ -n "$issue_json" ]; then
+        number=$(echo "$issue_json" | jq -r '.number')
+        title=$(echo "$issue_json" | jq -r '.title')
+        priority=$(echo "$issue_json" | jq -r '.priority' | sed 's/^[1-4]//')
+        is_epic=$(echo "$issue_json" | jq -r '.is_epic // false')
+        
+        if [ "$is_epic" = "true" ]; then
+            echo "   $i. $priority [EPIC] #$number: $title"
+        else
+            echo "   $i. $priority #$number: $title"
+        fi
+        
+        issue_numbers[$i]=$number
+        ((i++))
+        
+        # Limit to 10 items
+        if [ $i -gt 10 ]; then
+            break
+        fi
+    fi
+done <<< "$issues_data"
 
 echo ""
 read -p "Select issues: " selected_nums
@@ -344,10 +399,11 @@ if [ ! -z "$selected_nums" ]; then
 
 Next Priority Tasks:"
     for num in $selected_nums; do
-        issue_info=$(gh issue list --state open --limit 10 --json number,title | jq -r ".[$((num-1))] | \"- Issue #\\(.number): \\(.title)\"" 2>/dev/null)
-        if [ ! -z "$issue_info" ]; then
+        if [ $num -ge 1 ] && [ $num -le ${#issue_numbers[@]} ]; then
+            issue_num="${issue_numbers[$num]}"
+            issue_title=$(gh issue view $issue_num --json title -q .title 2>/dev/null || echo "Unknown")
             log_entry="$log_entry
-$issue_info"
+- Issue #$issue_num: $issue_title"
         fi
     done
 fi
