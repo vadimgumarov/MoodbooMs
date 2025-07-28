@@ -1,7 +1,6 @@
 import React from 'react';
 import { Calendar, Target, TrendingUp, AlertCircle } from 'lucide-react';
-import { calculateCurrentDay, getCurrentPhase, getFertilityLevel } from '../utils/cycleCalculations';
-import { calculateFertilityPercentage } from '../utils/phaseDetection';
+import { calculateCurrentDay, getCurrentPhase, getFertilityLevel, calculateFertilityPercentage } from '../core/utils';
 
 const StatusCard = ({ cycleData, currentPhase, testMode, testDays, isBadassMode = true }) => {
   // Calculate cycle day

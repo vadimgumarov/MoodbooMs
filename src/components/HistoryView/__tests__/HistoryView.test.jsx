@@ -4,7 +4,7 @@ import { format } from 'date-fns';
 import HistoryView from '../HistoryView';
 
 // Mock the cycle history utilities
-jest.mock('../../../utils/cycleHistory', () => ({
+jest.mock('../../../core/utils/cycleHistory', () => ({
   calculateCycleStatistics: jest.fn(),
   getRecentCycles: jest.fn(),
   predictNextCycleStart: jest.fn()
@@ -14,7 +14,7 @@ import {
   calculateCycleStatistics, 
   getRecentCycles,
   predictNextCycleStart 
-} from '../../../utils/cycleHistory';
+} from '../../../core/utils/cycleHistory';
 
 describe('HistoryView Component', () => {
   const mockOnPeriodStart = jest.fn();

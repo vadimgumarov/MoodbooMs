@@ -1,12 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Sun, CloudSun, Cloud, CloudRain, CloudLightning, Tornado, Heart, Coffee, Candy, IceCream, Cookie, Settings, AlertCircle, Soup, Apple, Fish, Salad, Milk, Cherry, Wheat, Carrot, Egg, Nut, Banana, X } from 'lucide-react';
 import Calendar from './Calendar';
 import PhaseDetail from './PhaseDetail';
 import HistoryView from './HistoryView';
 import StatusCard from './StatusCard';
 import SettingsPanel from './SettingsPanel';
-import { createCycleRecord, completeCycleRecord, addCycleToHistory } from '../utils/cycleHistory';
-import { calculateCurrentDay, getCurrentPhase } from '../utils/cycleCalculations';
+import { createCycleRecord, completeCycleRecord, addCycleToHistory, calculateCurrentDay, getCurrentPhase } from '../core/utils';
 import { modeContent, getRandomPhrase, resetPhraseTracking, getUIText } from '../content/modeContent';
 
 // Icon mapping for food items
@@ -143,6 +142,9 @@ const MenuBarApp = () => {
     theme: 'auto',
     badassMode: false // Default to Queen mode (female perspective)
   });
+  
+  // Use ref to track previous phase to prevent unnecessary updates
+  const previousPhaseRef = useRef('');
 
   // Load saved data on mount
   useEffect(() => {
@@ -220,9 +222,22 @@ const MenuBarApp = () => {
           cycleData.cycleLength,
           preferences.badassMode === true
         );
-        setCurrentPhase(phase);
         
-        // Get mood and craving from content system
+        // Only update if phase actually changed
+        if (previousPhaseRef.current !== phase.phase) {
+          previousPhaseRef.current = phase.phase;
+          setCurrentPhase(phase);
+          
+          // Update tray icon via unified API
+          if (window.electronAPI && window.electronAPI.tray) {
+            if (window.electronAPI.app) {
+              window.electronAPI.app.log(`MenuBarApp: Updating phase to "${phase.phase}"`);
+            }
+            window.electronAPI.tray.updatePhase(phase.phase);
+          }
+        }
+        
+        // Always update mood and craving to get new random content
         const mode = preferences.badassMode ? 'king' : 'queen';
         const phaseKey = getPhaseKey(phase.phase);
         const mood = getRandomPhrase(mode, phaseKey, 'moods');
@@ -233,16 +248,6 @@ const MenuBarApp = () => {
           icon: foodIconMap[craving.icon] || Candy,
           text: craving.text
         });
-        
-        // Update tray icon via unified API
-        if (window.electronAPI && window.electronAPI.tray) {
-          if (window.electronAPI.app) {
-            window.electronAPI.app.log(`MenuBarApp: Updating phase to "${phase.phase}"`);
-          }
-          window.electronAPI.tray.updatePhase(phase.phase);
-        } else if (window.electronAPI && window.electronAPI.app) {
-          window.electronAPI.app.log('MenuBarApp: electronAPI.tray not available');
-        }
       };
       
       updatePhaseAndIcon();

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Shield, AlertCircle, AlertTriangle } from 'lucide-react';
-import { calculateFertilityPercentage } from '../utils/phaseDetection';
+import { calculateFertilityPercentage } from '../core/utils';
 
 const SafetyScale = ({ cycleDay, cycleLength, compact = false }) => {
   const fertilityPercentage = calculateFertilityPercentage(cycleDay, cycleLength);
