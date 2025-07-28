@@ -1,6 +1,21 @@
 PROJECT WORK LOG - MoodBooMs
 ===================================
 
+2025-07-27 17:50: Issue #69 completed - Extract shared core functionality
+------------------------------------------------------------------------------
+Successfully extracted shared core functionality into modular structure:
+
+✅ Created core module directory structure (utils, hooks, services, components)
+✅ Moved cycle calculations, phase detection, and cycle history to core/utils
+✅ Created useStore and useCycleData hooks for clean data management
+✅ Updated all import paths throughout the application
+✅ Created index files for clean exports from core module
+✅ Fixed mode toggle re-render issue with ref-based phase tracking
+✅ All tests passing (except unrelated UI tests)
+✅ App tested and working correctly
+
+This establishes the foundation for the modular Queen/King architecture.
+
 2025-07-27 14:27: Issue #60 completed - BadAss toggle implemented in app header
 ------------------------------------------------------------------------------
 Implemented toggle switch to switch between Professional and BadAss modes:
