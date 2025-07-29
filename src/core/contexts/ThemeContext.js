@@ -45,60 +45,90 @@ export function ThemeProvider({ children, variant = THEME_VARIANTS.LIGHT }) {
   useEffect(() => {
     if (!currentTheme) return;
     
-    const root = document.documentElement;
-    
-    // Apply colors
-    Object.entries(currentTheme.colors).forEach(([key, value]) => {
-      if (typeof value === 'string') {
-        root.style.setProperty(`--color-${key}`, value);
-      } else if (typeof value === 'object') {
-        // Handle nested colors (like phases, hover, gradients)
-        Object.entries(value).forEach(([subKey, subValue]) => {
-          root.style.setProperty(`--color-${key}-${subKey}`, subValue);
+    try {
+      const root = document.documentElement;
+      
+      // Apply colors
+      if (currentTheme.colors) {
+        Object.entries(currentTheme.colors).forEach(([key, value]) => {
+          if (typeof value === 'string') {
+            root.style.setProperty(`--color-${key}`, value);
+          } else if (typeof value === 'object' && value) {
+            // Handle nested colors (like phases, hover, gradients)
+            Object.entries(value).forEach(([subKey, subValue]) => {
+              if (subValue) {
+                root.style.setProperty(`--color-${key}-${subKey}`, subValue);
+              }
+            });
+          }
         });
       }
-    });
-    
-    // Apply typography
-    root.style.setProperty('--font-family', currentTheme.typography.fontFamily);
-    root.style.setProperty('--font-family-heading', currentTheme.typography.headingFontFamily);
-    
-    Object.entries(currentTheme.typography.sizes).forEach(([key, value]) => {
-      root.style.setProperty(`--font-size-${key}`, value);
-    });
-    
-    Object.entries(currentTheme.typography.weights).forEach(([key, value]) => {
-      root.style.setProperty(`--font-weight-${key}`, value);
-    });
-    
-    Object.entries(currentTheme.typography.lineHeights).forEach(([key, value]) => {
-      root.style.setProperty(`--line-height-${key}`, value);
-    });
-    
-    // Apply spacing
-    Object.entries(currentTheme.spacing).forEach(([key, value]) => {
-      root.style.setProperty(`--spacing-${key}`, value);
-    });
-    
-    // Apply border radius
-    Object.entries(currentTheme.borderRadius).forEach(([key, value]) => {
-      root.style.setProperty(`--radius-${key}`, value);
-    });
-    
-    // Apply shadows
-    Object.entries(currentTheme.shadows).forEach(([key, value]) => {
-      root.style.setProperty(`--shadow-${key}`, value);
-    });
-    
-    // Apply transitions
-    Object.entries(currentTheme.transitions).forEach(([key, value]) => {
-      root.style.setProperty(`--transition-${key}`, value);
-    });
-    
-    // Apply animations
-    Object.entries(currentTheme.animations).forEach(([key, value]) => {
-      root.style.setProperty(`--animation-${key}`, value);
-    });
+      
+      // Apply typography
+      if (currentTheme.typography) {
+        if (currentTheme.typography.fontFamily) {
+          root.style.setProperty('--font-family', currentTheme.typography.fontFamily);
+        }
+        if (currentTheme.typography.headingFontFamily) {
+          root.style.setProperty('--font-family-heading', currentTheme.typography.headingFontFamily);
+        }
+        
+        if (currentTheme.typography.sizes) {
+          Object.entries(currentTheme.typography.sizes).forEach(([key, value]) => {
+            if (value) root.style.setProperty(`--font-size-${key}`, value);
+          });
+        }
+        
+        if (currentTheme.typography.weights) {
+          Object.entries(currentTheme.typography.weights).forEach(([key, value]) => {
+            if (value) root.style.setProperty(`--font-weight-${key}`, value);
+          });
+        }
+        
+        if (currentTheme.typography.lineHeights) {
+          Object.entries(currentTheme.typography.lineHeights).forEach(([key, value]) => {
+            if (value) root.style.setProperty(`--line-height-${key}`, value);
+          });
+        }
+      }
+      
+      // Apply spacing
+      if (currentTheme.spacing) {
+        Object.entries(currentTheme.spacing).forEach(([key, value]) => {
+          if (value) root.style.setProperty(`--spacing-${key}`, value);
+        });
+      }
+      
+      // Apply border radius
+      if (currentTheme.borderRadius) {
+        Object.entries(currentTheme.borderRadius).forEach(([key, value]) => {
+          if (value) root.style.setProperty(`--radius-${key}`, value);
+        });
+      }
+      
+      // Apply shadows
+      if (currentTheme.shadows) {
+        Object.entries(currentTheme.shadows).forEach(([key, value]) => {
+          if (value) root.style.setProperty(`--shadow-${key}`, value);
+        });
+      }
+      
+      // Apply transitions
+      if (currentTheme.transitions) {
+        Object.entries(currentTheme.transitions).forEach(([key, value]) => {
+          if (value) root.style.setProperty(`--transition-${key}`, value);
+        });
+      }
+      
+      // Apply animations
+      if (currentTheme.animations) {
+        Object.entries(currentTheme.animations).forEach(([key, value]) => {
+          if (value) root.style.setProperty(`--animation-${key}`, value);
+        });
+      }
+    } catch (error) {
+      console.error('Error applying theme:', error);
+    }
     
     // Add theme mode class to body
     document.body.className = `theme-${currentTheme.mode} theme-${variant}`;

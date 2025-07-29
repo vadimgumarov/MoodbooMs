@@ -14,8 +14,7 @@ setupAppSecurity();
 // Disable hardware acceleration to prevent GPU crashes
 app.disableHardwareAcceleration();
 
-// Hide dock icon
-app.dock.hide();
+// Hide dock icon - moved to app.ready to prevent crashes
 
 // Enable better error logging
 const fs = require('fs');
@@ -53,6 +52,11 @@ process.on('unhandledRejection', (reason, promise) => {
 
 app.whenReady().then(() => {
   console.log('App is ready, creating window and tray...');
+  
+  // Hide dock icon (must be done after app is ready on macOS)
+  if (app.dock) {
+    app.dock.hide();
+  }
   
   // Run store migrations
   try {
@@ -198,7 +202,7 @@ app.whenReady().then(() => {
       // window.webContents.openDevTools({ mode: 'detach' });
     }
     // TEMPORARILY ENABLE DEVTOOLS TO DEBUG CRASH
-    window.webContents.openDevTools({ mode: 'detach' });
+    // window.webContents.openDevTools({ mode: 'detach' });
   });
   
   window.webContents.on('render-process-gone', (event, details) => {

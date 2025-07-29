@@ -2,9 +2,11 @@ import React from 'react';
 import MenuBarApp from './components/MenuBarApp';
 import TestKingMode from './components/TestKingMode';
 import TestPhraseSystem from './components/TestPhraseSystem';
+// import { ModeProvider } from './core/contexts/SimpleModeContext';
 import { AppProviders } from './core/contexts';
 import ErrorBoundary from './components/ErrorBoundary';
 import { useDarkMode } from './hooks/useDarkMode';
+import './utils/crashLogger'; // Initialize crash logger with heartbeat
 
 function App() {
   // Toggle this to test the new King mode module

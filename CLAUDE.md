@@ -35,15 +35,82 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   - Console output
 - State only what you can prove
 
+## Common Crashes and Fixes
+
+### Exit Code 15 (SIGTERM)
+**Symptoms**: App starts but crashes shortly after with "Exit Code: 15"
+**Cause**: Rapid state updates causing re-render loops
+**Fix**: Ensure 300ms debouncing in MenuBarApp.jsx phase updates
+**Verify**: Check logs for repeated "Updating phase" entries within milliseconds
+
+### Renderer Process Dead
+**Symptoms**: Heartbeat shows "Renderer dead for Xms"
+**Cause**: Missing crashLogger import in App.js
+**Fix**: Ensure `import './utils/crashLogger'` is at top of App.js
+**Verify**: Heartbeat file should show "ALIVE: Main + Renderer"
+
+### app.dock.hide() Crash
+**Symptoms**: Electron crashes on startup (macOS)
+**Cause**: Calling app.dock.hide() before app is ready
+**Fix**: Move app.dock.hide() inside app.whenReady() callback
+**Verify**: No crash logs immediately after "App is ready" message
+
+### Icon Not Updating
+**Symptoms**: Tray icon doesn't change when switching modes
+**Cause**: Phase name mismatch in iconFromPNG.js
+**Fix**: Update phaseIconMap to include all current phase names
+**Note**: Requires full Electron restart to take effect
+
+### Theme Provider Crash
+**Symptoms**: App crashes when ThemeProvider is enabled
+**Cause**: Theme being applied before DOM is ready
+**Fix**: Wrap theme application in try-catch and check document.documentElement exists
+**Verify**: No "Cannot read property 'style' of null" errors
+
+## Verification Checklist Before Claiming Success
+
+Before stating "the app is working", verify ALL of the following:
+
+1. **Process Check**:
+   ```bash
+   ps aux | grep -E "electron|npm" | grep -v grep
+   # Should show both npm and electron processes
+   ```
+
+2. **Heartbeat Check**:
+   ```bash
+   cat logs/menu-heartbeat.txt
+   # Must show "ALIVE: Main + Renderer" with recent timestamp
+   ```
+
+3. **Functional Tests**:
+   - [ ] Click tray icon - window should appear
+   - [ ] Click outside window - it should hide
+   - [ ] Toggle Queen/King mode - icon should change
+   - [ ] Switch between tabs - no crashes
+   - [ ] Check calendar view - should render without errors
+
+4. **Log Verification**:
+   ```bash
+   # Check for recent crashes
+   tail -20 logs/electron-*.log | grep -i "error\|crash\|exit"
+   # Should be empty or show only old entries
+   ```
+
+5. **Time-Based Verification**:
+   - App must run for at least 30 seconds without crashing
+   - Mode switching must work at least 3 times
+   - No "Renderer dead" messages in last 60 seconds
+
 ## Project Overview
 
 MoodbooM is an Electron-based menubar application that tracks menstrual cycle phases with humor. It combines a React frontend with Electron to create a macOS menubar app that displays cycle phase information and mood messages.
 
 ### Current Development Status (July 2025)
-- **Active Branch**: `feat/epic-68-modular-architecture`
+- **Active Branch**: `main` (Epic #68 completed and merged)
 - **Mode System**: Queen (female first-person) / King (partner warning system) modes
 - **Content**: 360+ unique mood messages and cravings per mode
-- **Architecture**: Transitioning to modular Queen/King architecture (Epic #68)
+- **Architecture**: Modular Queen/King architecture with theme system
 
 ## Security Architecture
 
@@ -79,6 +146,23 @@ The app uses a secure Electron architecture with:
 - `dialog.*` - File dialogs
 - `updates.*` - Auto-updater (future)
 - `dev.*` - Development tools
+
+## Architecture Decisions & Rationale
+
+### Why 300ms Debouncing?
+Phase updates in MenuBarApp.jsx use 300ms debouncing to prevent Exit Code 15 crashes. Without this delay, rapid mode switches or state updates can trigger re-render loops that overwhelm the Electron process, causing SIGTERM.
+
+### Why app.dock.hide() After app.ready?
+On macOS, calling dock methods before the app is ready causes immediate crashes. The dock API is only available after Electron's app module is fully initialized. This is a macOS-specific requirement.
+
+### Why crashLogger Import in App.js?
+The crashLogger establishes a heartbeat between main and renderer processes. Without it, the renderer appears dead to the crash monitor. It must be imported at the top level to start monitoring before any components mount.
+
+### Why Separate iconFromPNG.js?
+Lucide React icons can't be used directly in the main process. The PNG-based approach ensures compatibility with macOS menubar requirements (22x22 pixels) and allows for future customization.
+
+### Why SimpleModeContext?
+Centralizing mode state prevents prop drilling and ensures consistency across all components. The context also handles persistence and migration from legacy badassMode.
 
 ## Development Commands
 
@@ -792,8 +876,8 @@ The app tracks 6 phases with medical accuracy and mode-specific names:
 
 ### If Starting Fresh (Lost Context)
 1. **Check Current Branch**: `git branch --show-current`
-   - Should be on `feat/epic-68-modular-architecture`
-   - If not, switch to it: `git checkout feat/epic-68-modular-architecture`
+   - Should typically be on `main` for new work
+   - For epic work: `feat/epic-XX-description`
 
 2. **Current Mode System**:
    - Queen Mode = Female perspective (toggle OFF)
@@ -819,9 +903,10 @@ The app tracks 6 phases with medical accuracy and mode-specific names:
    - Phase names differ between modes (see Phase Name Mapping table in Cycle Calculations section)
    - Content is in `modeContent.js`, phase logic in `MenuBarApp.jsx`
 
-6. **Next Steps (Epic #68)**:
-   - Working on modular architecture to separate Queen/King into distinct modules
-   - Start with Issue #69: Extract shared core functionality
+6. **Current Epic Priority**:
+   - **High**: Epic #79 - Modern UI Design & Visual Polish
+   - **Medium**: Epic #53 - Application Modularity
+   - **Low**: Epic #52 - Enhanced Navigation
 
 ### Emergency Recovery Commands
 ```bash

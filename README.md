@@ -14,6 +14,30 @@
 ## Overview
 MoodbooM is a discreet, humorous fertility tracking application that lives in your menu bar. It provides at-a-glance cycle information with a calendar view, mood messages, and personalized insights. Features two distinct modes: Queen (female perspective) and King (partner warning system).
 
+## For End Users
+
+### Download & Install
+Currently in development. Distribution packages coming soon via Epic #43.
+
+### How to Use MoodbooM
+1. **First Launch**: Enter your last period start date and average cycle length
+2. **Daily Use**: Click the menubar icon to see your current phase and mood
+3. **Switch Modes**: Toggle between Queen/King modes using the switch in the app
+4. **Track History**: View your cycle patterns in the History tab
+5. **Adjust Period**: If your period arrives early/late, use "My period started today" button
+
+### What You'll See
+- **Menubar Icon**: Changes based on your cycle phase (sun, cloud, storm, etc.)
+- **Main Window**: Shows current day, phase, mood message, and food cravings
+- **Calendar Tab**: Visual overview of your cycle with fertility indicators
+- **History Tab**: Past cycles, statistics, and predictions
+
+### Privacy & Data
+- All data stored locally on your computer
+- No internet connection required
+- Data location: `~/Library/Application Support/moodbooms/`
+- Export/import functionality planned (Issue #57)
+
 ## Features
 - 🎯 **Dynamic Menu Bar Icon** - Weather-themed icons that change based on cycle phase (✅ Implemented)
 - 📅 **Interactive Calendar View** - Month view with color-coded fertility days (✅ Implemented)
@@ -53,65 +77,40 @@ The menubar icon changes to reflect your cycle phase:
 - Secure architecture with data persistence
 - Interactive calendar with fertility tracking
 - Dynamic menubar icons that change with cycle phase
-- Queen/King mode system
-- Cycle history and statistics
+- Queen/King mode system with 360+ unique messages per mode
+- Cycle history and statistics with predictions
 - Period adjustment for irregular cycles
+- Theme system with mode-specific styling
 
-🚧 **In Development:**
-- Enhanced Queen/King mode architecture
-- Additional customization options
-- Cross-platform support
+🚧 **Active Development:**
+- **Epic #79**: Modern UI Design & Visual Polish (HIGH PRIORITY)
+- **Epic #53**: Application Modularity & User Customization (MEDIUM)
+- **Epic #52**: Enhanced Navigation & Date Selection (LOW)
+- **Epic #43**: Cross-Platform Packaging & Distribution (INFRASTRUCTURE)
 
-**Issues:**
-- #16 Create settings panel UI
-- #17 Add cycle length customization
-- #18 Implement notification preferences
-- #19 Add data export/import functionality
-- #20 Create onboarding flow for new users
-
-### Epic 5: Production Build & Distribution
-Package app for distribution with auto-updates
-
-**Issues:**
-- #21 Configure electron-builder for all platforms
-- #22 Implement auto-updater functionality
-- #23 Create code signing setup
-- #24 Add error tracking and analytics
-- #25 Create distribution pipeline
-
-### Epic 6: Testing & Quality Assurance
-Comprehensive testing coverage
-
-**Issues:**
-- #26 Write unit tests for cycle calculations
-- #27 Create component tests for UI elements
-- #28 Add E2E tests for critical flows
-- #29 Implement performance monitoring
-- #30 Create user acceptance test scenarios
-
-### Epic 7: Cross-Platform Packaging & Distribution
-Make the application packable and transferable to any Mac, with eventual Windows support
-
-**Issues:**
-- #38 Configure electron-builder for macOS DMG/ZIP distribution
-- #39 Implement universal binary support (Intel + Apple Silicon)
-- #40 Create auto-update mechanism for macOS
-- #41 Add Windows build configuration and testing
-- #42 Implement Windows-specific tray icon handling
-- #44 Create portable versions (no install required)
-- #45 Set up CI/CD for multi-platform builds
-- #46 Implement license verification system
-- #47 Create installation/uninstallation scripts
+📋 **Notable Issues:**
+- #67 Add Quit/Turn Off functionality to the app
+- #57 Add data export/import functionality
 - #48 Add crash reporting and telemetry
+- #47 Create installation/uninstallation scripts
+- #46 Implement license verification system
 
-**Key Requirements:**
-- Application must be fully self-contained
-- No dependencies on local development environment
-- Support for macOS 10.15+ and Windows 10+
-- Code signing for both platforms
-- Auto-update capability
-- Proper icon support for both platforms
 
+## System Requirements
+
+### For End Users
+- **macOS**: 10.15 (Catalina) or higher
+- **Processor**: Intel or Apple Silicon (M1/M2)
+- **Memory**: 512MB RAM
+- **Storage**: 100MB free space
+- **Display**: Any resolution (app adapts to screen size)
+
+### For Developers
+- **Node.js**: 18.x or higher
+- **npm**: 8.x or higher
+- **OS**: macOS, Windows 10+, or Linux
+- **Memory**: 2GB RAM (for development)
+- **IDE**: VS Code recommended
 
 ## Getting Started
 
