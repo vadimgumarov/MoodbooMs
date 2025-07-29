@@ -1,7 +1,18 @@
-# MoodBooMs - Fertility Tracking Menu Bar App
+# MoodbooM - Fertility Tracking Menu Bar App
+
+<p align="center">
+  <img src="docs/screenshots/hero-image.png" alt="MoodbooM App Screenshot" width="600">
+  <br>
+  <em>Your cycle, your rules, your sense of humor</em>
+</p>
+
+<p align="center">
+  <img src="docs/screenshots/queen-mode.gif" alt="Queen Mode Demo" width="300">
+  <img src="docs/screenshots/king-mode.gif" alt="King Mode Demo" width="300">
+</p>
 
 ## Overview
-MoodBooMs is a discreet, professional fertility tracking application that lives in your menu bar. It provides at-a-glance cycle information with a calendar view, safety indicators, and personalized insights.
+MoodbooM is a discreet, humorous fertility tracking application that lives in your menu bar. It provides at-a-glance cycle information with a calendar view, mood messages, and personalized insights. Features two distinct modes: Queen (female perspective) and King (partner warning system).
 
 ## Features
 - 🎯 **Dynamic Menu Bar Icon** - Weather-themed icons that change based on cycle phase (✅ Implemented)
@@ -13,83 +24,43 @@ MoodBooMs is a discreet, professional fertility tracking application that lives 
 - 🔄 **Period Adjustment** - Mark new period start for irregular cycles (✅ Implemented)
 - 🔔 **Optional Notifications** - Customizable reminders and alerts (Planned)
 
+### Queen/King Mode System
+MoodbooM features two distinct experience modes:
+
+**Queen Mode** (Female First-Person):
+- "I'm dealing with this sh*t" perspective
+- Direct, personal mood messages
+- Self-focused cravings and needs
+
+**King Mode** (Partner Warning System):
+- "She's in this state" perspective  
+- Warning messages for partners
+- Guidance on how to support
+
 ### Dynamic Weather Icons
 The menubar icon changes to reflect your cycle phase:
-- ☀️ **Sun** - "Finally Got My Sh*t Together" (follicular phase)
-- 🌤️ **Partly Cloudy** - "Horny AF" (ovulation)
-- ☁️ **Cloudy** - "Getting Real Tired of This BS" (early luteal)
-- 🌧️ **Rainy** - "Pre-Chaos Mood Swings" (late luteal)
-- ⛈️ **Thunderstorm** - "Bloody Hell Week" (menstruation)
-- 🌪️ **Tornado** - "Apocalypse Countdown" (PMS)
+- ☀️ **Sun** - "Finally Got My Sh*t Together" / "Safe Zone Active"
+- 🌤️ **Partly Cloudy** - "Horny AF" / "High Energy Warning"
+- ☁️ **Cloudy** - "Getting Real Tired of This BS" / "Patience Level: Low"
+- 🌧️ **Rainy** - "Pre-Chaos Mood Swings" / "Volatility Alert"
+- ⛈️ **Thunderstorm** - "Bloody Hell Week" / "Code Red Alert"
+- 🌪️ **Tornado** - "Apocalypse Countdown" / "DEFCON 1"
 
-## Project Redesign Plan
 
-### Overview
-Transform MoodBooMs into a professional fertility tracking menubar app with dynamic icons, calendar view, and safety indicators.
+## Current Status
 
-### Architecture Decision
-**Approach**: Refactor existing codebase with significant enhancements
-- Keep: Electron + React foundation, Tailwind CSS
-- Add: Calendar component, data persistence, security improvements
-- Replace: Static icon with dynamic icons, basic UI with rich calendar interface
+✅ **Completed Features:**
+- Secure architecture with data persistence
+- Interactive calendar with fertility tracking
+- Dynamic menubar icons that change with cycle phase
+- Queen/King mode system
+- Cycle history and statistics
+- Period adjustment for irregular cycles
 
-### Visual Design Specifications
-
-#### Menu Bar Icon States
-- **Safe Days** (Green): Simple circle or leaf icon
-- **Caution Days** (Yellow/Orange): Circle with dot or warning symbol  
-- **Danger Days** (Red): Circle with X or alert symbol
-- **Period Days** (Dark Red): Drop or filled circle
-
-#### Window Layout (320x500px)
-1. **Header** (50px) - App name and settings icon
-2. **Calendar Section** (250px) - Month view with color-coded days
-3. **Status Section** (100px) - Safety scale bar with current position
-4. **Info Section** (100px) - Status message and predictions
-
-### Technical Stack
-- **Electron** 28.x with security best practices
-- **React** 18.x with hooks
-- **Tailwind CSS** for styling
-- **date-fns** for date calculations
-- **electron-store** for data persistence
-- **react-calendar** or custom calendar component
-
-## Development Roadmap
-
-### Epic 1: Core Infrastructure & Security ✅ COMPLETED
-Establish secure Electron architecture and data persistence
-
-**Issues:**
-- ✅ #2 Implement secure Electron preload script with contextBridge
-- ✅ #3 Set up electron-store for data persistence
-- ✅ #4 Create IPC communication layer for main/renderer
-- ✅ #5 Add Content Security Policy (CSP)
-- ✅ #6 Remove nodeIntegration and enable contextIsolation
-
-### Epic 2: Calendar & Date Calculations ✅ COMPLETED
-Implement calendar view with fertility tracking logic
-
-**Issues:**
-- ✅ #8 Create cycle calculation utility module
-- ✅ #9 Implement calendar component with color coding
-- ✅ #10 Add date selection and navigation
-- ✅ #11 Create fertility phase detection logic
-- ✅ #12 Add cycle history tracking
-- ✅ #51 Add period start adjustment functionality
-
-### Epic 3: Dynamic UI & Tray Icons ✅ COMPLETED
-Create responsive UI with dynamic menubar icons
-
-**Issues:**
-- ✅ #14 Design and create tray icon set for all phases
-- ✅ #15 Implement dynamic tray icon switching
-- ✅ #16 Create safety scale component
-- ✅ #17 Add status card with phase information
-- ⏭️ #18 Implement smooth transitions and animations (skipped)
-
-### Epic 4: User Settings & Preferences
-Add customization options and data management
+🚧 **In Development:**
+- Enhanced Queen/King mode architecture
+- Additional customization options
+- Cross-platform support
 
 **Issues:**
 - #16 Create settings panel UI
@@ -141,37 +112,6 @@ Make the application packable and transferable to any Mac, with eventual Windows
 - Auto-update capability
 - Proper icon support for both platforms
 
-## Implementation Phases
-
-### Phase 1: Foundation (Week 1)
-- Set up secure Electron architecture
-- Implement data persistence
-- Create basic calendar component
-
-### Phase 2: Core Features (Week 2)
-- Implement cycle calculations
-- Add safety scale visualization
-- Create dynamic tray icons
-
-### Phase 3: Polish & UX (Week 3)
-- Enhance UI/UX
-- Add animations and transitions
-- Implement notifications
-
-### Phase 4: Production (Week 4)
-- Create build pipeline
-- Add auto-updater
-- Test on multiple platforms
-
-## Success Criteria
-- [ ] Secure Electron implementation (no nodeIntegration)
-- [ ] Calendar shows color-coded fertility days
-- [ ] Tray icon changes based on cycle phase
-- [ ] Data persists between app restarts
-- [ ] Smooth animations and professional UI
-- [ ] Cross-platform compatibility (macOS, Windows, Linux)
-- [ ] Test coverage > 80%
-- [ ] Production-ready build with auto-updates
 
 ## Getting Started
 

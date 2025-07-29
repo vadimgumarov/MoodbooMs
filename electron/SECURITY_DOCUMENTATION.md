@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document outlines the security measures implemented in the MoodBooMs Electron application to prevent unauthorized access to system resources and protect against common vulnerabilities.
+This document outlines the security measures implemented in the MoodbooM Electron application to prevent unauthorized access to system resources and protect against common vulnerabilities.
 
 ## Core Security Principles
 

@@ -18,10 +18,12 @@ import {
   getFertilityLevel,
   getCurrentPhase 
 } from '../../utils/cycleCalculations';
+import { useMode } from '../../core/contexts/SimpleModeContext';
 
 const Calendar = ({ cycleStartDate, cycleLength = 28, onDateSelect }) => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const today = new Date();
+  const { isKingMode } = useMode();
 
   // Navigation handlers
   const previousMonth = () => setCurrentMonth(subMonths(currentMonth, 1));
@@ -143,27 +145,29 @@ const Calendar = ({ cycleStartDate, cycleLength = 28, onDateSelect }) => {
 
       {/* Legend */}
       <div className="mt-6 space-y-2">
-        <h3 className="text-sm font-medium text-gray-700">Fertility Legend</h3>
+        <h3 className="text-sm font-medium text-gray-700">
+          {isKingMode ? "Threat Level Monitor" : "My Cycle Map"}
+        </h3>
         <div className="grid grid-cols-2 gap-2 text-xs">
           <div className="flex items-center space-x-2">
             <div className="w-4 h-4 bg-red-500 rounded"></div>
-            <span>Menstruation</span>
+            <span>{isKingMode ? "Code Red - Maximum Alert" : "The Red Wedding"}</span>
           </div>
           <div className="flex items-center space-x-2">
             <div className="w-4 h-4 bg-yellow-200 rounded"></div>
-            <span>Low Fertility</span>
+            <span>{isKingMode ? "Safe Zone - Low Risk" : "Chill Zone"}</span>
           </div>
           <div className="flex items-center space-x-2">
             <div className="w-4 h-4 bg-gray-300 rounded"></div>
-            <span>Medium Fertility</span>
+            <span>{isKingMode ? "Caution - Moderate Risk" : "Feeling Good"}</span>
           </div>
           <div className="flex items-center space-x-2">
             <div className="w-4 h-4 bg-green-300 rounded"></div>
-            <span>High Fertility</span>
+            <span>{isKingMode ? "High Alert - Energy Surge" : "Peak Power"}</span>
           </div>
           <div className="flex items-center space-x-2">
             <div className="w-4 h-4 bg-green-500 rounded"></div>
-            <span>Peak Fertility (Ovulation)</span>
+            <span>{isKingMode ? "Critical - Peak Fertility" : "I'm Invincible Mode"}</span>
           </div>
         </div>
       </div>

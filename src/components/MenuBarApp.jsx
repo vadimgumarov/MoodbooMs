@@ -1,88 +1,63 @@
-import React, { useState, useEffect } from 'react';
-import { Sun, CloudSun, Cloud, CloudRain, CloudLightning, Tornado, Heart, Coffee, Candy, IceCream, Cookie, Settings, AlertCircle } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Sun, CloudSun, Cloud, CloudRain, CloudLightning, Tornado, Heart, Coffee, Candy, IceCream, Cookie, Settings, AlertCircle, Soup, Apple, Fish, Salad, Milk, Cherry, Wheat, Carrot, Egg, Nut, Banana, X } from 'lucide-react';
 import Calendar from './Calendar';
 import PhaseDetail from './PhaseDetail';
 import HistoryView from './HistoryView';
 import StatusCard from './StatusCard';
 import SettingsPanel from './SettingsPanel';
-import { createCycleRecord, completeCycleRecord, addCycleToHistory } from '../utils/cycleHistory';
-import { calculateCurrentDay, getCurrentPhase } from '../utils/cycleCalculations';
+import KingModeIntegration from './KingModeIntegration';
+import { createCycleRecord, completeCycleRecord, addCycleToHistory, calculateCurrentDay, getCurrentPhase } from '../core/utils';
+import { modeContent, getRandomPhrase, resetPhraseTracking, getUIText } from '../content/modeContent';
+import { useMode, MODES } from '../core/contexts/SimpleModeContext';
+import { calculateFertilityPercentage } from '../utils/phaseDetection';
 
-const moodMessages = {
-  'Bloody Hell Week': [
-    "Warning: Will cry at pet food commercials",
-    "Current status: Wrapped in blanket burrito",
-    "Accepting chocolate-based bribes only",
-    "Don't talk to me until I've had my 5th painkiller",
-    "Today's mood: Everything hurts and I'm dying"
-  ],
-  'Finally Got My Sh*t Together': [
-    "Look who's wearing real pants today!",
-    "Productivity level: Actually answered emails",
-    "Today's goal: World domination (or laundry)",
-    "Finally remembered to buy groceries",
-    "Energy level: Could actually make dinner"
-  ],
-  'Horny AF': [
-    "Everyone looking like a snack today",
-    "BRB downloading dating apps again",
-    "Is it hot in here or is it just everyone?",
-    "Warning: May slide into DMs",
-    "Looking respectfully 👀"
-  ],
-  'Getting Real Tired of This BS': [
-    "Tolerance for BS: -9000",
-    "Don't test me, I will cry",
-    "Current status: Questioning all life choices",
-    "Energy level: Running on spite",
-    "Just need a nap... or 7"
-  ],
-  'Pre-Chaos Mood Swings': [
-    "Simultaneously want hugs and murder",
-    "Drama level: Reality TV worthy",
-    "Current mood: Unhinged",
-    "Warning: May bite",
-    "Emotional stability who?"
-  ],
-  'Apocalypse Countdown': [
-    "Accepting offerings by the door only",
-    "Current status: One minor inconvenience away from losing it",
-    "Do not perceive me",
-    "Warning: Might set something on fire",
-    "Distance from sanity: Astronomical"
-  ]
+// Icon mapping for food items
+const foodIconMap = {
+  'Soup': Soup,
+  'Apple': Apple,
+  'Fish': Fish,
+  'Salad': Salad,
+  'Milk': Milk,
+  'Cherry': Cherry,
+  'Wheat': Wheat,
+  'Coffee': Coffee,
+  'Carrot': Carrot,
+  'Egg': Egg,
+  'Nut': Nut,
+  'Banana': Banana,
+  'Cookie': Cookie,
+  'IceCream': IceCream,
+  'Candy': Candy
 };
 
-const getRandomMood = (phase) => {
-  const moods = moodMessages[phase] || [];
-  return moods[Math.floor(Math.random() * moods.length)] || "Loading sass...";
+// Helper to map phase names to content keys
+const getPhaseKey = (phaseName) => {
+  const phaseKeyMap = {
+    // Queen mode
+    'Bloody Hell Week': 'menstrual',
+    'Finally Got My Sh*t Together': 'follicular',
+    'Horny AF': 'ovulation',
+    'Getting Real Tired of This BS': 'luteal',
+    'Pre-Chaos Mood Swings': 'lateLuteal',
+    'Apocalypse Countdown': 'premenstrual',
+    // King mode
+    'Code Red Alert': 'menstrual',
+    'Safe Zone Active': 'follicular',
+    'High Energy Warning': 'ovulation',
+    'Patience Level: Low': 'luteal',
+    'Volatility Alert': 'lateLuteal',
+    'DEFCON 1': 'premenstrual'
+  };
+  return phaseKeyMap[phaseName] || 'menstrual';
 };
 
-const getRandomFood = () => {
-  const foods = [
-    { icon: Candy, text: "an entire bag of gummy bears" },
-    { icon: Cookie, text: "ALL the cookies" },
-    { icon: Coffee, text: "a venti coffee with 12 espresso shots" },
-    { icon: IceCream, text: "ice cream for breakfast" },
-    { icon: Candy, text: "chocolate. Just chocolate. Only chocolate" },
-    { icon: Cookie, text: "raw cookie dough straight from the tube" },
-    { icon: Coffee, text: "anything with caffeine, literally anything" },
-    { icon: IceCream, text: "a gallon of rocky road" },
-    { icon: Candy, text: "an entire box of chocolates meant for sharing" },
-    { icon: Cookie, text: "grandma's secret recipe cookies" },
-    { icon: Coffee, text: "enough coffee to worry a doctor" },
-    { icon: IceCream, text: "every flavor in the ice cream shop" }
-  ];
-  return foods[Math.floor(Math.random() * foods.length)];
-};
-
-const calculatePhase = (startDate, cycleLength = 28) => {
+const calculatePhase = (startDate, cycleLength = 28, isKingMode = false) => {
   const today = new Date();
   const currentDay = calculateCurrentDay(startDate, today, cycleLength);
   const medicalPhase = getCurrentPhase(currentDay, cycleLength);
   
-  // Map medical phases to funny phases for display and icons
-  const phaseMapping = {
+  // Queen mode content (female first-person perspective)
+  const queenMapping = {
     'menstrual': {
       phase: 'Bloody Hell Week',
       icon: CloudLightning,
@@ -108,19 +83,52 @@ const calculatePhase = (startDate, cycleLength = 28) => {
     }
   };
   
+  // King mode content (partner/observer perspective)
+  const kingMapping = {
+    'menstrual': {
+      phase: 'Code Red Alert',
+      icon: CloudLightning,
+      description: 'Approach with chocolate. And caution.'
+    },
+    'follicular': {
+      phase: 'Safe Zone Active',
+      icon: Sun,
+      description: 'She\'s back! Quick, make plans!'
+    },
+    'ovulation': {
+      phase: 'High Energy Warning',
+      icon: CloudSun,
+      description: 'Buckle up, cowboy. You\'re needed.'
+    },
+    'luteal': {
+      // In luteal phase, check if we're in late luteal for different moods
+      phase: currentDay >= cycleLength - 7 ? 'Volatility Alert' : 'Patience Level: Low',
+      icon: currentDay >= cycleLength - 7 ? CloudRain : Cloud,
+      description: currentDay >= cycleLength - 7 
+        ? 'Emotional turbulence ahead. Fasten seatbelts.'
+        : 'Her patience is running low. Proceed carefully.'
+    }
+  };
+  
   // Special case for very late luteal (last 3 days)
   if (currentDay >= cycleLength - 3) {
     return {
-      phase: 'Apocalypse Countdown',
+      phase: isKingMode ? 'DEFCON 1' : 'Apocalypse Countdown',
       icon: Tornado,
-      description: 'If you value your life, bring snacks'
+      description: isKingMode 
+        ? 'Maximum danger. Bring chocolate. Leave chocolate. Run.'
+        : 'If you value your life, bring snacks'
     };
   }
   
-  return phaseMapping[medicalPhase] || phaseMapping['luteal'];
+  const mapping = isKingMode ? kingMapping : queenMapping;
+  return mapping[medicalPhase] || mapping['luteal'];
 };
 
 const MenuBarApp = () => {
+  // Use mode context
+  const { currentMode, isKingMode, toggleMode, isSwitching } = useMode();
+  
   const [cycleData, setCycleData] = useState({
     startDate: new Date(),
     cycleLength: 28,
@@ -137,8 +145,12 @@ const MenuBarApp = () => {
   const [cycleHistory, setCycleHistory] = useState([]);
   const [preferences, setPreferences] = useState({
     notifications: true,
-    theme: 'auto'
+    theme: 'auto',
+    badassMode: false // Keep for backward compatibility
   });
+  
+  // Use ref to track previous phase to prevent unnecessary updates
+  const previousPhaseRef = useRef('');
 
   // Load saved data on mount
   useEffect(() => {
@@ -176,7 +188,10 @@ const MenuBarApp = () => {
           }
           
           if (savedPreferences) {
-            setPreferences(savedPreferences);
+            setPreferences({
+              ...preferences,
+              ...savedPreferences
+            });
             if (savedPreferences.testMode !== undefined) {
               setTestMode(savedPreferences.testMode);
             }
@@ -204,28 +219,47 @@ const MenuBarApp = () => {
       window.electronAPI.app.log(`MenuBarApp: Phase update effect triggered, isLoading=${isLoading}`);
     }
     
-    const updatePhaseAndIcon = async () => {
-      const phase = calculatePhase(
-        testMode ? new Date(new Date().getTime() - testDays * 24 * 60 * 60 * 1000) : cycleData.startDate, 
-        cycleData.cycleLength
-      );
-      setCurrentPhase(phase);
-      setCurrentMood(getRandomMood(phase.phase));
-      setCurrentCraving(getRandomFood());
-      
-      // Update tray icon via unified API
-      if (window.electronAPI && window.electronAPI.tray) {
-        if (window.electronAPI.app) {
-          window.electronAPI.app.log(`MenuBarApp: Updating phase to "${phase.phase}"`);
+    // Debounce phase updates to prevent rapid re-renders
+    const timer = setTimeout(() => {
+      const updatePhaseAndIcon = async () => {
+        const phase = calculatePhase(
+          testMode ? new Date(new Date().getTime() - testDays * 24 * 60 * 60 * 1000) : cycleData.startDate, 
+          cycleData.cycleLength,
+          isKingMode
+        );
+        
+        // Only update if phase actually changed
+        if (previousPhaseRef.current !== phase.phase) {
+          previousPhaseRef.current = phase.phase;
+          setCurrentPhase(phase);
+          
+          // Update tray icon via unified API
+          if (window.electronAPI && window.electronAPI.tray) {
+            if (window.electronAPI.app) {
+              window.electronAPI.app.log(`MenuBarApp: Updating phase to "${phase.phase}"`);
+            }
+            window.electronAPI.tray.updatePhase(phase.phase);
+          }
         }
-        window.electronAPI.tray.updatePhase(phase.phase);
-      } else if (window.electronAPI && window.electronAPI.app) {
-        window.electronAPI.app.log('MenuBarApp: electronAPI.tray not available');
-      }
-    };
+        
+        // Always update mood and craving to get new random content
+        const mode = currentMode; // Use mode from context
+        const phaseKey = getPhaseKey(phase.phase);
+        const mood = getRandomPhrase(mode, phaseKey, 'moods');
+        const craving = getRandomPhrase(mode, phaseKey, 'cravings');
+        
+        setCurrentMood(mood);
+        setCurrentCraving({
+          icon: foodIconMap[craving.icon] || Candy,
+          text: craving.text
+        });
+      };
+      
+      updatePhaseAndIcon();
+    }, 300); // 300ms debounce
     
-    updatePhaseAndIcon();
-  }, [cycleData, testDays, testMode, isLoading]);
+    return () => clearTimeout(timer); // Clean up timer
+  }, [cycleData.startDate, cycleData.cycleLength, testDays, testMode, isLoading, currentMode]); // Use currentMode instead of isKingMode
 
   const handleDateChange = async (newDate) => {
     setCycleData(prev => ({ ...prev, startDate: newDate }));
@@ -276,6 +310,7 @@ const MenuBarApp = () => {
     // Go back to mood tab
     setActiveTab('mood');
   };
+
 
 
   const handlePeriodStart = async (date = new Date()) => {
@@ -372,11 +407,130 @@ const MenuBarApp = () => {
     );
   }
 
+  // Calculate fertility percentage for King mode
+  const currentDay = calculateCurrentDay(
+    testMode ? new Date(new Date().getTime() - testDays * 24 * 60 * 60 * 1000) : cycleData.startDate, 
+    new Date()
+  );
+  const fertility = calculateFertilityPercentage(currentDay, cycleData.cycleLength);
+
+  // If in King mode, use the King mode integration
+  if (isKingMode) {
+    return (
+      <KingModeIntegration
+        currentPhase={currentPhase}
+        currentMood={currentMood}
+        currentCraving={currentCraving}
+        fertility={fertility}
+        activeTab={activeTab}
+        onTabChange={(tab, value) => {
+          if (tab === 'testDays') {
+            // Handle test days change
+            setTestDays(value);
+          } else {
+            setActiveTab(tab);
+          }
+        }}
+        cycleData={cycleData}
+        testMode={testMode}
+        testDays={testDays}
+        onDateChange={handleDateChange}
+        onModeToggle={toggleMode}
+        isKingMode={isKingMode}
+        isSwitching={isSwitching}
+        onQuit={() => {
+          if (window.electronAPI && window.electronAPI.app) {
+            window.electronAPI.app.quit();
+          }
+        }}
+        onSettingsClick={() => setActiveTab('settings')}
+      >
+        {/* Pass the regular content for calendar, history, and settings tabs */}
+        {activeTab === 'calendar' ? (
+          <div className="space-y-4">
+            <Calendar 
+              cycleStartDate={testMode 
+                ? new Date(new Date().getTime() - testDays * 24 * 60 * 60 * 1000) 
+                : cycleData.startDate
+              }
+              cycleLength={cycleData.cycleLength}
+              onDateSelect={(date) => setSelectedDate(date)}
+            />
+            {selectedDate && (
+              <div className="border-t pt-4" style={{ borderColor: 'var(--king-border)' }}>
+                <PhaseDetail
+                  selectedDate={selectedDate}
+                  cycleStartDate={testMode 
+                    ? new Date(new Date().getTime() - testDays * 24 * 60 * 60 * 1000) 
+                    : cycleData.startDate
+                  }
+                  cycleLength={cycleData.cycleLength}
+                    />
+              </div>
+            )}
+          </div>
+        ) : activeTab === 'history' ? (
+          <HistoryView 
+            cycleHistory={cycleHistory}
+            currentCycleStart={cycleData.startDate}
+            onPeriodStart={handlePeriodStart}
+          />
+        ) : activeTab === 'settings' ? (
+          <SettingsPanel
+            cycleData={cycleData}
+            preferences={preferences}
+            onSave={handleSettingsSave}
+            onCancel={() => setActiveTab('mood')}
+          />
+        ) : null}
+      </KingModeIntegration>
+    );
+  }
+
+  // Regular Queen mode UI
   return (
     <div className="w-96">
       <div className="p-4">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold">MoodBooMs</h2>
+          <h2 className="text-lg font-semibold">MoodbooM</h2>
+          <div className="flex items-center gap-3">
+            {/* Queen/King Mode Toggle */}
+            <label className={`flex items-center gap-2 ${isSwitching ? 'cursor-wait opacity-50' : 'cursor-pointer'}`}>
+              <span className="text-xs text-gray-600">{isKingMode ? 'King' : 'Queen'}</span>
+            <div className="relative">
+              <input
+                type="checkbox"
+                checked={isKingMode}
+                onChange={(e) => {
+                  e.stopPropagation();
+                  if (!isSwitching) {
+                    toggleMode();
+                  }
+                }}
+                disabled={isSwitching}
+                className="sr-only"
+              />
+              <div className={`block w-10 h-6 rounded-full transition-colors ${
+                isKingMode ? 'bg-purple-500' : 'bg-gray-300'
+              }`}></div>
+              <div className={`absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform ${
+                isKingMode ? 'translate-x-4' : ''
+              }`}></div>
+            </div>
+          </label>
+          {/* Close Button */}
+          <button
+            onClick={() => {
+              if (window.electronAPI && window.electronAPI.app) {
+                window.electronAPI.app.quit();
+              }
+            }}
+            className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+            title="Quit MoodbooM"
+          >
+            <X className="w-4 h-4" />
+          </button>
+          </div>
         </div>
 
         {/* Tab Navigation */}
@@ -389,7 +543,7 @@ const MenuBarApp = () => {
                 : 'hover:bg-gray-200'
             }`}
           >
-            Mood
+            {getUIText(currentMode, 'tabs', 'mood')}
           </button>
           <button
             onClick={() => setActiveTab('calendar')}
@@ -399,7 +553,7 @@ const MenuBarApp = () => {
                 : 'hover:bg-gray-200'
             }`}
           >
-            Calendar
+            {getUIText(currentMode, 'tabs', 'calendar')}
           </button>
           <button
             onClick={() => setActiveTab('history')}
@@ -409,7 +563,7 @@ const MenuBarApp = () => {
                 : 'hover:bg-gray-200'
             }`}
           >
-            History
+            {getUIText(currentMode, 'tabs', 'history')}
           </button>
           <button
             onClick={() => setActiveTab('settings')}
@@ -433,14 +587,14 @@ const MenuBarApp = () => {
           />
 
           <div className="p-3 bg-gray-100 rounded">
-            <p className="text-sm font-medium">Today's Mood:</p>
+            <p className="text-sm font-medium">{isKingMode ? "Her Status:" : "My Mood:"}</p>
             <p className="text-sm italic text-gray-600">{currentMood}</p>
           </div>
 
           <div className="p-3 bg-gray-100 rounded flex items-center gap-2">
-            <p className="text-sm">Current Craving:</p>
+            <p className="text-sm">{isKingMode ? "She Needs:" : "I Need:"}</p>
             <currentCraving.icon className="w-4 h-4" />
-            <p className="text-sm italic">Need {currentCraving.text} ASAP</p>
+            <p className="text-sm italic">{isKingMode ? `Get her ${currentCraving.text}` : `Need ${currentCraving.text} ASAP`}</p>
           </div>
 
           <div className="flex items-center gap-2">
@@ -496,7 +650,7 @@ const MenuBarApp = () => {
                     : cycleData.startDate
                   }
                   cycleLength={cycleData.cycleLength}
-                />
+                    />
               </div>
             )}
           </div>

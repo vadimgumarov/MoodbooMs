@@ -54,6 +54,15 @@ process.on('unhandledRejection', (reason, promise) => {
 app.whenReady().then(() => {
   console.log('App is ready, creating window and tray...');
   
+  // Run store migrations
+  try {
+    const { storeOperations } = require('./store');
+    storeOperations.migrate();
+    console.log('Store migrations completed');
+  } catch (error) {
+    console.error('Store migration error:', error);
+  }
+  
   // Apply Content Security Policy to the default session
   applyCSPToSession(session.defaultSession);
   
@@ -184,10 +193,12 @@ app.whenReady().then(() => {
       logToFile(`Preload script loaded correctly: ${hasAPI}`);
     });
     
-    // Open DevTools in production to see errors (commented out for clean experience)
-    // if (!isDev) {
-    //   window.webContents.openDevTools({ mode: 'detach' });
-    // }
+    // Open DevTools in development for debugging
+    if (isDev) {
+      // window.webContents.openDevTools({ mode: 'detach' });
+    }
+    // TEMPORARILY ENABLE DEVTOOLS TO DEBUG CRASH
+    window.webContents.openDevTools({ mode: 'detach' });
   });
   
   window.webContents.on('render-process-gone', (event, details) => {

@@ -1,6 +1,6 @@
 # Tests Directory
 
-This directory contains all test files for the MoodBooMs project.
+This directory contains all test files for the MoodbooM project.
 
 ## Structure
 

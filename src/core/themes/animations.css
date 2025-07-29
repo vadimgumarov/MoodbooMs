@@ -1,0 +1,183 @@
+/**
+ * Theme Animations
+ * 
+ * Defines keyframe animations for mode-specific themes
+ */
+
+/* Queen Mode Animations */
+@keyframes queenModeSwitch {
+  0% {
+    opacity: 0;
+    transform: scale(0.95) rotate(-2deg);
+  }
+  50% {
+    transform: scale(1.05) rotate(1deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+@keyframes slideInBottom {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  25% {
+    transform: translateY(-4px);
+  }
+  75% {
+    transform: translateY(2px);
+  }
+}
+
+/* King Mode Animations */
+@keyframes kingModeSwitch {
+  0% {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slideInLeft {
+  0% {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Common Animations */
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* Theme Switching Transition */
+.theme-switching * {
+  transition: all 300ms ease-in-out !important;
+}
+
+/* Mode-specific hover effects */
+.theme-queen button:hover {
+  animation: var(--animation-bounce) 600ms ease-in-out;
+}
+
+.theme-queen .card:hover {
+  animation: pulse 2s ease-in-out;
+}
+
+.theme-king button:hover {
+  transition: var(--transition-fast);
+}
+
+.theme-king .card:hover {
+  transition: var(--transition-normal);
+}
+
+/* Dark mode adjustments */
+.theme-dark {
+  color-scheme: dark;
+}
+
+.theme-dark .glow-effect {
+  filter: brightness(1.2);
+}
+
+/* Responsive animations */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Phase transition animations */
+.phase-transition {
+  animation: fadeIn 500ms ease-in-out;
+}
+
+.phase-indicator {
+  transition: background-color 300ms ease-in-out,
+              color 300ms ease-in-out;
+}
+
+/* Component-specific animations */
+.mode-toggle {
+  position: relative;
+  overflow: hidden;
+}
+
+.mode-toggle::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: var(--color-primary);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 600ms ease-out, height 600ms ease-out;
+}
+
+.mode-toggle.switching::after {
+  width: 200%;
+  height: 200%;
+}
+
+/* Loading states */
+.loading-skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--color-surface) 25%,
+    var(--color-surface-alt) 50%,
+    var(--color-surface) 75%
+  );
+  background-size: 200% 100%;
+  animation: loading-skeleton 1.5s ease-in-out infinite;
+}
+
+@keyframes loading-skeleton {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}

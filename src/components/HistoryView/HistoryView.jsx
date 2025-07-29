@@ -13,7 +13,7 @@ import {
   predictNextCycleStart 
 } from '../../utils/cycleHistory';
 
-const HistoryView = ({ cycleHistory, currentCycleStart, onPeriodStart }) => {
+const HistoryView = ({ cycleHistory, currentCycleStart, onPeriodStart, isBadassMode = true }) => {
   const stats = calculateCycleStatistics(cycleHistory);
   const recentCycles = getRecentCycles(cycleHistory, 6);
   const nextPredicted = currentCycleStart ? 
@@ -35,17 +35,32 @@ const HistoryView = ({ cycleHistory, currentCycleStart, onPeriodStart }) => {
   };
 
   const getRegularityText = (regularity) => {
-    switch (regularity) {
-      case 'very-regular':
-        return 'Very Regular';
-      case 'regular':
-        return 'Regular';
-      case 'somewhat-irregular':
-        return 'Somewhat Irregular';
-      case 'irregular':
-        return 'Irregular';
-      default:
-        return 'Calculating...';
+    if (!isBadassMode) {
+      switch (regularity) {
+        case 'very-regular':
+          return 'Very Regular';
+        case 'regular':
+          return 'Regular';
+        case 'somewhat-irregular':
+          return 'Somewhat Irregular';
+        case 'irregular':
+          return 'Irregular';
+        default:
+          return 'Calculating...';
+      }
+    } else {
+      switch (regularity) {
+        case 'very-regular':
+          return isBadassMode ? 'Predictable Pattern' : 'Clockwork AF';
+        case 'regular':
+          return isBadassMode ? 'Mostly Regular' : 'Pretty Predictable';
+        case 'somewhat-irregular':
+          return isBadassMode ? 'Variable Pattern' : 'Kinda Wonky';
+        case 'irregular':
+          return isBadassMode ? 'Unpredictable' : 'Total Chaos';
+        default:
+          return isBadassMode ? 'Calculating...' : 'Still figuring this sh*t out...';
+      }
     }
   };
 
@@ -55,33 +70,33 @@ const HistoryView = ({ cycleHistory, currentCycleStart, onPeriodStart }) => {
       <div className="bg-gray-50 rounded-lg p-4">
         <h3 className="text-lg font-semibold mb-3 flex items-center">
           <BarChart2 className="w-5 h-5 mr-2" />
-          Cycle Statistics
+          {isBadassMode ? "Her Cycle Stats" : "My Stats"}
         </h3>
         
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <p className="text-sm text-gray-600">Average Length</p>
+            <p className="text-sm text-gray-600">{isBadassMode ? "Average Duration" : "My Average"}</p>
             <p className="text-xl font-medium">
               {stats.averageLength || '--'} days
             </p>
           </div>
           
           <div>
-            <p className="text-sm text-gray-600">Regularity</p>
+            <p className="text-sm text-gray-600">{isBadassMode ? "Predictability" : "My Pattern"}</p>
             <p className={`text-lg font-medium ${getRegularityColor(stats.cycleRegularity)}`}>
               {getRegularityText(stats.cycleRegularity)}
             </p>
           </div>
           
           <div>
-            <p className="text-sm text-gray-600">Shortest Cycle</p>
+            <p className="text-sm text-gray-600">{isBadassMode ? "Shortest Cycle" : "Quickest Hell"}</p>
             <p className="text-lg">
               {stats.shortestCycle || '--'} days
             </p>
           </div>
           
           <div>
-            <p className="text-sm text-gray-600">Longest Cycle</p>
+            <p className="text-sm text-gray-600">{isBadassMode ? "Longest Cycle" : "Longest Nightmare"}</p>
             <p className="text-lg">
               {stats.longestCycle || '--'} days
             </p>
@@ -104,7 +119,7 @@ const HistoryView = ({ cycleHistory, currentCycleStart, onPeriodStart }) => {
           <div className="flex items-start space-x-2">
             <TrendingUp className="w-5 h-5 text-blue-600 mt-0.5" />
             <div className="flex-1">
-              <p className="text-sm font-medium text-blue-900">Next Period Prediction</p>
+              <p className="text-sm font-medium text-blue-900">{isBadassMode ? "Next Code Red Alert" : "My Next Hell Week"}</p>
               <p className="text-lg text-blue-800">
                 {format(nextPredicted, 'MMMM d, yyyy')}
               </p>
@@ -120,14 +135,14 @@ const HistoryView = ({ cycleHistory, currentCycleStart, onPeriodStart }) => {
       <div>
         <h3 className="text-lg font-semibold mb-3 flex items-center">
           <Calendar className="w-5 h-5 mr-2" />
-          Recent Cycles
+          {isBadassMode ? "Recent Incidents" : "My History"}
         </h3>
         
         {recentCycles.length === 0 ? (
           <div className="text-center py-8 text-gray-500">
             <Activity className="w-12 h-12 mx-auto mb-2 opacity-50" />
-            <p>No cycle history yet</p>
-            <p className="text-sm mt-1">Your cycles will appear here as you track them</p>
+            <p>{isBadassMode ? "No history recorded" : "No drama logged yet"}</p>
+            <p className="text-sm mt-1">{isBadassMode ? "Track her cycles here" : "Start tracking this sh*t"}</p>
           </div>
         ) : (
           <div className="space-y-2">

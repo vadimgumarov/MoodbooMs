@@ -131,7 +131,7 @@ const SettingsPanel = ({
             <h3 className="font-medium">Test Mode</h3>
           </div>
           
-          <div className="pl-6">
+          <div className="pl-6 space-y-3">
             <label className="flex items-center gap-3 cursor-pointer">
               <input
                 type="checkbox"
@@ -141,7 +141,7 @@ const SettingsPanel = ({
               />
               <span className="text-sm">Enable test mode</span>
             </label>
-            <p className="text-xs text-gray-500 mt-1 ml-6">
+            <p className="text-xs text-gray-500 ml-6">
               Test different cycle days without changing your actual start date
             </p>
           </div>

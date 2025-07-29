@@ -2,9 +2,48 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## CRITICAL RULES - READ FIRST
+
+### 1. NO CONFIDENT STATEMENTS UNLESS CERTAIN
+- NEVER state "the app is working" or "everything is fine" based on partial log output
+- VERIFY processes are actually running: `ps aux | grep -E "electron|npm"`
+- CHECK crash logs and heartbeat files
+- Only state facts you have verified
+
+### 2. NO APOLOGIES
+- Don't apologize for errors or misunderstandings
+- Focus on identifying and fixing issues
+- Be direct and factual
+
+### 3. ISSUE IDENTIFICATION IS PRIMARY GOAL
+- THINK before responding
+- Don't jump to the first assumption
+- Identify the exact:
+  - Error location
+  - Module causing the issue
+  - Line of code
+  - Stack trace
+- Test fixes before claiming they work
+- Use proper debugging tools and logs
+
+### 4. VERIFICATION BEFORE STATEMENTS
+- If logs show "React app loaded: true" - verify the app is STILL running
+- Check multiple sources:
+  - Process list
+  - Heartbeat files
+  - Crash logs
+  - Console output
+- State only what you can prove
+
 ## Project Overview
 
-MoodBooMs is an Electron-based menubar application that tracks menstrual cycle phases with humor. It combines a React frontend with Electron to create a macOS menubar app that displays cycle phase information and mood messages.
+MoodbooM is an Electron-based menubar application that tracks menstrual cycle phases with humor. It combines a React frontend with Electron to create a macOS menubar app that displays cycle phase information and mood messages.
+
+### Current Development Status (July 2025)
+- **Active Branch**: `feat/epic-68-modular-architecture`
+- **Mode System**: Queen (female first-person) / King (partner warning system) modes
+- **Content**: 360+ unique mood messages and cravings per mode
+- **Architecture**: Transitioning to modular Queen/King architecture (Epic #68)
 
 ## Security Architecture
 
@@ -108,6 +147,69 @@ The application consists of:
    - Random mood messages and food cravings per phase
    - Period start adjustment for irregular cycles
    - Persistent data storage across app sessions
+   - Queen/King mode toggle for different perspectives
+
+## Queen/King Mode System
+
+### Overview
+The app features two distinct modes with different perspectives:
+- **Queen Mode** (toggle OFF): Female first-person experience ("I'm dealing with this")
+- **King Mode** (toggle ON): Partner warning system ("She's in this state")
+
+### Content Architecture
+```javascript
+// Current Implementation (transitioning to modular)
+modeContent.js: 900+ lines with all mood messages and cravings
+MenuBarApp.jsx: Phase names and descriptions
+
+// Mode Selection
+const mode = preferences.mode || 'queen'; // 'queen' or 'king'
+```
+
+### Phase Names by Mode
+| Medical Phase | Queen Mode | King Mode |
+|--------------|------------|-----------|
+| Menstrual | Bloody Hell Week | Code Red Alert |
+| Follicular | Finally Got My Sh*t Together | Safe Zone Active |
+| Ovulation | Horny AF | High Energy Warning |
+| Luteal | Getting Real Tired of This BS | Patience Level: Low |
+| Late Luteal | Pre-Chaos Mood Swings | Volatility Alert |
+| Pre-Menstrual | Apocalypse Countdown | DEFCON 1 |
+
+### Content Details
+- 360+ unique mood messages per mode (30+ per phase)
+- 360+ unique food cravings per mode
+- Phrase tracking system prevents repetition for 6 months
+- Different UI text for tabs, buttons, and labels
+
+### SimpleModeContext Implementation
+The mode system uses React Context for centralized state management:
+
+```javascript
+// src/core/contexts/SimpleModeContext.js
+import { ModeProvider, useMode, MODES } from './core/contexts';
+
+// Available modes
+MODES = {
+  QUEEN: 'queen',
+  KING: 'king'
+}
+
+// Using in components
+const { currentMode, isQueenMode, isKingMode, toggleMode, isSwitching } = useMode();
+
+// Mode persistence
+- Stored in electron-store as preferences.mode
+- Automatic migration from legacy badassMode
+- Debounced switching to prevent rapid toggles
+```
+
+Key features:
+- Centralized mode state across entire app
+- Persistence through electron-store
+- Loading state management (isReady)
+- Switch animation support (isSwitching)
+- Backward compatibility with legacy data
 
 ## Project Structure
 
@@ -186,8 +288,8 @@ We use modified versions of standard workflow scripts that automatically handle 
 
 1. **Starting Work on Any Issue (Epic or Regular)**
    ```bash
-   ./scripts/wi.sh
-   # Or directly: ./scripts/wi.sh <issue-number>
+   ./scripts/start.sh
+   # Or directly: ./scripts/start.sh <issue-number>
    ```
    - Automatically detects if issue is an Epic
    - Creates epic branches from main
@@ -196,7 +298,7 @@ We use modified versions of standard workflow scripts that automatically handle 
 
 2. **Finishing Work (Commit, Push, and Merge)**
    ```bash
-   ./scripts/fw.sh
+   ./scripts/finish.sh
    ```
    - Commits and pushes changes
    - For issue branches: offers to merge to parent epic branch
@@ -205,11 +307,11 @@ We use modified versions of standard workflow scripts that automatically handle 
 
 3. **Other Useful Scripts**
    ```bash
-   ./scripts/cs.sh   # Check status and current work
-   ./scripts/rt.sh   # Run tests
-   ./scripts/qa.sh   # Quality assurance checks
-   ./scripts/pl.sh   # Update project log
-   ./scripts/fix.sh  # Quick fixes
+   ./scripts/status.sh  # Check status and current work
+   ./scripts/test.sh    # Run tests
+   ./scripts/check.sh   # Quality assurance checks
+   ./scripts/log.sh     # Update project log
+   ./scripts/hotfix.sh  # Quick fixes
    ```
 
 #### Manual Workflow (if needed):
@@ -217,6 +319,23 @@ We use modified versions of standard workflow scripts that automatically handle 
 1. **Epic Branch**: `feat/epic-{number}-{description}`
 2. **Issue Branch**: `feat/epic-{number}/issue-{number}-{description}`
 3. **Merge Pattern**: Issue → Epic → Main
+
+### Current Development Focus (Epic #68)
+
+**Modular Queen/King Architecture** - Separating modes into distinct modules:
+1. **Issue #69**: Extract shared core functionality
+2. **Issue #70**: Create Queen mode module  
+3. **Issue #71**: Create King mode module
+4. **Issue #72**: Implement mode switching
+
+**Branch Status**:
+- Active: `feat/epic-68-modular-architecture`
+- Previous: `feat/epic-59/issue-66-comprehensive-phrase-sets` (Queen/King content)
+
+**Key Files to Know**:
+- `src/content/modeContent.js` - All mood messages and cravings (900+ lines)
+- `src/components/MenuBarApp.jsx` - Main app logic and phase calculations
+- `electron/iconFromPNG.js` - Tray icon mapping (must match phase names)
 
 ### Standard Development Flow
 1. **Identify & Clarify Requirements**
@@ -242,6 +361,10 @@ We use modified versions of standard workflow scripts that automatically handle 
 6. **Verify & Test**
    - Run tests to ensure nothing breaks
    - Test the application manually if needed
+   - **IMPORTANT**: Show the working app to the user (`npm run dev`)
+   - Write unit tests for new functionality
+   - Run all tests and show results (`npm test`)
+   - Take screenshots or describe what's working
 
 7. **Document Changes**
    - Update CLAUDE.md for development practices
@@ -279,10 +402,10 @@ When completing an epic (all child issues done):
    - Update README.md if new features added
    - Commit documentation changes
 
-4. **Complete Epic Using fw.sh or Manually**
+4. **Complete Epic Using finish.sh or Manually**
    
-   **Option A: Using fw.sh Script**
-   - Run `./scripts/fw.sh` while on epic branch
+   **Option A: Using finish.sh Script**
+   - Run `./scripts/finish.sh` while on epic branch
    - Choose "Complete this epic? (y/N)"
    - Script handles PR creation and merging
    
@@ -324,6 +447,7 @@ chore: update dependencies or configs
    - `🤖 Generated with [Claude Code](https://claude.ai/code)`
    - `Co-Authored-By: Claude <noreply@anthropic.com>`
    - Any AI-related signatures, links, or co-authorship mentions
+   - NEVER use any Claude signatures or AI-related text in commit messages
 
 ## Testing Standards
 
@@ -400,6 +524,87 @@ npm run electron-dev
 - Uses node integration enabled (security consideration for future updates)
 - Always prefer editing existing files over creating new ones
 - Keep the codebase simple and maintainable
+
+## App Crashes and Debugging
+
+### Common Crash Scenarios
+
+1. **Exit Code 15 (SIGTERM)**
+   - **Symptom**: App starts but crashes shortly after with "Exit Code: 15"
+   - **Cause**: Process is being terminated, often due to:
+     - Memory issues
+     - Infinite loops in React components
+     - Rapid state updates causing re-render loops
+     - IPC communication errors
+   - **Solution**: Add debouncing to phase updates (300ms delay)
+   - **Debugging Steps**:
+     - Check electron logs: `logs/electron-YYYY-MM-DD.log`
+     - Check app logs: `logs/app-YYYY-MM-DD.log`
+     - Look for rapid repeated log entries indicating loops
+     - Enable DevTools: Uncomment `window.webContents.openDevTools()` in main.js
+
+2. **ERR_CONNECTION_REFUSED**
+   - **Symptom**: Electron can't connect to React dev server
+   - **Cause**: React dev server not running or not ready
+   - **Solution**: Ensure `npm start` is running before `npm run electron-dev`
+
+3. **Renderer Process Crashes**
+   - **Symptom**: Window becomes unresponsive or disappears
+   - **Common Causes**:
+     - React errors (check console)
+     - Memory leaks from event listeners
+     - Uncaught promises
+   - **Debug**: Check both Electron and browser console logs
+
+4. **Icon Update Issues**
+   - **Symptom**: Tray icon doesn't update when switching modes
+   - **Cause**: Icon mapping not updated for new phase names
+   - **Solution**: Update `iconFromPNG.js` phaseIconMap with all phase names
+   - **Note**: Must restart Electron for icon changes to take effect
+
+5. **Mode Toggle Re-render Loop**
+   - **Symptom**: Rapid switching between modes causes performance issues
+   - **Cause**: useEffect dependencies triggering cascading updates
+   - **Solution**: Debounce phase updates, optimize useEffect dependencies
+
+### Debugging Tools
+
+1. **Enable DevTools in Development**
+   ```javascript
+   // In main.js, uncomment:
+   window.webContents.openDevTools();
+   ```
+
+2. **Check All Log Files**
+   - `logs/electron-YYYY-MM-DD.log` - Main process logs
+   - `logs/app-YYYY-MM-DD.log` - Renderer process logs
+   - `/tmp/app-dev.log` - Real-time development logs
+
+3. **Process Monitoring**
+   ```bash
+   # Check if processes are running
+   ps aux | grep -E "electron|npm|node" | grep -v grep
+   
+   # Kill all app processes
+   pkill -f "npm run dev" || pkill -f "electron" || true
+   ```
+
+### Preventing Crashes
+
+1. **Avoid Rapid State Updates**
+   - Use debouncing for frequent updates
+   - Check useEffect dependencies to prevent loops
+   - Use React.memo for expensive components
+
+2. **Handle Errors Properly**
+   - Add error boundaries in React
+   - Handle Promise rejections
+   - Validate IPC messages
+
+3. **Monitor Performance**
+   - Use React DevTools Profiler
+   - Check for memory leaks
+   - Limit concurrent operations
 
 ## Production Build & Deployment
 
@@ -499,6 +704,33 @@ Icons are generated using Canvas API in `IconGeneratorLucide.js` to ensure compa
 ### Testing
 Run store tests with: `npx electron tests/electron/test-store-electron.js`
 
+# Important Assistant Behavior Guidelines
+
+## Context-Aware Suggestions
+When providing "What's next?" suggestions, ALWAYS:
+1. **Prioritize immediate findings** - If a tool/command revealed issues, suggest fixing those FIRST
+2. **Group by urgency**:
+   - 🔴 Immediate Actions (findings from current task)
+   - 🟡 Standard Workflow (logical next steps)
+   - 🟢 Optional/Future (nice-to-have)
+3. **Logical ordering within groups**:
+   - Fix critical issues → Update docs → Commit → Test → Next task
+4. **Be specific** - Don't just say "update docs", say what needs updating
+
+Example after running `review`:
+```
+## What's next?
+### 🔴 Immediate Actions (from Review findings):
+1. Update CLAUDE.md - Fix old script names
+2. Remove duplicate sections between docs
+3. Add missing screenshots to README
+
+### 🟡 Standard Workflow:
+4. finish - Commit changes
+5. log - Update documentation
+6. start #X - Next development task
+```
+
 # important-instruction-reminders
 Do what has been asked; nothing more, nothing less.
 NEVER create files unless they're absolutely necessary for achieving your goal.
@@ -508,13 +740,17 @@ NEVER proactively create documentation files (*.md) or README files. Only create
 ## Cycle Calculations and Fertility Tracking
 
 ### Cycle Phases
-The app tracks 6 phases with medical accuracy:
-1. **Menstrual** (Days 1-5): "Bloody Hell Week"
-2. **Follicular** (Days 6-13): "Finally Got My Sh*t Together"
-3. **Ovulation** (Days 14-16): "Horny AF"
-4. **Early Luteal** (Days 17-20): "Getting Real Tired of This BS"
-5. **Late Luteal** (Days 21-24): "Pre-Chaos Mood Swings"
-6. **PMS** (Days 25-28): "Apocalypse Countdown"
+The app tracks 6 phases with medical accuracy and mode-specific names:
+
+#### Phase Name Mapping
+| Medical Phase | Queen Mode | King Mode | Days |
+|--------------|------------|-----------|------|
+| Menstrual | Bloody Hell Week | Code Red Alert | 1-5 |
+| Follicular | Finally Got My Sh*t Together | Safe Zone Active | 6-13 |
+| Ovulation | Horny AF | High Energy Warning | 14-16 |
+| Early Luteal | Getting Real Tired of This BS | Patience Level: Low | 17-20 |
+| Late Luteal | Pre-Chaos Mood Swings | Volatility Alert | 21-24 |
+| PMS | Apocalypse Countdown | DEFCON 1 | 25-28 |
 
 ### Fertility Levels
 - **Very High** (85-100%): Days 13-15 (peak ovulation)
@@ -551,3 +787,55 @@ The app tracks 6 phases with medical accuracy:
 - Format for PROJECT_LOG.txt: "YYYY-MM-DD HH:MM: Entry Title"
 - **IMPORTANT**: New entries in PROJECT_LOG.txt must be added at the TOP of the file
 - The log follows reverse chronological order (newest entries first)
+
+## Critical Notes for Context Recovery
+
+### If Starting Fresh (Lost Context)
+1. **Check Current Branch**: `git branch --show-current`
+   - Should be on `feat/epic-68-modular-architecture`
+   - If not, switch to it: `git checkout feat/epic-68-modular-architecture`
+
+2. **Current Mode System**:
+   - Queen Mode = Female perspective (toggle OFF)
+   - King Mode = Partner warning system (toggle ON)
+   - NOT Professional/BadAss anymore - now using Queen/King modes
+
+3. **Common Issues & Quick Fixes**:
+   - **App crashes**: Kill all processes: `pkill -f "npm run dev" || pkill -f "electron" || true`
+   - **Icon not updating**: Restart Electron (icon changes require full restart)
+   - **Re-render loops**: Check for missing debouncing in useEffect
+
+4. **Running the App**:
+   ```bash
+   # Kill any existing processes first
+   pkill -f "npm run dev" || pkill -f "electron" || true
+   # Then start
+   npm run dev
+   ```
+
+5. **Key Implementation Details**:
+   - `preferences.mode` stores the current mode ('queen' or 'king')
+   - Legacy `preferences.badassMode` automatically migrated (true = 'king', false = 'queen')
+   - Phase names differ between modes (see Phase Name Mapping table in Cycle Calculations section)
+   - Content is in `modeContent.js`, phase logic in `MenuBarApp.jsx`
+
+6. **Next Steps (Epic #68)**:
+   - Working on modular architecture to separate Queen/King into distinct modules
+   - Start with Issue #69: Extract shared core functionality
+
+### Emergency Recovery Commands
+```bash
+# Check status
+git status
+gh issue list --assignee @me
+
+# View current epic
+gh issue view 68
+
+# Check logs for errors
+tail -50 logs/electron-*.log | grep -i error
+
+# Reset if needed
+git stash
+git checkout feat/epic-68-modular-architecture
+```
