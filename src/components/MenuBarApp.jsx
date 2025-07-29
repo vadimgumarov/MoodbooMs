@@ -474,7 +474,6 @@ const MenuBarApp = () => {
             cycleHistory={cycleHistory}
             currentCycleStart={cycleData.startDate}
             onPeriodStart={handlePeriodStart}
-            isBadassMode={isKingMode}
           />
         ) : activeTab === 'settings' ? (
           <SettingsPanel
@@ -585,7 +584,6 @@ const MenuBarApp = () => {
             currentPhase={currentPhase}
             testMode={testMode}
             testDays={testDays}
-            isBadassMode={isKingMode}
           />
 
           <div className="p-3 bg-gray-100 rounded">
@@ -661,7 +659,6 @@ const MenuBarApp = () => {
             cycleHistory={cycleHistory}
             currentCycleStart={cycleData.startDate}
             onPeriodStart={handlePeriodStart}
-            isBadassMode={isKingMode}
           />
         ) : activeTab === 'settings' ? (
           <SettingsPanel

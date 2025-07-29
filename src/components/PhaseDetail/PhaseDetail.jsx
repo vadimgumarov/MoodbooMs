@@ -74,13 +74,13 @@ const PhaseDetail = ({ selectedDate, cycleStartDate, cycleLength }) => {
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             {getPhaseIcon()}
-            <span className="font-medium capitalize">{isBadassMode ? 
-              phaseInfo.phase === 'menstrual' ? 'Bloody Hell Week' :
+            <span className="font-medium capitalize">
+              {phaseInfo.phase === 'menstrual' ? 'Bloody Hell Week' :
               phaseInfo.phase === 'follicular' ? 'Finally Got My Sh*t Together' :
               phaseInfo.phase === 'ovulation' ? 'Horny AF' :
               phaseInfo.phase === 'luteal' ? 'Getting Real Tired of This BS' :
-              'Unknown Phase'
-            : `${phaseInfo.phase} Phase`}</span>
+              'Unknown Phase'}
+            </span>
           </div>
           <span className="text-sm text-gray-600">
             {phaseInfo.daysUntilNextPhase} days left
@@ -90,7 +90,7 @@ const PhaseDetail = ({ selectedDate, cycleStartDate, cycleLength }) => {
         {/* Fertility Level */}
         <div className="space-y-1">
           <div className="flex items-center justify-between">
-            <span className="text-sm">{isBadassMode ? "Baby Risk Level" : "Fertility Level"}</span>
+            <span className="text-sm">Fertility Level</span>
             <span className={`text-sm ${getFertilityColor()}`}>
               {phaseInfo.fertilityLevel.replace('-', ' ').toUpperCase()}
             </span>
