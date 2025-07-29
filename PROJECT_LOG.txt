@@ -1,6 +1,38 @@
 PROJECT WORK LOG - MoodbooM
 ===================================
 
+2025-07-29 08:38: Documentation Improvements & Epic Planning
+------------------------------------------------------------------------------
+Work completed:
+
+✅ Fixed critical Electron crashes on main branch:
+- Added crashLogger import to App.js (fixed "Renderer dead" issue)
+- Fixed app.dock.hide() timing issue (moved after app.ready)
+- Re-enabled full ThemeProvider functionality
+
+✅ Epic management:
+- Closed obsolete Epic #59 (Professional/Badass modes)
+- Created Epic #79: Modern UI Design & Visual Polish
+- Prioritized remaining epics (UI → Modularity → Navigation → Packaging)
+
+✅ Documentation improvements:
+- CLAUDE.md: Added Common Crashes section with specific fixes
+- CLAUDE.md: Added Verification Checklist for testing
+- CLAUDE.md: Added Architecture Decisions explaining key design choices
+- CLAUDE.md: Fixed branch references (epic branch → main)
+- README.md: Added "For End Users" section with usage instructions
+- README.md: Added system requirements for users and developers
+- README.md: Updated current status with active epics
+
+Key Commits:
+- 5ce5b71: docs: improve documentation with crash fixes and user guidance
+
+Notes:
+- Established new log pattern: housekeeping commits logged with next entry
+- App now stable on main branch with all features working
+
+Next: Start Epic #79 (UI Improvements)
+
 2025-07-28 21:19: Completed: Epic #68 (Modular Queen/King Architecture)
 ------------------------------------------------------------------------------
 Work completed:
