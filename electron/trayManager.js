@@ -22,7 +22,7 @@ class TrayManager {
       console.log('Tray created successfully');
       
       // Set tooltip
-      this.tray.setToolTip('MoodBooMs');
+      this.tray.setToolTip('MoodbooM');
       console.log('Tooltip set');
     } catch (error) {
       console.error('ERROR in TrayManager.init():', error.message);

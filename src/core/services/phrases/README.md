@@ -1,6 +1,6 @@
 # Phrase Configuration System
 
-A flexible, mode-agnostic phrase management system for MoodBooMs that supports contextual phrase selection, history tracking, and easy extensibility.
+A flexible, mode-agnostic phrase management system for MoodbooM that supports contextual phrase selection, history tracking, and easy extensibility.
 
 ## Overview
 

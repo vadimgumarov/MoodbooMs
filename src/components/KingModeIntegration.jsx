@@ -67,7 +67,7 @@ const KingModeIntegration = ({
         <div className="p-4" style={{ backgroundColor: 'var(--king-surface)' }}>
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold" style={{ color: 'var(--king-primary)' }}>
-              MoodBooMs
+              MoodbooM
             </h2>
             <div className="flex items-center gap-3">
               {/* Queen/King Mode Toggle */}
@@ -101,7 +101,7 @@ const KingModeIntegration = ({
                 onClick={onQuit}
                 className="p-1.5 hover:bg-gray-700 rounded-lg transition-colors"
                 style={{ color: 'var(--king-text-secondary)' }}
-                title="Quit MoodBooMs"
+                title="Quit MoodbooM"
               >
                 <X className="w-4 h-4" />
               </button>

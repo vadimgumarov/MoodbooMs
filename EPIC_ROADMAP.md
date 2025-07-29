@@ -1,4 +1,4 @@
-# MoodBooMs Epic Roadmap & Priority Matrix
+# MoodbooM Epic Roadmap & Priority Matrix
 
 *Temporary planning document - to be deleted after all epics are completed*
 

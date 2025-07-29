@@ -495,7 +495,7 @@ const MenuBarApp = () => {
     <div className="w-96">
       <div className="p-4">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold">MoodBooMs</h2>
+          <h2 className="text-lg font-semibold">MoodbooM</h2>
           <div className="flex items-center gap-3">
             {/* Queen/King Mode Toggle */}
             <label className={`flex items-center gap-2 ${isSwitching ? 'cursor-wait opacity-50' : 'cursor-pointer'}`}>
@@ -529,7 +529,7 @@ const MenuBarApp = () => {
               }
             }}
             className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-            title="Quit MoodBooMs"
+            title="Quit MoodbooM"
           >
             <X className="w-4 h-4" />
           </button>

@@ -15,7 +15,7 @@ DATE=$(date +%Y-%m-%d)
 TIME=$(date +%H-%M-%S)
 
 # Launch the Electron app with logging
-echo "Launching MoodBooMs menu..."
+echo "Launching MoodbooM menu..."
 npm run electron > "logs/menu-${DATE}-${TIME}.log" 2>&1 &
 
 # Store the PID

@@ -81,7 +81,7 @@ function initializeIpcHandlers(ipcMain, mainWindow, trayManager) {
     console.log('Received phase update:', phase);
     if (trayManager) {
       trayManager.updateIcon(phase);
-      trayManager.updateTooltip(`MoodBooMs - ${phase}`);
+      trayManager.updateTooltip(`MoodbooM - ${phase}`);
     }
   });
 

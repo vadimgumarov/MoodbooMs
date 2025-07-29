@@ -44,7 +44,7 @@ function initializeIpcHandlers(ipcMain, mainWindow, trayManager) {
     try {
       if (trayManager) {
         trayManager.updateIcon(phase);
-        trayManager.updateTooltip(`MoodBooMs - ${phase}`);
+        trayManager.updateTooltip(`MoodbooM - ${phase}`);
       } else {
         console.error('ERROR: trayManager is null');
       }
