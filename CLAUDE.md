@@ -908,6 +908,16 @@ The app tracks 6 phases with medical accuracy and mode-specific names:
    - **Medium**: Epic #53 - Application Modularity
    - **Low**: Epic #52 - Enhanced Navigation
 
+### UI Epic #79 Workflow
+Before starting any UI changes:
+1. **Review the epic description** with the user
+2. **Discuss and refine** the proposed UI improvements
+3. **Get approval** on the design direction
+4. **Create child issues** based on approved scope
+5. Only then start implementation
+
+DO NOT jump directly into UI changes without discussion!
+
 ### Emergency Recovery Commands
 ```bash
 # Check status
