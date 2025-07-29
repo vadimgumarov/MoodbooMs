@@ -361,6 +361,10 @@ We use modified versions of standard workflow scripts that automatically handle 
 6. **Verify & Test**
    - Run tests to ensure nothing breaks
    - Test the application manually if needed
+   - **IMPORTANT**: Show the working app to the user (`npm run dev`)
+   - Write unit tests for new functionality
+   - Run all tests and show results (`npm test`)
+   - Take screenshots or describe what's working
 
 7. **Document Changes**
    - Update CLAUDE.md for development practices

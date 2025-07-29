@@ -2,8 +2,9 @@ import React from 'react';
 import MenuBarApp from './components/MenuBarApp';
 import TestKingMode from './components/TestKingMode';
 import TestPhraseSystem from './components/TestPhraseSystem';
-import { ModeProvider } from './core/contexts/SimpleModeContext';
+import { AppProviders } from './core/contexts';
 import ErrorBoundary from './components/ErrorBoundary';
+import { useDarkMode } from './hooks/useDarkMode';
 
 function App() {
   // Toggle this to test the new King mode module
@@ -11,13 +12,16 @@ function App() {
   // Toggle this to test the phrase configuration system
   const testPhraseSystem = false;
   
+  // Dark mode management
+  const [isDark] = useDarkMode();
+  
   return (
     <ErrorBoundary>
-      <ModeProvider>
+      <AppProviders themeVariant={isDark ? 'dark' : 'light'}>
         <div className="App">
           {testPhraseSystem ? <TestPhraseSystem /> : testKingMode ? <TestKingMode /> : <MenuBarApp />}
         </div>
-      </ModeProvider>
+      </AppProviders>
     </ErrorBoundary>
   );
 }
