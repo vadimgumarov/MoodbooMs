@@ -11,7 +11,7 @@ import {
 import { getPhaseInfo } from '../../utils/phaseDetection';
 import { calculateCurrentDay } from '../../utils/cycleCalculations';
 
-const PhaseDetail = ({ selectedDate, cycleStartDate, cycleLength, isBadassMode = true }) => {
+const PhaseDetail = ({ selectedDate, cycleStartDate, cycleLength }) => {
   if (!selectedDate || !cycleStartDate) {
     return (
       <div className="p-4 text-center text-gray-500">

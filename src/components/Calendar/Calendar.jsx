@@ -19,7 +19,7 @@ import {
   getCurrentPhase 
 } from '../../utils/cycleCalculations';
 
-const Calendar = ({ cycleStartDate, cycleLength = 28, onDateSelect, isBadassMode = true }) => {
+const Calendar = ({ cycleStartDate, cycleLength = 28, onDateSelect }) => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const today = new Date();
 

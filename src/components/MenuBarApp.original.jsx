@@ -455,6 +455,7 @@ const MenuBarApp = () => {
               }
               cycleLength={cycleData.cycleLength}
               onDateSelect={(date) => setSelectedDate(date)}
+              isBadassMode={isKingMode}
             />
             {selectedDate && (
               <div className="border-t pt-4" style={{ borderColor: 'var(--king-border)' }}>
@@ -465,7 +466,8 @@ const MenuBarApp = () => {
                     : cycleData.startDate
                   }
                   cycleLength={cycleData.cycleLength}
-                    />
+                  isBadassMode={isKingMode}
+                />
               </div>
             )}
           </div>
@@ -642,6 +644,7 @@ const MenuBarApp = () => {
               }
               cycleLength={cycleData.cycleLength}
               onDateSelect={(date) => setSelectedDate(date)}
+              isBadassMode={isKingMode}
             />
             {selectedDate && (
               <div className="border-t pt-4">
@@ -652,7 +655,8 @@ const MenuBarApp = () => {
                     : cycleData.startDate
                   }
                   cycleLength={cycleData.cycleLength}
-                    />
+                  isBadassMode={isKingMode}
+                />
               </div>
             )}
           </div>
