@@ -5,9 +5,11 @@ import PhaseDetail from './PhaseDetail';
 import HistoryView from './HistoryView';
 import StatusCard from './StatusCard';
 import SettingsPanel from './SettingsPanel';
+import KingModeIntegration from './KingModeIntegration';
 import { createCycleRecord, completeCycleRecord, addCycleToHistory, calculateCurrentDay, getCurrentPhase } from '../core/utils';
 import { modeContent, getRandomPhrase, resetPhraseTracking, getUIText } from '../content/modeContent';
 import { useMode, MODES } from '../core/contexts/SimpleModeContext';
+import { calculateFertilityPercentage } from '../utils/phaseDetection';
 
 // Icon mapping for food items
 const foodIconMap = {
@@ -405,12 +407,92 @@ const MenuBarApp = () => {
     );
   }
 
+  // Calculate fertility percentage for King mode
+  const currentDay = calculateCurrentDay(
+    testMode ? new Date(new Date().getTime() - testDays * 24 * 60 * 60 * 1000) : cycleData.startDate, 
+    new Date()
+  );
+  const fertility = calculateFertilityPercentage(currentDay, cycleData.cycleLength);
 
+  // If in King mode, use the King mode integration
+  if (isKingMode) {
+    return (
+      <KingModeIntegration
+        currentPhase={currentPhase}
+        currentMood={currentMood}
+        currentCraving={currentCraving}
+        fertility={fertility}
+        activeTab={activeTab}
+        onTabChange={(tab, value) => {
+          if (tab === 'testDays') {
+            // Handle test days change
+            setTestDays(value);
+          } else {
+            setActiveTab(tab);
+          }
+        }}
+        cycleData={cycleData}
+        testMode={testMode}
+        testDays={testDays}
+        onDateChange={handleDateChange}
+        onModeToggle={toggleMode}
+        isKingMode={isKingMode}
+        isSwitching={isSwitching}
+        onQuit={() => {
+          if (window.electronAPI && window.electronAPI.app) {
+            window.electronAPI.app.quit();
+          }
+        }}
+        onSettingsClick={() => setActiveTab('settings')}
+      >
+        {/* Pass the regular content for calendar, history, and settings tabs */}
+        {activeTab === 'calendar' ? (
+          <div className="space-y-4">
+            <Calendar 
+              cycleStartDate={testMode 
+                ? new Date(new Date().getTime() - testDays * 24 * 60 * 60 * 1000) 
+                : cycleData.startDate
+              }
+              cycleLength={cycleData.cycleLength}
+              onDateSelect={(date) => setSelectedDate(date)}
+            />
+            {selectedDate && (
+              <div className="border-t pt-4" style={{ borderColor: 'var(--king-border)' }}>
+                <PhaseDetail
+                  selectedDate={selectedDate}
+                  cycleStartDate={testMode 
+                    ? new Date(new Date().getTime() - testDays * 24 * 60 * 60 * 1000) 
+                    : cycleData.startDate
+                  }
+                  cycleLength={cycleData.cycleLength}
+                    />
+              </div>
+            )}
+          </div>
+        ) : activeTab === 'history' ? (
+          <HistoryView 
+            cycleHistory={cycleHistory}
+            currentCycleStart={cycleData.startDate}
+            onPeriodStart={handlePeriodStart}
+          />
+        ) : activeTab === 'settings' ? (
+          <SettingsPanel
+            cycleData={cycleData}
+            preferences={preferences}
+            onSave={handleSettingsSave}
+            onCancel={() => setActiveTab('mood')}
+          />
+        ) : null}
+      </KingModeIntegration>
+    );
+  }
+
+  // Regular Queen mode UI
   return (
     <div className="w-96">
       <div className="p-4">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold">MoodBooMs</h2>
+          <h2 className="text-lg font-semibold">MoodbooM</h2>
           <div className="flex items-center gap-3">
             {/* Queen/King Mode Toggle */}
             <label className={`flex items-center gap-2 ${isSwitching ? 'cursor-wait opacity-50' : 'cursor-pointer'}`}>
@@ -444,7 +526,7 @@ const MenuBarApp = () => {
               }
             }}
             className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-            title="Quit MoodBooMs"
+            title="Quit MoodbooM"
           >
             <X className="w-4 h-4" />
           </button>
@@ -502,7 +584,6 @@ const MenuBarApp = () => {
             currentPhase={currentPhase}
             testMode={testMode}
             testDays={testDays}
-            isBadassMode={isKingMode}
           />
 
           <div className="p-3 bg-gray-100 rounded">
@@ -559,7 +640,6 @@ const MenuBarApp = () => {
               }
               cycleLength={cycleData.cycleLength}
               onDateSelect={(date) => setSelectedDate(date)}
-              isBadassMode={isKingMode}
             />
             {selectedDate && (
               <div className="border-t pt-4">
@@ -570,8 +650,7 @@ const MenuBarApp = () => {
                     : cycleData.startDate
                   }
                   cycleLength={cycleData.cycleLength}
-                  isBadassMode={isKingMode}
-                />
+                    />
               </div>
             )}
           </div>
@@ -580,7 +659,6 @@ const MenuBarApp = () => {
             cycleHistory={cycleHistory}
             currentCycleStart={cycleData.startDate}
             onPeriodStart={handlePeriodStart}
-            isBadassMode={isKingMode}
           />
         ) : activeTab === 'settings' ? (
           <SettingsPanel

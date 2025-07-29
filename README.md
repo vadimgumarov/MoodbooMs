@@ -1,7 +1,7 @@
-# MoodBooMs - Fertility Tracking Menu Bar App
+# MoodbooM - Fertility Tracking Menu Bar App
 
 <p align="center">
-  <img src="docs/screenshots/hero-image.png" alt="MoodBooMs App Screenshot" width="600">
+  <img src="docs/screenshots/hero-image.png" alt="MoodbooM App Screenshot" width="600">
   <br>
   <em>Your cycle, your rules, your sense of humor</em>
 </p>
@@ -12,7 +12,7 @@
 </p>
 
 ## Overview
-MoodBooMs is a discreet, humorous fertility tracking application that lives in your menu bar. It provides at-a-glance cycle information with a calendar view, mood messages, and personalized insights. Features two distinct modes: Queen (female perspective) and King (partner warning system).
+MoodbooM is a discreet, humorous fertility tracking application that lives in your menu bar. It provides at-a-glance cycle information with a calendar view, mood messages, and personalized insights. Features two distinct modes: Queen (female perspective) and King (partner warning system).
 
 ## Features
 - 🎯 **Dynamic Menu Bar Icon** - Weather-themed icons that change based on cycle phase (✅ Implemented)
@@ -25,7 +25,7 @@ MoodBooMs is a discreet, humorous fertility tracking application that lives in y
 - 🔔 **Optional Notifications** - Customizable reminders and alerts (Planned)
 
 ### Queen/King Mode System
-MoodBooMs features two distinct experience modes:
+MoodbooM features two distinct experience modes:
 
 **Queen Mode** (Female First-Person):
 - "I'm dealing with this sh*t" perspective

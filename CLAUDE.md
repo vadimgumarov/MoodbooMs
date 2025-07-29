@@ -37,7 +37,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-MoodBooMs is an Electron-based menubar application that tracks menstrual cycle phases with humor. It combines a React frontend with Electron to create a macOS menubar app that displays cycle phase information and mood messages.
+MoodbooM is an Electron-based menubar application that tracks menstrual cycle phases with humor. It combines a React frontend with Electron to create a macOS menubar app that displays cycle phase information and mood messages.
 
 ### Current Development Status (July 2025)
 - **Active Branch**: `feat/epic-68-modular-architecture`
@@ -361,6 +361,10 @@ We use modified versions of standard workflow scripts that automatically handle 
 6. **Verify & Test**
    - Run tests to ensure nothing breaks
    - Test the application manually if needed
+   - **IMPORTANT**: Show the working app to the user (`npm run dev`)
+   - Write unit tests for new functionality
+   - Run all tests and show results (`npm test`)
+   - Take screenshots or describe what's working
 
 7. **Document Changes**
    - Update CLAUDE.md for development practices

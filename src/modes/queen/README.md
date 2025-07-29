@@ -1,7 +1,7 @@
 # Queen Mode Module
 
 ## Overview
-Queen Mode is the BadAss personality module for MoodBooMs, featuring a first-person female perspective with sarcastic black humor and zero filter. This module provides all Queen-specific functionality including phrases, themes, and personality configurations.
+Queen Mode is the BadAss personality module for MoodbooM, featuring a first-person female perspective with sarcastic black humor and zero filter. This module provides all Queen-specific functionality including phrases, themes, and personality configurations.
 
 ## Structure
 

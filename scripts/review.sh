@@ -317,7 +317,7 @@ echo "   - Code Style & Patterns"
 
 echo -e "\n2. **README.md Structure**:"
 echo "   - Hero Image/Demo GIF"
-echo "   - What is MoodBooMs?"
+echo "   - What is MoodbooM?"
 echo "   - Quick Start"
 echo "   - Features"
 echo "   - Usage"
