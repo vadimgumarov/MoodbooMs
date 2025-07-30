@@ -67,6 +67,121 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 **Fix**: Wrap theme application in try-catch and check document.documentElement exists
 **Verify**: No "Cannot read property 'style' of null" errors
 
+### Renderer Process Dies Every 5 Seconds
+**Symptoms**: 
+- Heartbeat shows "RENDERER PROCESS ALIVE" followed by "RENDERER PROCESS DIED - No heartbeat for 5 seconds"
+- Pattern repeats every minute (alive at :15, dead at :20)
+- App appears to work but renderer keeps restarting
+**Cause**: 
+- React hot reload conflicts with Electron's renderer process
+- Webpack recompilation triggers causing renderer restarts
+- Memory leaks in development mode
+**Fix**:
+1. Ensure React app is stable before starting Electron:
+   ```bash
+   # Start React first and wait for it to stabilize
+   npm start
+   # In another terminal, after React is ready:
+   npm run electron-dev
+   ```
+2. Check for infinite loops in useEffect hooks
+3. Disable React Fast Refresh if persistent:
+   ```
+   FAST_REFRESH=false npm start
+   ```
+**Verify**: Heartbeat should show consistent "ALIVE: Main + Renderer" without death cycles
+
+### Webpack Dynamic Import Warning
+**Symptoms**: 
+- Repeated "Critical dependency: the request of a dependency is an expression" warnings
+- React dev server shows "Compiling..." messages every few seconds
+- Warning specifically in ./src/core/services/phrases/PhraseConfigLoader.js line 54
+**Cause**: 
+- Dynamic import with variable path: `await import(configPath)`
+- Webpack cannot statically analyze dynamic imports
+- Triggers frequent recompilations
+**Impact**: May contribute to renderer process instability
+**Fix**:
+1. Replace dynamic import with static imports for known paths
+2. Use require() instead of import() for CommonJS compatibility
+3. Create a map of known imports instead of dynamic loading
+**Verify**: Check /tmp/react-dev.log - should not show repeated "Compiling..." messages
+
+## CSS and Theme Issues (July 2025)
+
+### CSS Variables Not Applying / Old Colors Showing
+**Symptoms**: 
+- User reports "old colors", "same colors" despite theme changes
+- CSS variables defined but not being used
+- Tailwind classes showing static colors instead of CSS variables
+**Root Cause**: 
+- Tailwind JIT compiler uses static color values at build time
+- Hardcoded Tailwind classes like `bg-pink-400` override CSS variables
+**Fix**:
+1. Add CSS overrides in `index.css` to force Tailwind classes to use CSS variables:
+   ```css
+   @layer utilities {
+     .bg-primary {
+       background-color: var(--color-primary) !important;
+     }
+     .text-primary {
+       color: var(--color-primary) !important;
+     }
+     /* ... etc for all color utilities ... */
+   }
+   ```
+2. Replace ALL hardcoded color classes with CSS variable classes
+3. Search for hardcoded colors: `grep -r "bg-\(red\|green\|pink\|blue\)-[0-9]" src/`
+**Verify**: Check computed styles in DevTools - should show CSS variables not hex values
+
+### Multiple Theme File Confusion
+**Symptoms**: 
+- Theme changes in design-system files don't apply
+- Colors coming from unexpected sources
+**Cause**: 
+- Two separate theme systems: `design-system/tokens/themes/` and `modes/*/theme.js`
+- ThemeContext loading from `modes/*/theme.js` instead of design tokens
+**Fix**: 
+- Update the actual theme files being loaded: `src/modes/queen/theme.js` and `src/modes/king/theme.js`
+- Keep design-system files for future migration
+**Verify**: Check console logs for "ThemeContext: Applying theme" messages
+
+### Aggressive/Unprofessional Colors
+**Symptoms**: 
+- "Screaming" colors, aggressive reds on dark backgrounds
+- User wants "modern yet soft" palette
+**Solution**: 
+- Queen Mode: Simple light theme with neutral indigo (#6366F1) as primary
+- King Mode: Dark gray theme (#1F2937 background) with muted gray accents
+- Remove all bright pinks, aggressive reds, and vibrant colors
+- Use standard semantic colors (error, warning, success) sparingly
+
+### Finding Hardcoded Colors
+**Command**: 
+```bash
+# Find all hardcoded Tailwind color classes
+grep -r "bg-\|text-\|border-" src/ | grep -E "(red|green|yellow|pink|blue|indigo|gray)-[0-9]"
+```
+**Common locations**:
+- StatusCard.jsx
+- SafetyScale.jsx  
+- Calendar.jsx
+- PhaseDetail.jsx
+- HistoryView.jsx
+
+## Debugging Methodology: 5 Whys
+
+When facing persistent issues (like CSS not updating), use the 5 Whys approach:
+
+**Example: "Why are old colors still showing?"**
+1. Why? → Because the app is using hardcoded colors
+2. Why? → Because Tailwind classes like `bg-pink-400` are compiled to static hex values
+3. Why? → Because Tailwind JIT compiler resolves colors at build time, not runtime
+4. Why? → Because that's how Tailwind optimizes for production - it doesn't know about CSS variables
+5. Why? → Because CSS variables are runtime values and Tailwind needs build-time values
+
+**Solution**: Override Tailwind classes with CSS that uses variables, or use utility classes that map to CSS variables.
+
 ## Verification Checklist Before Claiming Success
 
 Before stating "the app is working", verify ALL of the following:

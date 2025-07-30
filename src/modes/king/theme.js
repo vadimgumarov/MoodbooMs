@@ -18,53 +18,53 @@ export const kingTheme = {
   mode: 'king',
   
   colors: {
-    // Primary palette - Professional and muted
-    primary: '#1976D2', // Professional blue
-    secondary: '#424242', // Dark gray
-    tertiary: '#0D47A1', // Deep blue
+    // Primary palette - Muted gray-blue
+    primary: '#9CA3AF', // Gray
+    secondary: '#6B7280', // Darker gray  
+    tertiary: '#374151', // Dark gray
     
-    // Backgrounds
-    background: '#F5F5F5',
-    surface: '#FFFFFF',
-    surfaceAlt: '#FAFAFA',
+    // Backgrounds - Dark gray theme
+    background: '#1F2937', // Dark gray
+    surface: '#374151', // Medium gray
+    surfaceAlt: '#4B5563', // Lighter gray
     
-    // Text colors
-    text: '#212121',
-    textSecondary: '#757575',
-    textOnPrimary: '#FFFFFF',
-    textOnSecondary: '#FFFFFF',
+    // Text colors - Light on dark
+    text: '#F3F4F6',
+    textSecondary: '#D1D5DB',
+    textOnPrimary: '#111827',
+    textOnSecondary: '#111827',
     
     // Borders and dividers
-    border: '#E0E0E0',
-    borderLight: '#F5F5F5',
+    border: '#4B5563',
+    borderLight: '#6B7280',
     
-    // States
-    error: '#D32F2F',
-    warning: '#F57C00',
-    success: '#388E3C',
-    info: '#1976D2',
+    // States - Muted colors
+    error: '#EF4444',
+    warning: '#F59E0B',
+    success: '#10B981',
+    info: '#3B82F6',
     
-    // Phase-specific colors - Professional and informative
+    // Phase-specific colors - Muted for dark theme
     phases: {
-      menstrual: '#B71C1C', // Dark red
-      follicular: '#F57F17', // Dark yellow
-      ovulation: '#1B5E20', // Dark green
-      luteal: '#4527A0', // Deep purple
-      lateLuteal: '#311B92', // Deeper purple
-      premenstrual: '#880E4F' // Dark rose
+      menstrual: '#EF4444', // Red
+      follicular: '#F59E0B', // Amber
+      ovulation: '#10B981', // Green
+      luteal: '#6B7280', // Gray
+      lateLuteal: '#8B5CF6', // Purple
+      premenstrual: '#EC4899' // Pink
     },
     
     // Interactive states
     hover: {
-      primary: '#1565C0',
-      secondary: '#303030'
+      primary: '#6B7280',
+      secondary: '#4B5563'
     },
     
-    // Gradients for headers and accents - Subtle and professional
+    // Gradients for headers and accents - Simple grays
     gradients: {
-      primary: 'linear-gradient(135deg, #1976D2 0%, #0D47A1 100%)',
-      secondary: 'linear-gradient(135deg, #616161 0%, #424242 100%)',
-      hero: 'linear-gradient(135deg, #1976D2 0%, #1565C0 50%, #0D47A1 100%)'
+      primary: 'linear-gradient(135deg, #374151 0%, #1F2937 100%)',
+      secondary: 'linear-gradient(135deg, #4B5563 0%, #374151 100%)',
+      hero: 'linear-gradient(135deg, #4B5563 0%, #374151 50%, #1F2937 100%)'
     }
   },
   

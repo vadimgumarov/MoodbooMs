@@ -49,28 +49,28 @@ const Calendar = ({ cycleStartDate, cycleLength = 28, onDateSelect }) => {
 
   // Get fertility color for a specific date
   const getFertilityColor = (date) => {
-    if (!cycleStartDate) return 'bg-gray-100';
+    if (!cycleStartDate) return 'bg-surface';
     
     const cycleDay = calculateCurrentDay(cycleStartDate, date, cycleLength);
     const fertilityLevel = getFertilityLevel(cycleDay, cycleLength);
     const phase = getCurrentPhase(cycleDay, cycleLength);
 
     // Color mapping based on fertility level and phase
-    if (phase === 'menstrual') return 'bg-red-500 text-white';
+    if (phase === 'menstrual') return 'bg-error text-white';
     
     switch (fertilityLevel) {
       case 'very-low':
-        return 'bg-red-400 text-white';
+        return 'bg-error/80 text-white';
       case 'low':
-        return 'bg-yellow-200';
+        return 'bg-warning/30';
       case 'medium':
-        return 'bg-gray-300';
+        return 'bg-surface';
       case 'high':
-        return 'bg-green-300';
+        return 'bg-success/30';
       case 'very-high':
-        return 'bg-green-500 text-white';
+        return 'bg-success text-white';
       default:
-        return 'bg-gray-100';
+        return 'bg-surface';
     }
   };
 
@@ -80,7 +80,7 @@ const Calendar = ({ cycleStartDate, cycleLength = 28, onDateSelect }) => {
       <div className="flex items-center justify-between mb-4">
         <button
           onClick={previousMonth}
-          className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+          className="p-2 hover:bg-surface rounded-full transition-colors"
           aria-label="Previous month"
         >
           <ChevronLeft className="w-5 h-5" />
@@ -92,7 +92,7 @@ const Calendar = ({ cycleStartDate, cycleLength = 28, onDateSelect }) => {
         
         <button
           onClick={nextMonth}
-          className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+          className="p-2 hover:bg-surface rounded-full transition-colors"
           aria-label="Next month"
         >
           <ChevronRight className="w-5 h-5" />
@@ -102,7 +102,7 @@ const Calendar = ({ cycleStartDate, cycleLength = 28, onDateSelect }) => {
       {/* Day labels */}
       <div className="grid grid-cols-7 gap-1 mb-2">
         {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-          <div key={day} className="text-center text-xs font-medium text-gray-500 py-2">
+          <div key={day} className="text-center text-xs font-medium text-text-secondary py-2">
             {day}
           </div>
         ))}
@@ -145,28 +145,28 @@ const Calendar = ({ cycleStartDate, cycleLength = 28, onDateSelect }) => {
 
       {/* Legend */}
       <div className="mt-6 space-y-2">
-        <h3 className="text-sm font-medium text-gray-700">
+        <h3 className="text-sm font-medium text-text-primary">
           {isKingMode ? "Threat Level Monitor" : "My Cycle Map"}
         </h3>
         <div className="grid grid-cols-2 gap-2 text-xs">
           <div className="flex items-center space-x-2">
-            <div className="w-4 h-4 bg-red-500 rounded"></div>
+            <div className="w-4 h-4 bg-error rounded"></div>
             <span>{isKingMode ? "Code Red - Maximum Alert" : "The Red Wedding"}</span>
           </div>
           <div className="flex items-center space-x-2">
-            <div className="w-4 h-4 bg-yellow-200 rounded"></div>
+            <div className="w-4 h-4 bg-warning/30 rounded"></div>
             <span>{isKingMode ? "Safe Zone - Low Risk" : "Chill Zone"}</span>
           </div>
           <div className="flex items-center space-x-2">
-            <div className="w-4 h-4 bg-gray-300 rounded"></div>
+            <div className="w-4 h-4 bg-surface rounded"></div>
             <span>{isKingMode ? "Caution - Moderate Risk" : "Feeling Good"}</span>
           </div>
           <div className="flex items-center space-x-2">
-            <div className="w-4 h-4 bg-green-300 rounded"></div>
+            <div className="w-4 h-4 bg-success/30 rounded"></div>
             <span>{isKingMode ? "High Alert - Energy Surge" : "Peak Power"}</span>
           </div>
           <div className="flex items-center space-x-2">
-            <div className="w-4 h-4 bg-green-500 rounded"></div>
+            <div className="w-4 h-4 bg-success rounded"></div>
             <span>{isKingMode ? "Critical - Peak Fertility" : "I'm Invincible Mode"}</span>
           </div>
         </div>

@@ -61,8 +61,8 @@ const KingStatusCard = ({ cycleData, currentPhase, testMode, testDays }) => {
       </div>
       
       <div className="mt-3 p-2 rounded text-center" style={{ 
-        backgroundColor: 'rgba(255, 107, 107, 0.1)',
-        border: '1px solid var(--king-primary)'
+        backgroundColor: 'var(--king-card)',
+        border: '1px solid var(--king-border)'
       }}>
         <p className="text-xs" style={{ color: 'var(--king-text)' }}>
           {currentPhase.description}

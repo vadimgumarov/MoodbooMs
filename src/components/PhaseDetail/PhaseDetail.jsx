@@ -14,7 +14,7 @@ import { calculateCurrentDay } from '../../utils/cycleCalculations';
 const PhaseDetail = ({ selectedDate, cycleStartDate, cycleLength }) => {
   if (!selectedDate || !cycleStartDate) {
     return (
-      <div className="p-4 text-center text-gray-500">
+      <div className="p-4 text-center text-secondary">
         <p>Select a date to see details</p>
       </div>
     );
@@ -27,13 +27,13 @@ const PhaseDetail = ({ selectedDate, cycleStartDate, cycleLength }) => {
   const getPhaseIcon = () => {
     switch (phaseInfo.phase) {
       case 'menstrual':
-        return <Heart className="w-6 h-6 text-red-500" />;
+        return <Heart className="w-6 h-6 text-error" />;
       case 'follicular':
-        return <Battery className="w-6 h-6 text-yellow-500" />;
+        return <Battery className="w-6 h-6 text-warning" />;
       case 'ovulation':
-        return <Heart className="w-6 h-6 text-green-500" />;
+        return <Heart className="w-6 h-6 text-success" />;
       case 'luteal':
-        return <Brain className="w-6 h-6 text-gray-500" />;
+        return <Brain className="w-6 h-6 text-secondary" />;
       default:
         return <Calendar className="w-6 h-6" />;
     }
@@ -43,17 +43,17 @@ const PhaseDetail = ({ selectedDate, cycleStartDate, cycleLength }) => {
   const getFertilityColor = () => {
     switch (phaseInfo.fertilityLevel) {
       case 'very-low':
-        return 'text-red-600';
+        return 'text-error';
       case 'low':
-        return 'text-yellow-600';
+        return 'text-warning';
       case 'medium':
-        return 'text-gray-600';
+        return 'text-secondary';
       case 'high':
-        return 'text-green-600';
+        return 'text-success';
       case 'very-high':
-        return 'text-green-700 font-bold';
+        return 'text-success font-bold';
       default:
-        return 'text-gray-600';
+        return 'text-secondary';
     }
   };
 
@@ -64,13 +64,13 @@ const PhaseDetail = ({ selectedDate, cycleStartDate, cycleLength }) => {
         <h3 className="text-lg font-semibold">
           {format(selectedDate, 'MMMM d, yyyy')}
         </h3>
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-secondary">
           Cycle Day {cycleDay}
         </p>
       </div>
 
       {/* Phase Information */}
-      <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+      <div className="bg-surface rounded-lg p-4 space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             {getPhaseIcon()}
@@ -82,7 +82,7 @@ const PhaseDetail = ({ selectedDate, cycleStartDate, cycleLength }) => {
               'Unknown Phase'}
             </span>
           </div>
-          <span className="text-sm text-gray-600">
+          <span className="text-sm text-secondary">
             {phaseInfo.daysUntilNextPhase} days left
           </span>
         </div>
@@ -95,19 +95,19 @@ const PhaseDetail = ({ selectedDate, cycleStartDate, cycleLength }) => {
               {phaseInfo.fertilityLevel.replace('-', ' ').toUpperCase()}
             </span>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
+          <div className="w-full bg-border rounded-full h-2">
             <div 
               className={`h-2 rounded-full transition-all ${
-                phaseInfo.fertilityPercentage >= 85 ? 'bg-green-500' :
-                phaseInfo.fertilityPercentage >= 60 ? 'bg-green-400' :
-                phaseInfo.fertilityPercentage >= 30 ? 'bg-gray-400' :
-                phaseInfo.fertilityPercentage >= 10 ? 'bg-yellow-400' :
-                'bg-red-400'
+                phaseInfo.fertilityPercentage >= 85 ? 'bg-success' :
+                phaseInfo.fertilityPercentage >= 60 ? 'bg-success-light' :
+                phaseInfo.fertilityPercentage >= 30 ? 'bg-secondary' :
+                phaseInfo.fertilityPercentage >= 10 ? 'bg-warning' :
+                'bg-error'
               }`}
               style={{ width: `${phaseInfo.fertilityPercentage}%` }}
             />
           </div>
-          <p className="text-xs text-gray-600 text-right">
+          <p className="text-xs text-secondary text-right">
             {phaseInfo.fertilityPercentage}% chance
           </p>
         </div>
@@ -116,26 +116,26 @@ const PhaseDetail = ({ selectedDate, cycleStartDate, cycleLength }) => {
       {/* Phase Description */}
       <div className="space-y-3">
         <div className="flex items-start space-x-2">
-          <Battery className="w-5 h-5 text-gray-400 mt-0.5" />
+          <Battery className="w-5 h-5 text-secondary mt-0.5" />
           <div>
             <p className="text-sm font-medium">Energy</p>
-            <p className="text-sm text-gray-600">{phaseInfo.description}</p>
+            <p className="text-sm text-secondary">{phaseInfo.description}</p>
           </div>
         </div>
 
         <div className="flex items-start space-x-2">
-          <Brain className="w-5 h-5 text-gray-400 mt-0.5" />
+          <Brain className="w-5 h-5 text-secondary mt-0.5" />
           <div>
             <p className="text-sm font-medium">Mood</p>
-            <p className="text-sm text-gray-600">{phaseInfo.mood}</p>
+            <p className="text-sm text-secondary">{phaseInfo.mood}</p>
           </div>
         </div>
 
         <div className="flex items-start space-x-2">
-          <TrendingUp className="w-5 h-5 text-gray-400 mt-0.5" />
+          <TrendingUp className="w-5 h-5 text-secondary mt-0.5" />
           <div>
             <p className="text-sm font-medium">Advice</p>
-            <p className="text-sm text-gray-600">{phaseInfo.advice}</p>
+            <p className="text-sm text-secondary">{phaseInfo.advice}</p>
           </div>
         </div>
       </div>
@@ -144,14 +144,14 @@ const PhaseDetail = ({ selectedDate, cycleStartDate, cycleLength }) => {
       {phaseInfo.symptoms.length > 0 && (
         <div className="space-y-2">
           <div className="flex items-center space-x-2">
-            <AlertCircle className="w-5 h-5 text-gray-400" />
+            <AlertCircle className="w-5 h-5 text-secondary" />
             <p className="text-sm font-medium">Common Symptoms</p>
           </div>
           <div className="flex flex-wrap gap-1">
             {phaseInfo.symptoms.map((symptom, index) => (
               <span 
                 key={index}
-                className="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded-full"
+                className="text-xs bg-surface text-secondary px-2 py-1 rounded-full"
               >
                 {symptom}
               </span>
@@ -162,11 +162,11 @@ const PhaseDetail = ({ selectedDate, cycleStartDate, cycleLength }) => {
 
       {/* Ovulation Indicator */}
       {phaseInfo.isOvulating && (
-        <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-          <p className="text-sm text-green-800 font-medium">
+        <div className="bg-success-light border border-success rounded-lg p-3">
+          <p className="text-sm text-success font-medium">
             🌟 Peak Fertility Window
           </p>
-          <p className="text-xs text-green-700 mt-1">
+          <p className="text-xs text-success mt-1">
             This is your most fertile time. Ovulation is expected around day {phaseInfo.ovulationDay}.
           </p>
         </div>

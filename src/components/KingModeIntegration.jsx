@@ -34,11 +34,15 @@ const KingModeIntegration = ({
   children 
 }) => {
   // Log what we're receiving
-  console.log('KingModeIntegration props:', { currentPhase, activeTab });
+  console.log('KingModeIntegration props:', { 
+    currentPhase: JSON.stringify(currentPhase),
+    hasPhase: currentPhase && currentPhase.phase,
+    activeTab 
+  });
   
   // Safety check for currentPhase
   if (!currentPhase || !currentPhase.phase) {
-    console.error('KingModeIntegration: currentPhase is invalid:', currentPhase);
+    console.error('KingModeIntegration: currentPhase is invalid:', JSON.stringify(currentPhase));
     return <div style={{ color: 'var(--king-text)' }}>Loading phase data...</div>;
   }
   
@@ -89,7 +93,7 @@ const KingModeIntegration = ({
                     className="sr-only"
                   />
                   <div className={`block w-10 h-6 rounded-full transition-colors ${
-                    isKingMode ? 'bg-red-600' : 'bg-gray-300'
+                    isKingMode ? 'bg-primary' : 'bg-border'
                   }`}></div>
                   <div className={`absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform ${
                     isKingMode ? 'translate-x-4' : ''
@@ -99,7 +103,7 @@ const KingModeIntegration = ({
               {/* Close Button */}
               <button
                 onClick={onQuit}
-                className="p-1.5 hover:bg-gray-700 rounded-lg transition-colors"
+                className="p-1.5 hover:bg-surface rounded-lg transition-colors"
                 style={{ color: 'var(--king-text-secondary)' }}
                 title="Quit MoodbooM"
               >
@@ -114,8 +118,8 @@ const KingModeIntegration = ({
               onClick={() => onTabChange('mood')}
               className={`flex-1 py-2 px-3 rounded-md transition-colors text-sm ${
                 activeTab === 'mood' 
-                  ? 'bg-red-600 text-white shadow-sm' 
-                  : 'text-gray-300 hover:bg-gray-700'
+                  ? 'bg-primary text-white shadow-sm' 
+                  : 'text-text-secondary hover:bg-surface'
               }`}
             >
               Status
@@ -124,8 +128,8 @@ const KingModeIntegration = ({
               onClick={() => onTabChange('calendar')}
               className={`flex-1 py-2 px-3 rounded-md transition-colors text-sm ${
                 activeTab === 'calendar' 
-                  ? 'bg-red-600 text-white shadow-sm' 
-                  : 'text-gray-300 hover:bg-gray-700'
+                  ? 'bg-primary text-white shadow-sm' 
+                  : 'text-text-secondary hover:bg-surface'
               }`}
             >
               Danger Calendar
@@ -134,8 +138,8 @@ const KingModeIntegration = ({
               onClick={() => onTabChange('history')}
               className={`flex-1 py-2 px-3 rounded-md transition-colors text-sm ${
                 activeTab === 'history' 
-                  ? 'bg-red-600 text-white shadow-sm' 
-                  : 'text-gray-300 hover:bg-gray-700'
+                  ? 'bg-primary text-white shadow-sm' 
+                  : 'text-text-secondary hover:bg-surface'
               }`}
             >
               Survival Log
@@ -144,8 +148,8 @@ const KingModeIntegration = ({
               onClick={() => onTabChange('settings')}
               className={`py-2 px-3 rounded-md transition-colors text-sm ${
                 activeTab === 'settings' 
-                  ? 'bg-red-600 text-white shadow-sm' 
-                  : 'text-gray-300 hover:bg-gray-700'
+                  ? 'bg-primary text-white shadow-sm' 
+                  : 'text-text-secondary hover:bg-surface'
               }`}
             >
               <Settings className="w-4 h-4" />

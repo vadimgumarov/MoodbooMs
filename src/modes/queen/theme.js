@@ -18,53 +18,53 @@ export const queenTheme = {
   mode: 'queen',
   
   colors: {
-    // Primary palette - Bold and vibrant
-    primary: '#E91E63', // Hot pink
-    secondary: '#9C27B0', // Purple
-    tertiary: '#FF4081', // Pink accent
+    // Primary palette - Simple indigo
+    primary: '#6366F1', // Indigo
+    secondary: '#4F46E5', // Darker indigo
+    tertiary: '#EEF2FF', // Very light indigo
     
     // Backgrounds
-    background: '#FAFAFA',
-    surface: '#FFFFFF',
-    surfaceAlt: '#FFF0F5', // Lavender blush
+    background: '#FFFFFF',
+    surface: '#F9FAFB',
+    surfaceAlt: '#F3F4F6', // Light gray
     
     // Text colors
-    text: '#212121',
-    textSecondary: '#616161',
+    text: '#111827',
+    textSecondary: '#6B7280',
     textOnPrimary: '#FFFFFF',
     textOnSecondary: '#FFFFFF',
     
     // Borders and dividers
-    border: '#E0E0E0',
-    borderLight: '#F5F5F5',
+    border: '#E5E7EB',
+    borderLight: '#F3F4F6',
     
-    // States
-    error: '#F44336',
-    warning: '#FF9800',
-    success: '#4CAF50',
-    info: '#2196F3',
+    // States - Standard colors
+    error: '#EF4444',
+    warning: '#F59E0B',
+    success: '#10B981',
+    info: '#3B82F6',
     
-    // Phase-specific colors - Vibrant and bold
+    // Phase-specific colors - Muted
     phases: {
-      menstrual: '#D32F2F', // Deep red
-      follicular: '#FFC107', // Amber
-      ovulation: '#4CAF50', // Green
-      luteal: '#9C27B0', // Purple
-      lateLuteal: '#7B1FA2', // Dark purple
-      premenstrual: '#C2185B' // Dark pink
+      menstrual: '#EF4444', // Red
+      follicular: '#F59E0B', // Amber
+      ovulation: '#10B981', // Green
+      luteal: '#6B7280', // Gray
+      lateLuteal: '#8B5CF6', // Purple
+      premenstrual: '#EC4899' // Pink
     },
     
     // Interactive states
     hover: {
-      primary: '#D81B60',
-      secondary: '#8E24AA'
+      primary: '#4F46E5',
+      secondary: '#4338CA'
     },
     
-    // Gradients for headers and accents
+    // Gradients for headers and accents - Simple
     gradients: {
-      primary: 'linear-gradient(135deg, #E91E63 0%, #9C27B0 100%)',
-      secondary: 'linear-gradient(135deg, #FF4081 0%, #F50057 100%)',
-      hero: 'linear-gradient(135deg, #E91E63 0%, #FF4081 50%, #9C27B0 100%)'
+      primary: 'linear-gradient(135deg, #6366F1 0%, #4F46E5 100%)',
+      secondary: 'linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%)',
+      hero: 'linear-gradient(135deg, #6366F1 0%, #818CF8 50%, #4F46E5 100%)'
     }
   },
   

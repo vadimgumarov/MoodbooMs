@@ -3,18 +3,18 @@
  * Feminine, empowering color palette
  */
 
-import { baseColors } from '../base/colors';
+import { baseColors } from '../base/colors.js';
 
 export const queenTheme = {
   name: 'queen',
   
   colors: {
-    // Primary palette
-    primary: baseColors.pink[500],
-    primaryLight: baseColors.pink[400],
-    primaryDark: baseColors.pink[600],
+    // Simple primary - neutral indigo
+    primary: baseColors.indigo[500],
+    primaryLight: baseColors.indigo[50],
+    primaryDark: baseColors.indigo[600],
     
-    // UI colors
+    // Clean light UI
     background: baseColors.white,
     surface: baseColors.gray[50],
     border: baseColors.gray[200],
@@ -27,13 +27,13 @@ export const queenTheme = {
       inverse: baseColors.white,
     },
     
-    // Semantic colors
+    // Minimal semantic colors
     success: baseColors.green[500],
     warning: baseColors.yellow[500],
     error: baseColors.red[500],
     info: baseColors.blue[500],
     
-    // Mode-specific accent
-    accent: baseColors.purple[500],
+    // Accent same as primary
+    accent: baseColors.indigo[500],
   },
 };

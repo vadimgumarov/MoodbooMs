@@ -4,3 +4,137 @@
 
 /* Import theme animations */
 @import './core/themes/animations.css';
+
+/* Override Tailwind colors with CSS variables */
+@layer utilities {
+  /* Primary colors */
+  .bg-primary {
+    background-color: var(--color-primary) !important;
+  }
+  .bg-primary-light {
+    background-color: var(--color-primary-light) !important;
+  }
+  .bg-primary-dark {
+    background-color: var(--color-primary-dark) !important;
+  }
+  .text-primary {
+    color: var(--color-primary) !important;
+  }
+  .text-primary-light {
+    color: var(--color-primary-light) !important;
+  }
+  .text-primary-dark {
+    color: var(--color-primary-dark) !important;
+  }
+  .border-primary {
+    border-color: var(--color-primary) !important;
+  }
+  
+  /* Background and Surface */
+  .bg-background {
+    background-color: var(--color-background) !important;
+  }
+  .bg-surface {
+    background-color: var(--color-surface) !important;
+  }
+  .bg-surface-light {
+    background-color: color-mix(in srgb, var(--color-surface) 50%, var(--color-background)) !important;
+  }
+  
+  /* Text colors */
+  .text-text-primary {
+    color: var(--color-text-primary) !important;
+  }
+  .text-text-secondary {
+    color: var(--color-text-secondary) !important;
+  }
+  .text-text-muted {
+    color: var(--color-text-muted) !important;
+  }
+  
+  /* Border */
+  .bg-border {
+    background-color: var(--color-border) !important;
+  }
+  .border-border {
+    border-color: var(--color-border) !important;
+  }
+  
+  /* Status colors */
+  .bg-error {
+    background-color: var(--color-error) !important;
+  }
+  .bg-error-light {
+    background-color: color-mix(in srgb, var(--color-error) 20%, var(--color-background)) !important;
+  }
+  .text-error {
+    color: var(--color-error) !important;
+  }
+  .border-error {
+    border-color: var(--color-error) !important;
+  }
+  
+  .bg-warning {
+    background-color: var(--color-warning) !important;
+  }
+  .bg-warning-light {
+    background-color: color-mix(in srgb, var(--color-warning) 20%, var(--color-background)) !important;
+  }
+  .text-warning {
+    color: var(--color-warning) !important;
+  }
+  .text-warning-dark {
+    color: color-mix(in srgb, var(--color-warning) 80%, black) !important;
+  }
+  .border-warning {
+    border-color: var(--color-warning) !important;
+  }
+  
+  .bg-success {
+    background-color: var(--color-success) !important;
+  }
+  .bg-success-light {
+    background-color: color-mix(in srgb, var(--color-success) 20%, var(--color-background)) !important;
+  }
+  .text-success {
+    color: var(--color-success) !important;
+  }
+  .text-success-dark {
+    color: color-mix(in srgb, var(--color-success) 80%, black) !important;
+  }
+  
+  .bg-info {
+    background-color: var(--color-info) !important;
+  }
+  .bg-info-light {
+    background-color: color-mix(in srgb, var(--color-info) 20%, var(--color-background)) !important;
+  }
+  .text-info {
+    color: var(--color-info) !important;
+  }
+  
+  /* Danger alias for error */
+  .bg-danger {
+    background-color: var(--color-error) !important;
+  }
+  .bg-danger-light {
+    background-color: color-mix(in srgb, var(--color-error) 20%, var(--color-background)) !important;
+  }
+  .text-danger {
+    color: var(--color-error) !important;
+  }
+  
+  /* Opacity variants */
+  .bg-error\/80 {
+    background-color: var(--color-error);
+    opacity: 0.8;
+  }
+  .bg-warning\/30 {
+    background-color: var(--color-warning);
+    opacity: 0.3;
+  }
+  .bg-success\/30 {
+    background-color: var(--color-success);
+    opacity: 0.3;
+  }
+}

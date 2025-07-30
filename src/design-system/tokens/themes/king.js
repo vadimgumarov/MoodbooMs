@@ -3,37 +3,37 @@
  * Masculine, informative color palette
  */
 
-import { baseColors } from '../base/colors';
+import { baseColors } from '../base/colors.js';
 
 export const kingTheme = {
   name: 'king',
   
   colors: {
-    // Primary palette
-    primary: baseColors.blue[600],
-    primaryLight: baseColors.blue[500],
-    primaryDark: baseColors.blue[700],
+    // Simple primary - muted blue-gray
+    primary: baseColors.gray[400],
+    primaryLight: baseColors.gray[700],
+    primaryDark: baseColors.gray[300],
     
-    // UI colors
-    background: baseColors.white,
-    surface: baseColors.gray[50],
-    border: baseColors.gray[200],
+    // Dark gray UI
+    background: baseColors.gray[800],
+    surface: baseColors.gray[700],
+    border: baseColors.gray[600],
     
-    // Text colors
+    // Text colors for dark mode
     text: {
-      primary: baseColors.gray[900],
-      secondary: baseColors.gray[600],
-      muted: baseColors.gray[400],
-      inverse: baseColors.white,
+      primary: baseColors.gray[100],
+      secondary: baseColors.gray[300],
+      muted: baseColors.gray[500],
+      inverse: baseColors.gray[900],
     },
     
-    // Semantic colors
-    success: baseColors.green[600],
-    warning: baseColors.yellow[600],
-    error: baseColors.red[600],
-    info: baseColors.blue[600],
+    // Muted semantic colors
+    success: baseColors.green[400],
+    warning: baseColors.amber[400],
+    error: baseColors.red[400],
+    info: baseColors.blue[400],
     
-    // Mode-specific accent
-    accent: baseColors.gray[700],
+    // Accent same as primary
+    accent: baseColors.gray[400],
   },
 };

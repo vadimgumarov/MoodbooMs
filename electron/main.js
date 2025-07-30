@@ -162,6 +162,14 @@ app.whenReady().then(() => {
     logToFile(loadError);
   });
   
+  window.webContents.on('console-message', (event, level, message, line, sourceId) => {
+    if (level >= 2) { // Error level
+      const consoleError = `=== CONSOLE ERROR ===\nMessage: ${message}\nSource: ${sourceId}:${line}`;
+      console.error(consoleError);
+      logToFile(consoleError);
+    }
+  });
+  
   window.webContents.on('did-finish-load', () => {
     console.log('=== WINDOW LOADED SUCCESSFULLY ===');
     logToFile('=== WINDOW LOADED SUCCESSFULLY ===');
@@ -202,7 +210,7 @@ app.whenReady().then(() => {
       // window.webContents.openDevTools({ mode: 'detach' });
     }
     // TEMPORARILY ENABLE DEVTOOLS TO DEBUG CRASH
-    // window.webContents.openDevTools({ mode: 'detach' });
+    window.webContents.openDevTools({ mode: 'detach' });
   });
   
   window.webContents.on('render-process-gone', (event, details) => {

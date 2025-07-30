@@ -225,7 +225,7 @@ const MenuBarApp = () => {
         const phase = calculatePhase(
           testMode ? new Date(new Date().getTime() - testDays * 24 * 60 * 60 * 1000) : cycleData.startDate, 
           cycleData.cycleLength,
-          isKingMode
+          currentMode === MODES.KING
         );
         
         // Only update if phase actually changed
@@ -416,6 +416,15 @@ const MenuBarApp = () => {
 
   // If in King mode, use the King mode integration
   if (isKingMode) {
+    // Don't render until we have a valid phase
+    if (!currentPhase.phase) {
+      return (
+        <div className="w-96 p-4 text-center" style={{ backgroundColor: 'var(--king-bg)', color: 'var(--king-text)' }}>
+          <p>Loading...</p>
+        </div>
+      );
+    }
+    
     return (
       <KingModeIntegration
         currentPhase={currentPhase}
@@ -489,14 +498,14 @@ const MenuBarApp = () => {
 
   // Regular Queen mode UI
   return (
-    <div className="w-96">
+    <div className="w-96 bg-background">
       <div className="p-4">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold">MoodbooM</h2>
+          <h2 className="text-lg font-semibold text-text-primary">MoodbooM</h2>
           <div className="flex items-center gap-3">
             {/* Queen/King Mode Toggle */}
             <label className={`flex items-center gap-2 ${isSwitching ? 'cursor-wait opacity-50' : 'cursor-pointer'}`}>
-              <span className="text-xs text-gray-600">{isKingMode ? 'King' : 'Queen'}</span>
+              <span className="text-xs text-text-secondary">{isKingMode ? 'King' : 'Queen'}</span>
             <div className="relative">
               <input
                 type="checkbox"
@@ -511,7 +520,7 @@ const MenuBarApp = () => {
                 className="sr-only"
               />
               <div className={`block w-10 h-6 rounded-full transition-colors ${
-                isKingMode ? 'bg-purple-500' : 'bg-gray-300'
+                isKingMode ? 'bg-primary' : 'bg-border'
               }`}></div>
               <div className={`absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform ${
                 isKingMode ? 'translate-x-4' : ''
@@ -525,7 +534,7 @@ const MenuBarApp = () => {
                 window.electronAPI.app.quit();
               }
             }}
-            className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-1.5 text-text-muted hover:text-text-primary hover:bg-surface rounded-lg transition-colors"
             title="Quit MoodbooM"
           >
             <X className="w-4 h-4" />
@@ -534,13 +543,13 @@ const MenuBarApp = () => {
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex mb-4 bg-gray-100 rounded-lg p-1">
+        <div className="flex mb-4 bg-surface rounded-lg p-1">
           <button
             onClick={() => setActiveTab('mood')}
             className={`flex-1 py-2 px-3 rounded-md transition-colors text-sm ${
               activeTab === 'mood' 
-                ? 'bg-white shadow-sm' 
-                : 'hover:bg-gray-200'
+                ? 'bg-background shadow-sm' 
+                : 'hover:bg-background'
             }`}
           >
             {getUIText(currentMode, 'tabs', 'mood')}
@@ -549,8 +558,8 @@ const MenuBarApp = () => {
             onClick={() => setActiveTab('calendar')}
             className={`flex-1 py-2 px-3 rounded-md transition-colors text-sm ${
               activeTab === 'calendar' 
-                ? 'bg-white shadow-sm' 
-                : 'hover:bg-gray-200'
+                ? 'bg-background shadow-sm' 
+                : 'hover:bg-background'
             }`}
           >
             {getUIText(currentMode, 'tabs', 'calendar')}
@@ -559,8 +568,8 @@ const MenuBarApp = () => {
             onClick={() => setActiveTab('history')}
             className={`flex-1 py-2 px-3 rounded-md transition-colors text-sm ${
               activeTab === 'history' 
-                ? 'bg-white shadow-sm' 
-                : 'hover:bg-gray-200'
+                ? 'bg-background shadow-sm' 
+                : 'hover:bg-background'
             }`}
           >
             {getUIText(currentMode, 'tabs', 'history')}
@@ -569,8 +578,8 @@ const MenuBarApp = () => {
             onClick={() => setActiveTab('settings')}
             className={`py-2 px-3 rounded-md transition-colors text-sm ${
               activeTab === 'settings' 
-                ? 'bg-white shadow-sm' 
-                : 'hover:bg-gray-200'
+                ? 'bg-background shadow-sm' 
+                : 'hover:bg-background'
             }`}
           >
             <Settings className="w-4 h-4" />
@@ -586,12 +595,12 @@ const MenuBarApp = () => {
             testDays={testDays}
           />
 
-          <div className="p-3 bg-gray-100 rounded">
+          <div className="p-3 bg-surface rounded">
             <p className="text-sm font-medium">{isKingMode ? "Her Status:" : "My Mood:"}</p>
-            <p className="text-sm italic text-gray-600">{currentMood}</p>
+            <p className="text-sm italic text-text-secondary">{currentMood}</p>
           </div>
 
-          <div className="p-3 bg-gray-100 rounded flex items-center gap-2">
+          <div className="p-3 bg-surface rounded flex items-center gap-2">
             <p className="text-sm">{isKingMode ? "She Needs:" : "I Need:"}</p>
             <currentCraving.icon className="w-4 h-4" />
             <p className="text-sm italic">{isKingMode ? `Get her ${currentCraving.text}` : `Need ${currentCraving.text} ASAP`}</p>
@@ -607,13 +616,13 @@ const MenuBarApp = () => {
           </div>
 
           {testMode && (
-            <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded">
+            <div className="mt-4 p-3 bg-warning/10 border border-warning/20 rounded">
               <div className="flex items-center gap-2 mb-2">
-                <AlertCircle className="w-4 h-4 text-amber-600" />
-                <span className="text-sm font-medium text-amber-700">Test Mode Active</span>
+                <AlertCircle className="w-4 h-4 text-warning" />
+                <span className="text-sm font-medium text-warning">Test Mode Active</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-600">Test Day:</span>
+                <span className="text-sm text-text-secondary">Test Day:</span>
                 <input
                   type="range"
                   min="0"
@@ -624,7 +633,7 @@ const MenuBarApp = () => {
                 />
                 <span className="w-8 text-right text-sm font-medium">{testDays}</span>
               </div>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-text-muted mt-1">
                 Showing day {testDays} of your cycle (actual: day {calculateCurrentDay(cycleData.startDate, new Date())})
               </p>
             </div>

@@ -2,6 +2,7 @@ import React from 'react';
 import MenuBarApp from './components/MenuBarApp';
 import TestKingMode from './components/TestKingMode';
 import TestPhraseSystem from './components/TestPhraseSystem';
+import StyleGuide from './components/StyleGuide/StyleGuide';
 // import { ModeProvider } from './core/contexts/SimpleModeContext';
 import { AppProviders } from './core/contexts';
 import ErrorBoundary from './components/ErrorBoundary';
@@ -13,6 +14,9 @@ function App() {
   const testKingMode = false;
   // Toggle this to test the phrase configuration system
   const testPhraseSystem = false;
+  // Toggle this to view the style guide (development only)
+  const showStyleGuide = process.env.NODE_ENV === 'development' && 
+    window.location.search.includes('styleguide');
   
   // Dark mode management
   const [isDark] = useDarkMode();
@@ -21,7 +25,10 @@ function App() {
     <ErrorBoundary>
       <AppProviders themeVariant={isDark ? 'dark' : 'light'}>
         <div className="App">
-          {testPhraseSystem ? <TestPhraseSystem /> : testKingMode ? <TestKingMode /> : <MenuBarApp />}
+          {showStyleGuide ? <StyleGuide /> : 
+           testPhraseSystem ? <TestPhraseSystem /> : 
+           testKingMode ? <TestKingMode /> : 
+           <MenuBarApp />}
         </div>
       </AppProviders>
     </ErrorBoundary>

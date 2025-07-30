@@ -3,7 +3,7 @@
  * This extends the existing Tailwind config with our token values
  */
 
-import { tokens } from './tokens';
+import { tokens } from './tokens/index.js';
 
 export const tailwindTokens = {
   colors: {

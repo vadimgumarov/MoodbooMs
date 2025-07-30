@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useMode } from '../core/contexts/SimpleModeContext';
-import { generateCSSVariables } from './tokens';
+import { generateCSSVariables } from './tokens/index.js';
 
 /**
  * DesignSystemProvider - Applies design tokens based on current mode
@@ -14,6 +14,8 @@ export function DesignSystemProvider({ children }) {
     const theme = currentMode === 'queen' ? 'queen' : 'king';
     const styleId = 'design-system-tokens';
     
+    console.log('DesignSystemProvider: Applying theme:', theme);
+    
     // Remove existing style tag if present
     const existingStyle = document.getElementById(styleId);
     if (existingStyle) {
@@ -23,8 +25,15 @@ export function DesignSystemProvider({ children }) {
     // Create new style tag with CSS variables
     const styleTag = document.createElement('style');
     styleTag.id = styleId;
-    styleTag.innerHTML = generateCSSVariables(theme);
-    document.head.appendChild(styleTag);
+    
+    try {
+      const cssVariables = generateCSSVariables(theme);
+      console.log('Generated CSS:', cssVariables.substring(0, 200));
+      styleTag.innerHTML = cssVariables;
+      document.head.appendChild(styleTag);
+    } catch (error) {
+      console.error('Error generating CSS variables:', error);
+    }
     
     // Add theme class to body for additional styling hooks
     document.body.className = `theme-${theme}`;

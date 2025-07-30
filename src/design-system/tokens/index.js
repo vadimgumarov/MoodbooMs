@@ -3,13 +3,13 @@
  * Combines all design tokens into a single source of truth
  */
 
-import { baseColors, phaseColors } from './base/colors';
-import { spacing, layout, gaps } from './base/spacing';
-import { fontFamily, fontSize, fontWeight, lineHeight, letterSpacing, textStyles } from './base/typography';
-import { shadows } from './base/shadows';
-import { queenTheme } from './themes/queen';
-import { kingTheme } from './themes/king';
-import { platforms } from './platforms';
+import { baseColors, phaseColors } from './base/colors.js';
+import { spacing, layout, gaps } from './base/spacing.js';
+import { fontFamily, fontSize, fontWeight, lineHeight, letterSpacing, textStyles } from './base/typography.js';
+import { shadows } from './base/shadows.js';
+import { queenTheme } from './themes/queen.js';
+import { kingTheme } from './themes/king.js';
+import { platforms } from './platforms/index.js';
 
 export const tokens = {
   // Base tokens

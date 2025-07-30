@@ -45,15 +45,44 @@ export function ThemeProvider({ children, variant = THEME_VARIANTS.LIGHT }) {
   useEffect(() => {
     if (!currentTheme) return;
     
+    console.log('ThemeContext: Applying theme:', currentTheme.name, currentTheme.colors.primary);
+    
     try {
       const root = document.documentElement;
       
       // Apply colors
       if (currentTheme.colors) {
+        // Set primary colors
+        root.style.setProperty('--color-primary', currentTheme.colors.primary);
+        root.style.setProperty('--color-primary-light', currentTheme.colors.primaryLight || currentTheme.colors.tertiary);
+        root.style.setProperty('--color-primary-dark', currentTheme.colors.primaryDark || currentTheme.colors.secondary);
+        
+        // Set background and surface colors
+        root.style.setProperty('--color-background', currentTheme.colors.background);
+        root.style.setProperty('--color-surface', currentTheme.colors.surface);
+        root.style.setProperty('--color-border', currentTheme.colors.border);
+        
+        // Set text colors
+        root.style.setProperty('--color-text-primary', currentTheme.colors.text);
+        root.style.setProperty('--color-text-secondary', currentTheme.colors.textSecondary);
+        root.style.setProperty('--color-text-muted', currentTheme.colors.textSecondary);
+        
+        // Set state colors
+        root.style.setProperty('--color-success', currentTheme.colors.success);
+        root.style.setProperty('--color-warning', currentTheme.colors.warning);
+        root.style.setProperty('--color-error', currentTheme.colors.error);
+        root.style.setProperty('--color-accent', currentTheme.colors.tertiary);
+        
+        // Log what we're setting
+        console.log('Setting CSS variables:', {
+          primary: currentTheme.colors.primary,
+          background: currentTheme.colors.background,
+          text: currentTheme.colors.text
+        });
+        
+        // Apply all other colors (phases, hover, gradients)
         Object.entries(currentTheme.colors).forEach(([key, value]) => {
-          if (typeof value === 'string') {
-            root.style.setProperty(`--color-${key}`, value);
-          } else if (typeof value === 'object' && value) {
+          if (typeof value === 'object' && value) {
             // Handle nested colors (like phases, hover, gradients)
             Object.entries(value).forEach(([subKey, subValue]) => {
               if (subValue) {
@@ -132,6 +161,7 @@ export function ThemeProvider({ children, variant = THEME_VARIANTS.LIGHT }) {
     
     // Add theme mode class to body
     document.body.className = `theme-${currentTheme.mode} theme-${variant}`;
+    
     
     // Add switching class during transitions
     if (isSwitching) {

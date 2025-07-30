@@ -22,15 +22,15 @@ const HistoryView = ({ cycleHistory, currentCycleStart, onPeriodStart, isBadassM
   const getRegularityColor = (regularity) => {
     switch (regularity) {
       case 'very-regular':
-        return 'text-green-600';
+        return 'text-success';
       case 'regular':
-        return 'text-green-500';
+        return 'text-success';
       case 'somewhat-irregular':
-        return 'text-yellow-600';
+        return 'text-warning';
       case 'irregular':
-        return 'text-red-600';
+        return 'text-error';
       default:
-        return 'text-gray-600';
+        return 'text-secondary';
     }
   };
 
@@ -67,7 +67,7 @@ const HistoryView = ({ cycleHistory, currentCycleStart, onPeriodStart, isBadassM
   return (
     <div className="p-4 space-y-4">
       {/* Statistics Overview */}
-      <div className="bg-gray-50 rounded-lg p-4">
+      <div className="bg-surface rounded-lg p-4">
         <h3 className="text-lg font-semibold mb-3 flex items-center">
           <BarChart2 className="w-5 h-5 mr-2" />
           {isBadassMode ? "Her Cycle Stats" : "My Stats"}
@@ -75,28 +75,28 @@ const HistoryView = ({ cycleHistory, currentCycleStart, onPeriodStart, isBadassM
         
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <p className="text-sm text-gray-600">{isBadassMode ? "Average Duration" : "My Average"}</p>
+            <p className="text-sm text-secondary">{isBadassMode ? "Average Duration" : "My Average"}</p>
             <p className="text-xl font-medium">
               {stats.averageLength || '--'} days
             </p>
           </div>
           
           <div>
-            <p className="text-sm text-gray-600">{isBadassMode ? "Predictability" : "My Pattern"}</p>
+            <p className="text-sm text-secondary">{isBadassMode ? "Predictability" : "My Pattern"}</p>
             <p className={`text-lg font-medium ${getRegularityColor(stats.cycleRegularity)}`}>
               {getRegularityText(stats.cycleRegularity)}
             </p>
           </div>
           
           <div>
-            <p className="text-sm text-gray-600">{isBadassMode ? "Shortest Cycle" : "Quickest Hell"}</p>
+            <p className="text-sm text-secondary">{isBadassMode ? "Shortest Cycle" : "Quickest Hell"}</p>
             <p className="text-lg">
               {stats.shortestCycle || '--'} days
             </p>
           </div>
           
           <div>
-            <p className="text-sm text-gray-600">{isBadassMode ? "Longest Cycle" : "Longest Nightmare"}</p>
+            <p className="text-sm text-secondary">{isBadassMode ? "Longest Cycle" : "Longest Nightmare"}</p>
             <p className="text-lg">
               {stats.longestCycle || '--'} days
             </p>

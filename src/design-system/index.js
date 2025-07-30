@@ -3,9 +3,9 @@
  * Single source of truth for all design-related imports
  */
 
-export { tokens } from './tokens';
-export { DesignSystemProvider } from './DesignSystemProvider';
-export { tailwindTokens } from './tailwind-tokens';
+export { tokens } from './tokens/index.js';
+export { DesignSystemProvider } from './DesignSystemProvider.jsx';
+export { tailwindTokens } from './tailwind-tokens.js';
 
 // Utility classes for common patterns
 export const utils = {

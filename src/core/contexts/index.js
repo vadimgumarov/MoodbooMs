@@ -25,11 +25,11 @@ import { DesignSystemProvider } from '../../design-system';
 export function AppProviders({ children, themeVariant = 'light' }) {
   return (
     <ModeProvider>
-      <ThemeProvider variant={themeVariant}>
-        <DesignSystemProvider>
+      <DesignSystemProvider>
+        <ThemeProvider variant={themeVariant}>
           {children}
-        </DesignSystemProvider>
-      </ThemeProvider>
+        </ThemeProvider>
+      </DesignSystemProvider>
     </ModeProvider>
   );
 }
