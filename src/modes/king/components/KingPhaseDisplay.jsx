@@ -87,9 +87,9 @@ const KingPhaseDisplay = ({ phase, mood, craving, fertility }) => {
           <div className="flex items-center justify-between text-white">
             <div className="flex items-center gap-2">
               <ShieldAlert size={20} />
-              <span className="font-bold text-sm">THREAT ASSESSMENT</span>
+              <span className="font-bold text-small">THREAT ASSESSMENT</span>
             </div>
-            <span className="text-xs font-medium px-2 py-1 rounded bg-black bg-opacity-20">
+            <span className="text-tiny font-medium px-2 py-1 rounded bg-black bg-opacity-20">
               {alertLevel.toUpperCase()}
             </span>
           </div>
@@ -97,20 +97,20 @@ const KingPhaseDisplay = ({ phase, mood, craving, fertility }) => {
         
         {/* Phase Info */}
         <div className="p-4">
-          <h3 className="text-lg font-bold mb-2" style={{ color: phaseColor }}>
+          <h3 className="text-heading font-bold mb-2" style={{ color: phaseColor }}>
             {phaseName}
           </h3>
-          <p className="text-sm mb-3" style={{ color: 'var(--king-text-secondary)' }}>
+          <p className="text-small mb-3" style={{ color: 'var(--king-text-secondary)' }}>
             {phaseData.description}
           </p>
           
           {/* Threat Meter */}
           <div className="mb-4">
             <div className="flex items-center justify-between mb-1">
-              <span className="text-xs font-medium" style={{ color: 'var(--king-text-secondary)' }}>
+              <span className="text-tiny font-medium" style={{ color: 'var(--king-text-secondary)' }}>
                 THREAT LEVEL
               </span>
-              <span className="text-sm font-bold" style={{ color: phaseColor }}>
+              <span className="text-small font-bold" style={{ color: phaseColor }}>
                 {threatLevel}%
               </span>
             </div>
@@ -133,11 +133,11 @@ const KingPhaseDisplay = ({ phase, mood, craving, fertility }) => {
         <div className="p-3 rounded-lg" style={{ backgroundColor: 'var(--king-surface)' }}>
           <div className="flex items-center gap-2 mb-2">
             <Activity size={16} style={{ color: 'var(--king-warning)' }} />
-            <span className="text-xs font-medium" style={{ color: 'var(--king-text-secondary)' }}>
+            <span className="text-tiny font-medium" style={{ color: 'var(--king-text-secondary)' }}>
               SITUATION REPORT
             </span>
           </div>
-          <p className="text-sm" style={{ color: 'var(--king-text)' }}>
+          <p className="text-small" style={{ color: 'var(--king-text)' }}>
             {mood}
           </p>
         </div>
@@ -146,11 +146,11 @@ const KingPhaseDisplay = ({ phase, mood, craving, fertility }) => {
         <div className="p-3 rounded-lg" style={{ backgroundColor: 'var(--king-surface)' }}>
           <div className="flex items-center gap-2 mb-2">
             <Gauge size={16} style={{ color: 'var(--king-accent)' }} />
-            <span className="text-xs font-medium" style={{ color: 'var(--king-text-secondary)' }}>
+            <span className="text-tiny font-medium" style={{ color: 'var(--king-text-secondary)' }}>
               MOOD STATUS
             </span>
           </div>
-          <p className="text-sm font-medium" style={{ color: 'var(--king-text)' }}>
+          <p className="text-small font-medium" style={{ color: 'var(--king-text)' }}>
             {getMoodIndicator(phaseKey)}
           </p>
         </div>
@@ -160,7 +160,7 @@ const KingPhaseDisplay = ({ phase, mood, craving, fertility }) => {
       <div className="p-4 rounded-lg" style={{ backgroundColor: 'var(--king-surface)' }}>
         <div className="flex items-center gap-2 mb-3">
           <Shield size={18} style={{ color: 'var(--king-secondary)' }} />
-          <span className="text-sm font-bold" style={{ color: 'var(--king-text)' }}>
+          <span className="text-small font-bold" style={{ color: 'var(--king-text)' }}>
             STRATEGIC RESPONSE
           </span>
         </div>
@@ -173,10 +173,10 @@ const KingPhaseDisplay = ({ phase, mood, craving, fertility }) => {
           }}>
             <CravingIcon size={20} style={{ color: 'var(--king-accent)' }} />
             <div className="flex-1">
-              <p className="text-xs font-medium mb-1" style={{ color: 'var(--king-text-secondary)' }}>
+              <p className="text-tiny font-medium mb-1" style={{ color: 'var(--king-text-secondary)' }}>
                 PRIORITY OFFERING
               </p>
-              <p className="text-sm" style={{ color: 'var(--king-text)' }}>
+              <p className="text-small" style={{ color: 'var(--king-text)' }}>
                 {craving.text}
               </p>
             </div>
@@ -193,10 +193,10 @@ const KingPhaseDisplay = ({ phase, mood, craving, fertility }) => {
           <div className="flex items-center gap-2">
             <AlertOctagon size={20} style={{ color: 'var(--king-danger)' }} />
             <div className="flex-1">
-              <p className="text-sm font-bold" style={{ color: 'var(--king-danger)' }}>
+              <p className="text-small font-bold" style={{ color: 'var(--king-danger)' }}>
                 ⚠️ HIGH ALERT STATUS
               </p>
-              <p className="text-xs mt-1" style={{ color: 'var(--king-text)' }}>
+              <p className="text-tiny mt-1" style={{ color: 'var(--king-text)' }}>
                 Exercise extreme caution. Deploy emergency snack reserves.
               </p>
             </div>

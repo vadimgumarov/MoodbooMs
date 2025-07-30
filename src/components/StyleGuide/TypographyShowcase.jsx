@@ -5,49 +5,49 @@ function TypographyShowcase() {
   const textSamples = [
     {
       name: 'Display',
-      className: 'text-display font-bold',
-      size: tokens.typography.fontSize.display,
-      weight: tokens.typography.fontWeight.bold,
+      className: 'text-display',
+      size: '2.5rem (40px)',
+      weight: '700 (bold)',
       sample: 'The quick brown fox',
       usage: 'Major headings, hero text'
     },
     {
       name: 'Title',
-      className: 'text-title font-semibold',
-      size: tokens.typography.fontSize.title,
-      weight: tokens.typography.fontWeight.semibold,
+      className: 'text-title',
+      size: '1.875rem (30px)',
+      weight: '600 (semibold)',
       sample: 'The quick brown fox jumps',
       usage: 'Section titles, page headers'
     },
     {
       name: 'Heading',
-      className: 'text-heading font-semibold',
-      size: tokens.typography.fontSize.heading,
-      weight: tokens.typography.fontWeight.semibold,
+      className: 'text-heading',
+      size: '1.25rem (20px)',
+      weight: '600 (semibold)',
       sample: 'The quick brown fox jumps over',
       usage: 'Component headings, subsections'
     },
     {
       name: 'Body',
-      className: 'text-body font-normal',
-      size: tokens.typography.fontSize.body,
-      weight: tokens.typography.fontWeight.normal,
+      className: 'text-body',
+      size: '1rem (16px)',
+      weight: '400 (normal)',
       sample: 'The quick brown fox jumps over the lazy dog',
       usage: 'Main content, paragraphs'
     },
     {
       name: 'Small',
-      className: 'text-small font-normal',
-      size: tokens.typography.fontSize.small,
-      weight: tokens.typography.fontWeight.normal,
+      className: 'text-small',
+      size: '0.875rem (14px)',
+      weight: '400 (normal)',
       sample: 'The quick brown fox jumps over the lazy dog',
       usage: 'Secondary text, captions'
     },
     {
       name: 'Tiny',
-      className: 'text-tiny font-normal',
-      size: tokens.typography.fontSize.tiny,
-      weight: tokens.typography.fontWeight.normal,
+      className: 'text-tiny',
+      size: '0.75rem (12px)',
+      weight: '400 (normal)',
       sample: 'The quick brown fox jumps over the lazy dog',
       usage: 'Labels, metadata'
     }
@@ -55,13 +55,13 @@ function TypographyShowcase() {
   
   return (
     <div className="space-y-lg">
-      <h2 className="text-title font-semibold text-text-primary mb-lg">
+      <h2 className="text-title text-text-primary mb-lg">
         Typography Scale
       </h2>
       
       {/* Font Family */}
       <div className="mb-xl">
-        <h3 className="text-heading font-medium text-text-primary mb-md">
+        <h3 className="text-heading text-text-primary mb-md">
           Font Family
         </h3>
         <div className="bg-background p-md rounded border border-border">
@@ -74,7 +74,7 @@ function TypographyShowcase() {
       
       {/* Type Scale */}
       <div>
-        <h3 className="text-heading font-medium text-text-primary mb-md">
+        <h3 className="text-heading text-text-primary mb-md">
           Type Scale
         </h3>
         <div className="space-y-md">
@@ -107,11 +107,16 @@ function TypographyShowcase() {
       
       {/* Font Weights */}
       <div>
-        <h3 className="text-heading font-medium text-text-primary mb-md">
+        <h3 className="text-heading text-text-primary mb-md">
           Font Weights
         </h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-md">
-          {Object.entries(tokens.typography.fontWeight).map(([name, value]) => (
+          {[
+            { name: 'normal', value: '400' },
+            { name: 'medium', value: '500' },
+            { name: 'semibold', value: '600' },
+            { name: 'bold', value: '700' }
+          ].map(({ name, value }) => (
             <div key={name} className="text-center">
               <p 
                 className="text-body text-text-primary mb-xs"

@@ -66,17 +66,17 @@ const KingModeIntegration = ({
   
   return (
     <KingModeWrapper>
-      <div className="king-mode-app w-96">
+      <div className="king-mode-app responsive-container">
         {/* Header */}
         <div className="p-4" style={{ backgroundColor: 'var(--king-surface)' }}>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold" style={{ color: 'var(--king-primary)' }}>
+            <h2 className="text-heading font-semibold" style={{ color: 'var(--king-primary)' }}>
               MoodbooM
             </h2>
             <div className="flex items-center gap-3">
               {/* Queen/King Mode Toggle */}
               <label className={`flex items-center gap-2 ${isSwitching ? 'cursor-wait opacity-50' : 'cursor-pointer'}`}>
-                <span className="text-xs" style={{ color: 'var(--king-text-secondary)' }}>
+                <span className="text-tiny" style={{ color: 'var(--king-text-secondary)' }}>
                   {isKingMode ? 'King' : 'Queen'}
                 </span>
                 <div className="relative">
@@ -116,7 +116,7 @@ const KingModeIntegration = ({
           <div className="flex gap-1 p-1 rounded-lg" style={{ backgroundColor: 'var(--king-bg)' }}>
             <button
               onClick={() => onTabChange('mood')}
-              className={`flex-1 py-2 px-3 rounded-md transition-colors text-sm ${
+              className={`flex-1 py-2 px-3 rounded-md transition-colors text-small ${
                 activeTab === 'mood' 
                   ? 'bg-primary text-white shadow-sm' 
                   : 'text-text-secondary hover:bg-surface'
@@ -126,7 +126,7 @@ const KingModeIntegration = ({
             </button>
             <button
               onClick={() => onTabChange('calendar')}
-              className={`flex-1 py-2 px-3 rounded-md transition-colors text-sm ${
+              className={`flex-1 py-2 px-3 rounded-md transition-colors text-small ${
                 activeTab === 'calendar' 
                   ? 'bg-primary text-white shadow-sm' 
                   : 'text-text-secondary hover:bg-surface'
@@ -136,7 +136,7 @@ const KingModeIntegration = ({
             </button>
             <button
               onClick={() => onTabChange('history')}
-              className={`flex-1 py-2 px-3 rounded-md transition-colors text-sm ${
+              className={`flex-1 py-2 px-3 rounded-md transition-colors text-small ${
                 activeTab === 'history' 
                   ? 'bg-primary text-white shadow-sm' 
                   : 'text-text-secondary hover:bg-surface'
@@ -146,7 +146,7 @@ const KingModeIntegration = ({
             </button>
             <button
               onClick={() => onTabChange('settings')}
-              className={`py-2 px-3 rounded-md transition-colors text-sm ${
+              className={`py-2 px-3 rounded-md transition-colors text-small ${
                 activeTab === 'settings' 
                   ? 'bg-primary text-white shadow-sm' 
                   : 'text-text-secondary hover:bg-surface'
@@ -177,7 +177,7 @@ const KingModeIntegration = ({
                   type="date"
                   value={cycleData.startDate.toISOString().split('T')[0]}
                   onChange={(e) => onDateChange(new Date(e.target.value))}
-                  className="flex-1 p-2 rounded text-sm"
+                  className="flex-1 p-2 rounded text-small"
                   style={{ 
                     backgroundColor: 'var(--king-surface)',
                     border: '1px solid var(--king-border)',
@@ -194,12 +194,12 @@ const KingModeIntegration = ({
                 }}>
                   <div className="flex items-center gap-2 mb-2">
                     <AlertCircle className="w-4 h-4" style={{ color: 'var(--king-warning)' }} />
-                    <span className="text-sm font-medium" style={{ color: 'var(--king-warning)' }}>
+                    <span className="text-small font-medium" style={{ color: 'var(--king-warning)' }}>
                       Test Mode Active
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm" style={{ color: 'var(--king-text-secondary)' }}>
+                    <span className="text-small" style={{ color: 'var(--king-text-secondary)' }}>
                       Test Day:
                     </span>
                     <input
@@ -210,11 +210,11 @@ const KingModeIntegration = ({
                       onChange={(e) => onTabChange('testDays', parseInt(e.target.value))}
                       className="flex-1"
                     />
-                    <span className="w-8 text-right text-sm font-medium" style={{ color: 'var(--king-text)' }}>
+                    <span className="w-8 text-right text-small font-medium" style={{ color: 'var(--king-text)' }}>
                       {testDays}
                     </span>
                   </div>
-                  <p className="text-xs mt-1" style={{ color: 'var(--king-text-secondary)' }}>
+                  <p className="text-tiny mt-1" style={{ color: 'var(--king-text-secondary)' }}>
                     Simulating day {testDays} of cycle
                   </p>
                 </div>

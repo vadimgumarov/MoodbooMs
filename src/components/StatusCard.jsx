@@ -97,41 +97,41 @@ const StatusCard = ({ cycleData, currentPhase, testMode, testDays, isBadassMode 
   return (
     <div className="bg-surface rounded-lg shadow-sm border border-border p-4 space-y-3">
       {/* Header with current phase */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          {currentPhase.icon && <currentPhase.icon className="w-6 h-6 text-primary" />}
-          <h3 className="font-semibold text-lg">{currentPhase.phase}</h3>
+      <div className="flex items-start justify-between gap-2">
+        <div className="flex items-center gap-2 min-w-0 flex-1">
+          {currentPhase.icon && <currentPhase.icon className="w-6 h-6 text-primary flex-shrink-0" />}
+          <h3 className="text-heading break-words">{currentPhase.phase}</h3>
         </div>
-        <span className={`px-2 py-1 rounded-full text-xs font-medium ${fertilityColors[fertilityInfo.level]}`}>
+        <span className={`px-2 py-1 rounded-full text-tiny font-medium whitespace-nowrap flex-shrink-0 ${fertilityColors[fertilityInfo.level]}`}>
           {fertilityInfo.level} Fertility
         </span>
       </div>
       
       {/* Phase description */}
-      <p className="text-sm text-secondary italic">{currentPhase.description}</p>
+      <p className="text-small text-secondary italic break-words">{currentPhase.description}</p>
       
       {/* Stats grid */}
       <div className="grid grid-cols-2 gap-3">
         <div className="bg-background rounded-lg p-3">
           <div className="flex items-center gap-2 text-secondary mb-1">
             <Calendar className="w-4 h-4" />
-            <span className="text-xs text-secondary">Cycle Day</span>
+            <span className="text-tiny text-secondary">Cycle Day</span>
           </div>
-          <p className="text-xl font-bold">{cycleDay}/{cycleData.cycleLength}</p>
+          <p className="text-title font-bold">{cycleDay}/{cycleData.cycleLength}</p>
         </div>
         
         <div className="bg-background rounded-lg p-3">
           <div className="flex items-center gap-2 text-secondary mb-1">
             <Target className="w-4 h-4" />
-            <span className="text-xs text-secondary">Fertility</span>
+            <span className="text-tiny text-secondary">Fertility</span>
           </div>
-          <p className="text-xl font-bold">{fertilityInfo.percentage}%</p>
+          <p className="text-title font-bold">{fertilityInfo.percentage}%</p>
         </div>
       </div>
       
       {/* Progress bar */}
       <div className="space-y-1">
-        <div className="flex justify-between text-xs text-secondary">
+        <div className="flex justify-between text-tiny text-secondary">
           <span>Phase Progress</span>
           <span>{daysIntoPhase} of {currentPhaseDuration} days</span>
         </div>
@@ -144,21 +144,21 @@ const StatusCard = ({ cycleData, currentPhase, testMode, testDays, isBadassMode 
       </div>
       
       {/* Next phase info */}
-      <div className="bg-primary-light rounded-lg p-3 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <TrendingUp className="w-4 h-4 text-primary" />}
-          <span className="text-sm text-primary">Next: {nextPhase}</span>
+      <div className="bg-primary-light rounded-lg p-3 flex items-start justify-between gap-2">
+        <div className="flex items-center gap-2 min-w-0 flex-1">
+          <TrendingUp className="w-4 h-4 text-primary flex-shrink-0" />
+          <span className="text-small text-primary break-words">Next: {nextPhase}</span>
         </div>
-        <span className="text-sm font-medium text-primary">
+        <span className="text-small font-medium text-primary whitespace-nowrap flex-shrink-0">
           {daysUntilNextPhase} {daysUntilNextPhase === 1 ? 'day' : 'days'}
         </span>
       </div>
       
       {/* Alert for peak fertility */}
       {fertilityInfo.level === 'Very High' && (
-        <div className="bg-warning-light border border-warning rounded-lg p-3 flex items-center gap-2">
-          <AlertCircle className="w-4 h-4 text-warning" />}
-          <span className="text-sm text-warning">
+        <div className="bg-warning-light border border-warning rounded-lg p-3 flex items-start gap-2">
+          <AlertCircle className="w-4 h-4 text-warning flex-shrink-0 mt-0.5" />
+          <span className="text-small text-warning break-words">
             {isBadassMode ? "High energy mode - Handle with care!" : "Peak energy - I could conquer the world!"}
           </span>
         </div>

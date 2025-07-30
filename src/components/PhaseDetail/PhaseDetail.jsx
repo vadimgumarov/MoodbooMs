@@ -61,10 +61,10 @@ const PhaseDetail = ({ selectedDate, cycleStartDate, cycleLength }) => {
     <div className="p-4 space-y-4">
       {/* Date Header */}
       <div className="text-center">
-        <h3 className="text-lg font-semibold">
+        <h3 className="text-heading font-semibold">
           {format(selectedDate, 'MMMM d, yyyy')}
         </h3>
-        <p className="text-sm text-secondary">
+        <p className="text-small text-secondary">
           Cycle Day {cycleDay}
         </p>
       </div>
@@ -82,7 +82,7 @@ const PhaseDetail = ({ selectedDate, cycleStartDate, cycleLength }) => {
               'Unknown Phase'}
             </span>
           </div>
-          <span className="text-sm text-secondary">
+          <span className="text-small text-secondary">
             {phaseInfo.daysUntilNextPhase} days left
           </span>
         </div>
@@ -90,8 +90,8 @@ const PhaseDetail = ({ selectedDate, cycleStartDate, cycleLength }) => {
         {/* Fertility Level */}
         <div className="space-y-1">
           <div className="flex items-center justify-between">
-            <span className="text-sm">Fertility Level</span>
-            <span className={`text-sm ${getFertilityColor()}`}>
+            <span className="text-small">Fertility Level</span>
+            <span className={`text-small ${getFertilityColor()}`}>
               {phaseInfo.fertilityLevel.replace('-', ' ').toUpperCase()}
             </span>
           </div>
@@ -107,7 +107,7 @@ const PhaseDetail = ({ selectedDate, cycleStartDate, cycleLength }) => {
               style={{ width: `${phaseInfo.fertilityPercentage}%` }}
             />
           </div>
-          <p className="text-xs text-secondary text-right">
+          <p className="text-tiny text-secondary text-right">
             {phaseInfo.fertilityPercentage}% chance
           </p>
         </div>
@@ -118,24 +118,24 @@ const PhaseDetail = ({ selectedDate, cycleStartDate, cycleLength }) => {
         <div className="flex items-start space-x-2">
           <Battery className="w-5 h-5 text-secondary mt-0.5" />
           <div>
-            <p className="text-sm font-medium">Energy</p>
-            <p className="text-sm text-secondary">{phaseInfo.description}</p>
+            <p className="text-small font-medium">Energy</p>
+            <p className="text-small text-secondary">{phaseInfo.description}</p>
           </div>
         </div>
 
         <div className="flex items-start space-x-2">
           <Brain className="w-5 h-5 text-secondary mt-0.5" />
           <div>
-            <p className="text-sm font-medium">Mood</p>
-            <p className="text-sm text-secondary">{phaseInfo.mood}</p>
+            <p className="text-small font-medium">Mood</p>
+            <p className="text-small text-secondary">{phaseInfo.mood}</p>
           </div>
         </div>
 
         <div className="flex items-start space-x-2">
           <TrendingUp className="w-5 h-5 text-secondary mt-0.5" />
           <div>
-            <p className="text-sm font-medium">Advice</p>
-            <p className="text-sm text-secondary">{phaseInfo.advice}</p>
+            <p className="text-small font-medium">Advice</p>
+            <p className="text-small text-secondary">{phaseInfo.advice}</p>
           </div>
         </div>
       </div>
@@ -145,13 +145,13 @@ const PhaseDetail = ({ selectedDate, cycleStartDate, cycleLength }) => {
         <div className="space-y-2">
           <div className="flex items-center space-x-2">
             <AlertCircle className="w-5 h-5 text-secondary" />
-            <p className="text-sm font-medium">Common Symptoms</p>
+            <p className="text-small font-medium">Common Symptoms</p>
           </div>
           <div className="flex flex-wrap gap-1">
             {phaseInfo.symptoms.map((symptom, index) => (
               <span 
                 key={index}
-                className="text-xs bg-surface text-secondary px-2 py-1 rounded-full"
+                className="text-tiny bg-surface text-secondary px-2 py-1 rounded-full"
               >
                 {symptom}
               </span>
@@ -163,10 +163,10 @@ const PhaseDetail = ({ selectedDate, cycleStartDate, cycleLength }) => {
       {/* Ovulation Indicator */}
       {phaseInfo.isOvulating && (
         <div className="bg-success-light border border-success rounded-lg p-3">
-          <p className="text-sm text-success font-medium">
+          <p className="text-small text-success font-medium">
             🌟 Peak Fertility Window
           </p>
-          <p className="text-xs text-success mt-1">
+          <p className="text-tiny text-success mt-1">
             This is your most fertile time. Ovulation is expected around day {phaseInfo.ovulationDay}.
           </p>
         </div>

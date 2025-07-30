@@ -86,36 +86,36 @@ const HistoryView = ({ cycleHistory, currentCycleStart, onPeriodStart }) => {
         
         <div className="grid grid-cols-2 gap-3">
           <div className="bg-white rounded p-3">
-            <p className="text-sm text-gray-600">
+            <p className="text-small text-gray-600">
               {getComponentText('HistoryView', currentMode, 'averageLabel')}
             </p>
-            <p className="text-xl font-bold text-purple-900">{stats.averageLength} days</p>
+            <p className="text-title font-bold text-purple-900">{stats.averageLength} days</p>
           </div>
           
           <div className="bg-white rounded p-3">
             <Activity className="w-4 h-4 text-gray-500 mb-1" />
-            <p className="text-sm text-gray-600">
+            <p className="text-small text-gray-600">
               {getComponentText('HistoryView', currentMode, 'patternLabel')}
             </p>
-            <p className="text-sm font-medium text-purple-900">
+            <p className="text-small font-medium text-purple-900">
               {getRegularityText(stats.regularity)}
             </p>
           </div>
           
           <div className="bg-white rounded p-3">
             <TrendingUp className="w-4 h-4 text-gray-500 mb-1 rotate-180" />
-            <p className="text-sm text-gray-600">
+            <p className="text-small text-gray-600">
               {getComponentText('HistoryView', currentMode, 'shortestLabel')}
             </p>
-            <p className="text-sm font-medium text-purple-900">{stats.shortestCycle} days</p>
+            <p className="text-small font-medium text-purple-900">{stats.shortestCycle} days</p>
           </div>
           
           <div className="bg-white rounded p-3">
             <TrendingUp className="w-4 h-4 text-gray-500 mb-1" />
-            <p className="text-sm text-gray-600">
+            <p className="text-small text-gray-600">
               {getComponentText('HistoryView', currentMode, 'longestLabel')}
             </p>
-            <p className="text-sm font-medium text-purple-900">{stats.longestCycle} days</p>
+            <p className="text-small font-medium text-purple-900">{stats.longestCycle} days</p>
           </div>
         </div>
       </div>
@@ -136,14 +136,14 @@ const HistoryView = ({ cycleHistory, currentCycleStart, onPeriodStart }) => {
         {nextPeriodDate && (
           <div className="mt-3 p-3 bg-white rounded">
             <div className="flex items-center justify-between">
-              <p className="text-sm font-medium text-blue-900">
+              <p className="text-small font-medium text-blue-900">
                 {getComponentText('HistoryView', currentMode, 'nextPeriodLabel')}
               </p>
-              <p className="text-sm font-bold text-blue-900">
+              <p className="text-small font-bold text-blue-900">
                 {format(nextPeriodDate, 'MMM d')}
               </p>
             </div>
-            <p className="text-xs text-gray-600 mt-1">
+            <p className="text-tiny text-gray-600 mt-1">
               {Math.ceil((nextPeriodDate - new Date()) / (1000 * 60 * 60 * 24))} days away
             </p>
           </div>
@@ -162,15 +162,15 @@ const HistoryView = ({ cycleHistory, currentCycleStart, onPeriodStart }) => {
             {cycleHistory.slice(-5).reverse().map((cycle, index) => (
               <div key={index} className="bg-white rounded p-3 flex justify-between items-center">
                 <div>
-                  <p className="text-sm font-medium">
+                  <p className="text-small font-medium">
                     {format(new Date(cycle.startDate), 'MMM d, yyyy')}
                   </p>
-                  <p className="text-xs text-gray-600">
+                  <p className="text-tiny text-gray-600">
                     {cycle.actualLength || cycle.length} days
                   </p>
                 </div>
                 {cycle.notes && (
-                  <p className="text-xs text-gray-500">{cycle.notes}</p>
+                  <p className="text-tiny text-gray-500">{cycle.notes}</p>
                 )}
               </div>
             ))}
@@ -178,7 +178,7 @@ const HistoryView = ({ cycleHistory, currentCycleStart, onPeriodStart }) => {
         ) : (
           <div className="text-center py-4 text-gray-500">
             <p>{getComponentText('HistoryView', currentMode, 'noHistoryMessage')}</p>
-            <p className="text-sm mt-1">
+            <p className="text-small mt-1">
               {getComponentText('HistoryView', currentMode, 'startTrackingMessage')}
             </p>
           </div>

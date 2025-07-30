@@ -137,4 +137,77 @@
     background-color: var(--color-success);
     opacity: 0.3;
   }
+
+  /* Typography utilities */
+  .text-display {
+    font-size: 2.5rem;
+    line-height: 1.25;
+    letter-spacing: -0.025em;
+    font-weight: 700;
+  }
+  .text-title {
+    font-size: 1.875rem;
+    line-height: 1.25;
+    letter-spacing: -0.025em;
+    font-weight: 600;
+  }
+  .text-heading {
+    font-size: 1.25rem;
+    line-height: 1.5;
+    letter-spacing: 0em;
+    font-weight: 600;
+  }
+  .text-body {
+    font-size: 1rem;
+    line-height: 1.5;
+    letter-spacing: 0em;
+    font-weight: 400;
+  }
+  .text-small {
+    font-size: 0.875rem;
+    line-height: 1.5;
+    letter-spacing: 0em;
+    font-weight: 400;
+  }
+  .text-tiny {
+    font-size: 0.75rem;
+    line-height: 1.5;
+    letter-spacing: 0.025em;
+    font-weight: 400;
+  }
+
+  /* Responsive utilities */
+  .responsive-container {
+    width: 100%;
+    min-width: 20rem; /* 320px */
+    max-width: 24rem; /* 384px */
+  }
+
+  /* Better text wrapping */
+  .text-wrap-balance {
+    text-wrap: balance;
+  }
+
+  .text-wrap-pretty {
+    text-wrap: pretty;
+  }
+
+  /* Ensure minimum touch targets */
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Better responsive grid */
+  .responsive-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 0.5rem;
+  }
+
+  @media (max-width: 320px) {
+    .responsive-grid {
+      grid-template-columns: 1fr;
+    }
+  }
 }

@@ -62,7 +62,7 @@ const SafetyScale = ({ cycleDay, cycleLength, compact = false }) => {
             />
           </div>
         </div>
-        <span className={`text-xs font-medium ${colors.text}`}>
+        <span className={`text-tiny font-medium ${colors.text}`}>
           {fertilityPercentage}%
         </span>
       </div>
@@ -74,9 +74,9 @@ const SafetyScale = ({ cycleDay, cycleLength, compact = false }) => {
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
           <Icon className={`w-5 h-5 ${colors.icon}`} />
-          <h3 className="font-semibold text-primary">Safety Scale</h3>
+          <h3 className="text-heading text-primary">Safety Scale</h3>
         </div>
-        <span className={`text-sm font-bold ${colors.text}`}>
+        <span className={`text-small font-bold ${colors.text}`}>
           {fertilityPercentage}% Fertile
         </span>
       </div>
@@ -88,18 +88,18 @@ const SafetyScale = ({ cycleDay, cycleLength, compact = false }) => {
             style={{ width: `${fertilityPercentage}%` }}
           />
         </div>
-        <div className="flex justify-between mt-1 text-xs text-secondary">
+        <div className="flex justify-between mt-1 text-tiny text-secondary">
           <span>Safe</span>
           <span>Danger</span>
         </div>
       </div>
       
-      <p className={`text-sm italic ${colors.text}`}>
+      <p className={`text-small italic ${colors.text}`}>
         {getSafetyMessage(fertilityPercentage)}
       </p>
       
       <div className="mt-2 pt-2 border-t border-border">
-        <p className="text-xs text-secondary">
+        <p className="text-tiny text-secondary">
           Day {cycleDay} of {cycleLength}-day cycle
         </p>
       </div>

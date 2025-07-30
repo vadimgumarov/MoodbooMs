@@ -399,7 +399,7 @@ const MenuBarApp = () => {
 
   if (isLoading) {
     return (
-      <div className="w-80">
+      <div className="responsive-container">
         <div className="p-4 text-center">
           <p>Loading...</p>
         </div>
@@ -419,7 +419,7 @@ const MenuBarApp = () => {
     // Don't render until we have a valid phase
     if (!currentPhase.phase) {
       return (
-        <div className="w-96 p-4 text-center" style={{ backgroundColor: 'var(--king-bg)', color: 'var(--king-text)' }}>
+        <div className="responsive-container p-4 text-center" style={{ backgroundColor: 'var(--king-bg)', color: 'var(--king-text)' }}>
           <p>Loading...</p>
         </div>
       );
@@ -498,14 +498,14 @@ const MenuBarApp = () => {
 
   // Regular Queen mode UI
   return (
-    <div className="w-96 bg-background">
+    <div className="responsive-container bg-background">
       <div className="p-4">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-text-primary">MoodbooM</h2>
+          <h2 className="text-heading text-text-primary">MoodbooM</h2>
           <div className="flex items-center gap-3">
             {/* Queen/King Mode Toggle */}
             <label className={`flex items-center gap-2 ${isSwitching ? 'cursor-wait opacity-50' : 'cursor-pointer'}`}>
-              <span className="text-xs text-text-secondary">{isKingMode ? 'King' : 'Queen'}</span>
+              <span className="text-tiny text-text-secondary">{isKingMode ? 'King' : 'Queen'}</span>
             <div className="relative">
               <input
                 type="checkbox"
@@ -534,7 +534,7 @@ const MenuBarApp = () => {
                 window.electronAPI.app.quit();
               }
             }}
-            className="p-1.5 text-text-muted hover:text-text-primary hover:bg-surface rounded-lg transition-colors"
+            className="touch-target p-1.5 text-text-muted hover:text-text-primary hover:bg-surface rounded-lg transition-colors"
             title="Quit MoodbooM"
           >
             <X className="w-4 h-4" />
@@ -546,7 +546,7 @@ const MenuBarApp = () => {
         <div className="flex mb-4 bg-surface rounded-lg p-1">
           <button
             onClick={() => setActiveTab('mood')}
-            className={`flex-1 py-2 px-3 rounded-md transition-colors text-sm ${
+            className={`touch-target flex-1 py-2 px-3 rounded-md transition-colors text-small ${
               activeTab === 'mood' 
                 ? 'bg-background shadow-sm' 
                 : 'hover:bg-background'
@@ -556,7 +556,7 @@ const MenuBarApp = () => {
           </button>
           <button
             onClick={() => setActiveTab('calendar')}
-            className={`flex-1 py-2 px-3 rounded-md transition-colors text-sm ${
+            className={`touch-target flex-1 py-2 px-3 rounded-md transition-colors text-small ${
               activeTab === 'calendar' 
                 ? 'bg-background shadow-sm' 
                 : 'hover:bg-background'
@@ -566,7 +566,7 @@ const MenuBarApp = () => {
           </button>
           <button
             onClick={() => setActiveTab('history')}
-            className={`flex-1 py-2 px-3 rounded-md transition-colors text-sm ${
+            className={`touch-target flex-1 py-2 px-3 rounded-md transition-colors text-small ${
               activeTab === 'history' 
                 ? 'bg-background shadow-sm' 
                 : 'hover:bg-background'
@@ -576,7 +576,7 @@ const MenuBarApp = () => {
           </button>
           <button
             onClick={() => setActiveTab('settings')}
-            className={`py-2 px-3 rounded-md transition-colors text-sm ${
+            className={`touch-target py-2 px-3 rounded-md transition-colors text-small ${
               activeTab === 'settings' 
                 ? 'bg-background shadow-sm' 
                 : 'hover:bg-background'
@@ -596,14 +596,16 @@ const MenuBarApp = () => {
           />
 
           <div className="p-3 bg-surface rounded">
-            <p className="text-sm font-medium">{isKingMode ? "Her Status:" : "My Mood:"}</p>
-            <p className="text-sm italic text-text-secondary">{currentMood}</p>
+            <p className="text-small font-medium">{isKingMode ? "Her Status:" : "My Mood:"}</p>
+            <p className="text-small italic text-text-secondary break-words">{currentMood}</p>
           </div>
 
-          <div className="p-3 bg-surface rounded flex items-center gap-2">
-            <p className="text-sm">{isKingMode ? "She Needs:" : "I Need:"}</p>
-            <currentCraving.icon className="w-4 h-4" />
-            <p className="text-sm italic">{isKingMode ? `Get her ${currentCraving.text}` : `Need ${currentCraving.text} ASAP`}</p>
+          <div className="p-3 bg-surface rounded">
+            <div className="flex items-start gap-2">
+              <p className="text-small font-medium flex-shrink-0">{isKingMode ? "She Needs:" : "I Need:"}</p>
+              <currentCraving.icon className="w-4 h-4 flex-shrink-0 mt-0.5" />
+              <p className="text-small italic break-words">{isKingMode ? `Get her ${currentCraving.text}` : `Need ${currentCraving.text} ASAP`}</p>
+            </div>
           </div>
 
           <div className="flex items-center gap-2">
@@ -619,10 +621,10 @@ const MenuBarApp = () => {
             <div className="mt-4 p-3 bg-warning/10 border border-warning/20 rounded">
               <div className="flex items-center gap-2 mb-2">
                 <AlertCircle className="w-4 h-4 text-warning" />
-                <span className="text-sm font-medium text-warning">Test Mode Active</span>
+                <span className="text-small font-medium text-warning">Test Mode Active</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-sm text-text-secondary">Test Day:</span>
+                <span className="text-small text-text-secondary">Test Day:</span>
                 <input
                   type="range"
                   min="0"
@@ -631,9 +633,9 @@ const MenuBarApp = () => {
                   onChange={(e) => setTestDays(parseInt(e.target.value))}
                   className="flex-1"
                 />
-                <span className="w-8 text-right text-sm font-medium">{testDays}</span>
+                <span className="w-8 text-right text-small font-medium">{testDays}</span>
               </div>
-              <p className="text-xs text-text-muted mt-1">
+              <p className="text-tiny text-text-muted mt-1">
                 Showing day {testDays} of your cycle (actual: day {calculateCurrentDay(cycleData.startDate, new Date())})
               </p>
             </div>

@@ -86,7 +86,7 @@ const Calendar = ({ cycleStartDate, cycleLength = 28, onDateSelect }) => {
           <ChevronLeft className="w-5 h-5" />
         </button>
         
-        <h2 className="text-xl font-semibold">
+        <h2 className="text-title">
           {format(currentMonth, 'MMMM yyyy')}
         </h2>
         
@@ -102,7 +102,7 @@ const Calendar = ({ cycleStartDate, cycleLength = 28, onDateSelect }) => {
       {/* Day labels */}
       <div className="grid grid-cols-7 gap-1 mb-2">
         {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-          <div key={day} className="text-center text-xs font-medium text-text-secondary py-2">
+          <div key={day} className="text-center text-tiny font-medium text-text-secondary py-2">
             {day}
           </div>
         ))}
@@ -130,11 +130,11 @@ const Calendar = ({ cycleStartDate, cycleLength = 28, onDateSelect }) => {
               `}
               disabled={!isCurrentMonth}
             >
-              <div className="text-sm font-medium">
+              <div className="text-small font-medium">
                 {getDate(day)}
               </div>
               {cycleDay && isCurrentMonth && (
-                <div className="text-xs opacity-75">
+                <div className="text-tiny opacity-75">
                   D{cycleDay}
                 </div>
               )}
@@ -145,29 +145,29 @@ const Calendar = ({ cycleStartDate, cycleLength = 28, onDateSelect }) => {
 
       {/* Legend */}
       <div className="mt-6 space-y-2">
-        <h3 className="text-sm font-medium text-text-primary">
+        <h3 className="text-small font-medium text-text-primary">
           {isKingMode ? "Threat Level Monitor" : "My Cycle Map"}
         </h3>
-        <div className="grid grid-cols-2 gap-2 text-xs">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-tiny">
           <div className="flex items-center space-x-2">
-            <div className="w-4 h-4 bg-error rounded"></div>
-            <span>{isKingMode ? "Code Red - Maximum Alert" : "The Red Wedding"}</span>
+            <div className="w-4 h-4 bg-error rounded flex-shrink-0"></div>
+            <span className="break-words">{isKingMode ? "Code Red - Maximum Alert" : "The Red Wedding"}</span>
           </div>
           <div className="flex items-center space-x-2">
-            <div className="w-4 h-4 bg-warning/30 rounded"></div>
-            <span>{isKingMode ? "Safe Zone - Low Risk" : "Chill Zone"}</span>
+            <div className="w-4 h-4 bg-warning/30 rounded flex-shrink-0"></div>
+            <span className="break-words">{isKingMode ? "Safe Zone - Low Risk" : "Chill Zone"}</span>
           </div>
           <div className="flex items-center space-x-2">
-            <div className="w-4 h-4 bg-surface rounded"></div>
-            <span>{isKingMode ? "Caution - Moderate Risk" : "Feeling Good"}</span>
+            <div className="w-4 h-4 bg-surface rounded flex-shrink-0"></div>
+            <span className="break-words">{isKingMode ? "Caution - Moderate Risk" : "Feeling Good"}</span>
           </div>
           <div className="flex items-center space-x-2">
-            <div className="w-4 h-4 bg-success/30 rounded"></div>
-            <span>{isKingMode ? "High Alert - Energy Surge" : "Peak Power"}</span>
+            <div className="w-4 h-4 bg-success/30 rounded flex-shrink-0"></div>
+            <span className="break-words">{isKingMode ? "High Alert - Energy Surge" : "Peak Power"}</span>
           </div>
           <div className="flex items-center space-x-2">
-            <div className="w-4 h-4 bg-success rounded"></div>
-            <span>{isKingMode ? "Critical - Peak Fertility" : "I'm Invincible Mode"}</span>
+            <div className="w-4 h-4 bg-success rounded flex-shrink-0"></div>
+            <span className="break-words">{isKingMode ? "Critical - Peak Fertility" : "I'm Invincible Mode"}</span>
           </div>
         </div>
       </div>
