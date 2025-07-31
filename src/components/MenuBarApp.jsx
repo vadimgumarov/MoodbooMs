@@ -1,19 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Sun, CloudSun, Cloud, CloudRain, CloudLightning, Tornado, Heart, Coffee, Candy, IceCream, Cookie, Settings, AlertCircle, Soup, Apple, Fish, Salad, Milk, Cherry, Wheat, Carrot, Egg, Nut, Banana, X } from 'lucide-react';
-import Calendar from './Calendar';
-import PhaseDetail from './PhaseDetail';
-import HistoryView from './HistoryView';
-import StatusCard from './StatusCard';
 import SettingsPanel from './SettingsPanel';
 import KingModeIntegration from './KingModeIntegration';
 import { createCycleRecord, completeCycleRecord, addCycleToHistory, calculateCurrentDay, getCurrentPhase } from '../core/utils';
 import { modeContent, getRandomPhrase, resetPhraseTracking, getUIText } from '../content/modeContent';
 import { useMode, MODES } from '../core/contexts/SimpleModeContext';
+import { useModules } from '../core/contexts';
 import { calculateFertilityPercentage } from '../utils/phaseDetection';
 import { CYCLE, DEBOUNCE, TABS, DEFAULT_PREFERENCES } from '../constants';
 import { announceToScreenReader, getPhaseAriaLabel } from '../utils/accessibility';
 import { useKeyboardNavigation } from '../hooks/useKeyboardNavigation';
 import { LoadingSpinner, StatusCardSkeleton, Tooltip, ErrorMessage, SuccessMessage } from './feedback';
+import { MoodModule, CalendarModule, HistoryModule } from '../modules';
 
 // Icon mapping for food items
 const foodIconMap = {
@@ -132,6 +130,8 @@ const calculatePhase = (startDate, cycleLength = 28, isKingMode = false) => {
 const MenuBarApp = () => {
   // Use mode context
   const { currentMode, isKingMode, toggleMode, isSwitching } = useMode();
+  // Use module context
+  const { getEnabledTabModules, isModuleEnabled } = useModules();
   
   const [cycleData, setCycleData] = useState({
     startDate: new Date(),
@@ -145,7 +145,6 @@ const MenuBarApp = () => {
   const [testDays, setTestDays] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState(TABS.MOOD);
-  const [selectedDate, setSelectedDate] = useState(null);
   const [cycleHistory, setCycleHistory] = useState([]);
   const [preferences, setPreferences] = useState({
     notifications: true,
@@ -158,12 +157,33 @@ const MenuBarApp = () => {
   // Use ref to track previous phase to prevent unnecessary updates
   const previousPhaseRef = useRef('');
   
-  // Enable keyboard navigation for tabs
+  // Get dynamic tabs based on enabled modules
+  const getAvailableTabs = () => {
+    const tabs = [];
+    if (isModuleEnabled('mood')) tabs.push(TABS.MOOD);
+    if (isModuleEnabled('calendar')) tabs.push(TABS.CALENDAR);
+    if (isModuleEnabled('history')) tabs.push(TABS.HISTORY);
+    // Settings is always available
+    tabs.push(TABS.SETTINGS);
+    return tabs;
+  };
+
+  const availableTabs = getAvailableTabs();
+
+  // Enable keyboard navigation for dynamic tabs
   useKeyboardNavigation(
-    [TABS.MOOD, TABS.CALENDAR, TABS.HISTORY, TABS.SETTINGS],
+    availableTabs,
     activeTab,
     setActiveTab
   );
+  
+  // Ensure active tab is still available when modules change
+  React.useEffect(() => {
+    if (!availableTabs.includes(activeTab)) {
+      // Default to first available tab or settings
+      setActiveTab(availableTabs[0] || TABS.SETTINGS);
+    }
+  }, [availableTabs.join(','), activeTab]);
 
   // Load saved data on mount
   useEffect(() => {
@@ -581,162 +601,61 @@ const MenuBarApp = () => {
 
         {/* Tab Navigation */}
         <div className="flex mb-4 bg-surface rounded-lg p-1" role="tablist" aria-label="Navigation tabs" aria-orientation="horizontal">
-          <button
-            onClick={() => setActiveTab(TABS.MOOD)}
-            role="tab"
-            aria-selected={activeTab === TABS.MOOD}
-            aria-controls="mood-panel"
-            id="mood-tab"
-            tabIndex={activeTab === TABS.MOOD ? 0 : -1}
-            className={`touch-target flex-1 py-2 px-3 rounded-md transition-colors text-small ${
-              activeTab === 'mood' 
-                ? 'bg-background shadow-sm' 
-                : 'hover:bg-background'
-            }`}
-          >
-            {getUIText(currentMode, 'tabs', 'mood')}
-          </button>
-          <button
-            onClick={() => setActiveTab(TABS.CALENDAR)}
-            role="tab"
-            aria-selected={activeTab === TABS.CALENDAR}
-            aria-controls="calendar-panel"
-            id="calendar-tab"
-            tabIndex={activeTab === TABS.CALENDAR ? 0 : -1}
-            className={`touch-target flex-1 py-2 px-3 rounded-md transition-colors text-small ${
-              activeTab === 'calendar' 
-                ? 'bg-background shadow-sm' 
-                : 'hover:bg-background'
-            }`}
-          >
-            {getUIText(currentMode, 'tabs', 'calendar')}
-          </button>
-          <button
-            onClick={() => setActiveTab(TABS.HISTORY)}
-            role="tab"
-            aria-selected={activeTab === TABS.HISTORY}
-            aria-controls="history-panel"
-            id="history-tab"
-            tabIndex={activeTab === TABS.HISTORY ? 0 : -1}
-            className={`touch-target flex-1 py-2 px-3 rounded-md transition-colors text-small ${
-              activeTab === 'history' 
-                ? 'bg-background shadow-sm' 
-                : 'hover:bg-background'
-            }`}
-          >
-            {getUIText(currentMode, 'tabs', 'history')}
-          </button>
-          <button
-            onClick={() => setActiveTab(TABS.SETTINGS)}
-            role="tab"
-            aria-selected={activeTab === TABS.SETTINGS}
-            aria-controls="settings-panel"
-            id="settings-tab"
-            aria-label="Settings"
-            tabIndex={activeTab === TABS.SETTINGS ? 0 : -1}
-            className={`touch-target py-2 px-3 rounded-md transition-colors text-small ${
-              activeTab === 'settings' 
-                ? 'bg-background shadow-sm' 
-                : 'hover:bg-background'
-            }`}
-          >
-            <Settings className="w-4 h-4" />
-          </button>
+          {availableTabs.map((tab) => {
+            const isSettings = tab === TABS.SETTINGS;
+            const isActive = activeTab === tab;
+            
+            return (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                role="tab"
+                aria-selected={isActive}
+                aria-controls={`${tab}-panel`}
+                id={`${tab}-tab`}
+                tabIndex={isActive ? 0 : -1}
+                className={`touch-target ${isSettings ? '' : 'flex-1'} py-2 px-3 rounded-md transition-colors text-small ${
+                  isActive 
+                    ? 'bg-background shadow-sm' 
+                    : 'hover:bg-background'
+                }`}
+                aria-label={isSettings ? 'Settings' : undefined}
+              >
+                {isSettings ? (
+                  <Settings className="w-4 h-4" />
+                ) : (
+                  getUIText(currentMode, 'tabs', tab)
+                )}
+              </button>
+            );
+          })}
         </div>
 
         <main id="main-content">
         {activeTab === 'mood' ? (
-          <div className="space-y-4" role="tabpanel" id="mood-panel" aria-labelledby="mood-tab" tabIndex={0}>
-          <StatusCard 
+          <MoodModule 
             cycleData={cycleData}
             currentPhase={currentPhase}
             testMode={testMode}
             testDays={testDays}
+            currentMood={currentMood}
+            currentCraving={currentCraving}
+            isKingMode={isKingMode}
+            onDateChange={handleDateChange}
+            onTestDaysChange={setTestDays}
           />
-
-          <div className="p-3 bg-surface rounded">
-            <p className="text-small font-medium">{isKingMode ? "Her Status:" : "My Mood:"}</p>
-            <p className="text-small italic text-text-secondary break-words">{currentMood}</p>
-          </div>
-
-          <div className="p-3 bg-surface rounded">
-            <div className="flex items-start gap-2">
-              <p className="text-small font-medium flex-shrink-0">{isKingMode ? "She Needs:" : "I Need:"}</p>
-              <currentCraving.icon className="w-4 h-4 flex-shrink-0 mt-0.5" />
-              <p className="text-small italic break-words">{isKingMode ? `Get her ${currentCraving.text}` : `Need ${currentCraving.text} ASAP`}</p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <input
-              type="date"
-              value={cycleData.startDate.toISOString().split('T')[0]}
-              onChange={(e) => handleDateChange(new Date(e.target.value))}
-              className="flex-1 p-2 border rounded"
-              aria-label="Cycle start date"
-            />
-          </div>
-
-          {testMode && (
-            <div className="mt-4 p-3 bg-warning/10 border border-warning/20 rounded">
-              <div className="flex items-center gap-2 mb-2">
-                <AlertCircle className="w-4 h-4 text-warning" />
-                <span className="text-small font-medium text-warning">Test Mode Active</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-small text-text-secondary">Test Day:</span>
-                <input
-                  type="range"
-                  min="0"
-                  max={cycleData.cycleLength}
-                  value={testDays}
-                  onChange={(e) => setTestDays(parseInt(e.target.value))}
-                  className="flex-1"
-                  aria-label="Test day slider"
-                  aria-valuemin="0"
-                  aria-valuemax={cycleData.cycleLength}
-                  aria-valuenow={testDays}
-                />
-                <span className="w-8 text-right text-small font-medium" aria-live="polite">{testDays}</span>
-              </div>
-              <p className="text-tiny text-text-muted mt-1">
-                Showing day {testDays} of your cycle (actual: day {calculateCurrentDay(cycleData.startDate, new Date())})
-              </p>
-            </div>
-          )}
-
-        </div>
         ) : activeTab === 'calendar' ? (
-          <div className="space-y-4" role="tabpanel" id="calendar-panel" aria-labelledby="calendar-tab" tabIndex={0}>
-            <Calendar 
-              cycleStartDate={testMode 
-                ? new Date(new Date().getTime() - testDays * 24 * 60 * 60 * 1000) 
-                : cycleData.startDate
-              }
-              cycleLength={cycleData.cycleLength}
-              onDateSelect={(date) => setSelectedDate(date)}
-            />
-            {selectedDate && (
-              <div className="border-t pt-4">
-                <PhaseDetail
-                  selectedDate={selectedDate}
-                  cycleStartDate={testMode 
-                    ? new Date(new Date().getTime() - testDays * 24 * 60 * 60 * 1000) 
-                    : cycleData.startDate
-                  }
-                  cycleLength={cycleData.cycleLength}
-                    />
-              </div>
-            )}
-          </div>
+          <CalendarModule
+            cycleData={cycleData}
+            testMode={testMode}
+            testDays={testDays}
+          />
         ) : activeTab === 'history' ? (
-          <div role="tabpanel" id="history-panel" aria-labelledby="history-tab" tabIndex={0}>
-            <HistoryView 
-              cycleHistory={cycleHistory}
-              currentCycleStart={cycleData.startDate}
-              onPeriodStart={handlePeriodStart}
-            />
-          </div>
+          <HistoryModule
+            cycleHistory={cycleHistory}
+            currentCycleStart={cycleData.startDate}
+            onPeriodStart={handlePeriodStart}
+          />
         ) : activeTab === 'settings' ? (
           <div role="tabpanel" id="settings-panel" aria-labelledby="settings-tab" tabIndex={0}>
             <SettingsPanel
