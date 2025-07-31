@@ -6,9 +6,11 @@ import {
   Save, 
   X,
   Monitor,
-  AlertCircle
+  AlertCircle,
+  Contrast
 } from 'lucide-react';
 import { CYCLE, DEFAULT_PREFERENCES } from '../constants';
+import HighContrastToggle from './HighContrastToggle';
 
 const SettingsPanel = ({ 
   cycleData, 
@@ -20,6 +22,7 @@ const SettingsPanel = ({
   const [cycleLength, setCycleLength] = useState(cycleData?.cycleLength || CYCLE.DEFAULT_LENGTH);
   const [notifications, setNotifications] = useState(preferences?.notifications ?? DEFAULT_PREFERENCES.notifications);
   const [testMode, setTestMode] = useState(preferences?.testMode || false);
+  const [highContrast, setHighContrast] = useState(preferences?.highContrast || false);
   const [hasChanges, setHasChanges] = useState(false);
   
   // Track if any values have changed
@@ -27,7 +30,8 @@ const SettingsPanel = ({
     const changed = 
       cycleLength !== (cycleData?.cycleLength || 28) ||
       notifications !== (preferences?.notifications ?? true) ||
-      testMode !== (preferences?.testMode || false);
+      testMode !== (preferences?.testMode || false) ||
+      highContrast !== (preferences?.highContrast || false);
     setHasChanges(changed);
   }, [cycleLength, notifications, testMode, cycleData, preferences]);
 
@@ -40,7 +44,8 @@ const SettingsPanel = ({
       preferences: {
         ...preferences,
         notifications,
-        testMode
+        testMode,
+        highContrast
       }
     });
   };
@@ -49,6 +54,7 @@ const SettingsPanel = ({
     setCycleLength(cycleData?.cycleLength || 28);
     setNotifications(preferences?.notifications ?? true);
     setTestMode(preferences?.testMode || false);
+    setHighContrast(preferences?.highContrast || false);
   };
 
 
@@ -144,6 +150,24 @@ const SettingsPanel = ({
             </label>
             <p className="text-tiny text-gray-500 ml-6">
               Test different cycle days without changing your actual start date
+            </p>
+          </div>
+        </div>
+
+        {/* Accessibility Section */}
+        <div className="space-y-4">
+          <div className="flex items-center gap-2 text-gray-700">
+            <Contrast className="w-4 h-4" />
+            <h3 className="font-medium">Accessibility</h3>
+          </div>
+          
+          <div className="pl-6">
+            <HighContrastToggle 
+              enabled={highContrast}
+              onChange={setHighContrast}
+            />
+            <p className="text-tiny text-gray-500 mt-1 ml-6">
+              Improves visibility with higher contrast colors
             </p>
           </div>
         </div>

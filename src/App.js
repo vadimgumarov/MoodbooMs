@@ -21,6 +21,31 @@ function App() {
   // Dark mode management
   const [isDark] = useDarkMode();
   
+  // High contrast mode state
+  const [highContrast, setHighContrast] = React.useState(false);
+  
+  // Load high contrast preference
+  React.useEffect(() => {
+    const loadHighContrast = async () => {
+      if (window.electronAPI && window.electronAPI.store) {
+        const preferences = await window.electronAPI.store.get('preferences');
+        if (preferences?.highContrast) {
+          setHighContrast(preferences.highContrast);
+        }
+      }
+    };
+    loadHighContrast();
+  }, []);
+  
+  // Apply high contrast class to body
+  React.useEffect(() => {
+    if (highContrast) {
+      document.body.classList.add('high-contrast');
+    } else {
+      document.body.classList.remove('high-contrast');
+    }
+  }, [highContrast]);
+  
   return (
     <ErrorBoundary>
       <AppProviders themeVariant={isDark ? 'dark' : 'light'}>

@@ -5,6 +5,9 @@
 /* Import theme animations */
 @import './core/themes/animations.css';
 
+/* Import accessibility styles */
+@import './styles/accessibility.css';
+
 /* Override Tailwind colors with CSS variables */
 @layer utilities {
   /* Primary colors */

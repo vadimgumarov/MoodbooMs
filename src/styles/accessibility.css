@@ -1,0 +1,295 @@
+/**
+ * Accessibility Styles
+ * 
+ * Focus indicators and accessibility enhancements
+ * Following WCAG 2.1 AA standards
+ */
+
+/* Focus Indicators - Visible focus for keyboard navigation */
+:focus-visible {
+  outline: 2px solid var(--color-primary, #8B5CF6);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Remove default focus outline for mouse users */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Enhanced focus for buttons */
+button:focus-visible {
+  outline: 3px solid var(--color-primary, #8B5CF6);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.25);
+}
+
+/* Enhanced focus for inputs */
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 3px solid var(--color-primary, #8B5CF6);
+  outline-offset: 0;
+  border-color: var(--color-primary, #8B5CF6);
+}
+
+/* Focus for links */
+a:focus-visible {
+  outline: 2px solid var(--color-primary, #8B5CF6);
+  outline-offset: 4px;
+  text-decoration: underline;
+}
+
+/* Skip Navigation Link */
+.skip-navigation {
+  position: absolute;
+  left: -10000px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  background: var(--color-primary, #8B5CF6);
+  color: white;
+  padding: 0.5rem 1rem;
+  text-decoration: none;
+  border-radius: 4px;
+  z-index: 999;
+}
+
+.skip-navigation:focus {
+  position: absolute;
+  left: 6px;
+  top: 6px;
+  width: auto;
+  height: auto;
+  overflow: auto;
+}
+
+/* Screen Reader Only Text */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  :focus-visible {
+    outline-width: 3px;
+    outline-style: solid;
+  }
+  
+  button,
+  input,
+  textarea,
+  select {
+    border-width: 2px;
+  }
+  
+  /* Increase contrast for text */
+  body {
+    color: var(--color-text-primary, #000);
+    background: var(--color-background, #fff);
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Focus Within for Complex Components */
+.calendar-container:focus-within,
+.settings-panel:focus-within,
+.phase-detail:focus-within {
+  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+}
+
+/* Keyboard Navigation Indicators */
+.keyboard-navigating button:hover {
+  background-color: transparent;
+}
+
+.keyboard-navigating .hover\:bg-gray-50:hover {
+  background-color: transparent;
+}
+
+/* High Contrast Button Styles */
+.high-contrast button {
+  border: 2px solid currentColor;
+  background: transparent;
+  color: var(--color-text-primary);
+}
+
+.high-contrast button:hover,
+.high-contrast button:focus {
+  background: var(--color-text-primary);
+  color: var(--color-background);
+}
+
+/* Ensure Interactive Elements Have Minimum Size */
+button,
+a,
+input[type="checkbox"],
+input[type="radio"] {
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Small buttons need padding adjustment */
+button.small {
+  min-width: 36px;
+  min-height: 36px;
+  padding: 0.5rem;
+}
+
+/* Focus indicator for tab navigation */
+[role="tablist"] button[aria-selected="true"] {
+  position: relative;
+}
+
+[role="tablist"] button:focus-visible::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--color-primary, #8B5CF6);
+}
+
+/* Announcements for Screen Readers */
+[role="status"],
+[role="alert"],
+[aria-live] {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+/* Focus trap container */
+[data-focus-trap] {
+  position: relative;
+}
+
+/* Ensure proper contrast for disabled elements */
+:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Link underlines for better visibility */
+a:not(.no-underline) {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
+a:not(.no-underline):hover {
+  text-decoration-thickness: 2px;
+}
+
+/* Skip Link Styles */
+.skip-link {
+  position: absolute;
+  left: -10000px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  background: var(--color-primary, #8B5CF6);
+  color: white;
+  padding: 0.5rem 1rem;
+  text-decoration: none;
+  border-radius: 4px;
+  z-index: 999;
+}
+
+.skip-link:focus {
+  position: absolute;
+  left: 6px;
+  top: 6px;
+  width: auto;
+  height: auto;
+  overflow: auto;
+}
+
+/* Manual High Contrast Mode */
+body.high-contrast {
+  --color-primary: #0000FF;
+  --color-primary-light: #4040FF;
+  --color-primary-dark: #000080;
+  --color-background: #FFFFFF;
+  --color-surface: #F0F0F0;
+  --color-border: #000000;
+  --color-text-primary: #000000;
+  --color-text-secondary: #404040;
+  --color-text-muted: #606060;
+  --color-error: #FF0000;
+  --color-warning: #FF8000;
+  --color-success: #008000;
+  --color-info: #0000FF;
+}
+
+body.high-contrast * {
+  /* Stronger borders */
+  border-color: var(--color-border) !important;
+}
+
+body.high-contrast button,
+body.high-contrast [role="button"],
+body.high-contrast [role="tab"],
+body.high-contrast input,
+body.high-contrast select,
+body.high-contrast textarea {
+  border: 2px solid var(--color-border) !important;
+}
+
+body.high-contrast :focus-visible {
+  outline: 3px solid var(--color-primary) !important;
+  outline-offset: 2px !important;
+}
+
+/* Ensure text has sufficient contrast */
+body.high-contrast .text-text-secondary,
+body.high-contrast .text-text-muted {
+  color: var(--color-text-primary) !important;
+  opacity: 0.8;
+}
+
+/* High contrast dark mode */
+@media (prefers-color-scheme: dark) {
+  body.high-contrast {
+    --color-primary: #00FFFF;
+    --color-primary-light: #80FFFF;
+    --color-primary-dark: #008080;
+    --color-background: #000000;
+    --color-surface: #1A1A1A;
+    --color-border: #FFFFFF;
+    --color-text-primary: #FFFFFF;
+    --color-text-secondary: #C0C0C0;
+    --color-text-muted: #A0A0A0;
+    --color-error: #FF4040;
+    --color-warning: #FFFF00;
+    --color-success: #00FF00;
+    --color-info: #00FFFF;
+  }
+}

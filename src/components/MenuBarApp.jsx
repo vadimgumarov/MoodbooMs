@@ -11,6 +11,8 @@ import { modeContent, getRandomPhrase, resetPhraseTracking, getUIText } from '..
 import { useMode, MODES } from '../core/contexts/SimpleModeContext';
 import { calculateFertilityPercentage } from '../utils/phaseDetection';
 import { CYCLE, DEBOUNCE, TABS, DEFAULT_PREFERENCES } from '../constants';
+import { announceToScreenReader, getPhaseAriaLabel } from '../utils/accessibility';
+import { useKeyboardNavigation } from '../hooks/useKeyboardNavigation';
 
 // Icon mapping for food items
 const foodIconMap = {
@@ -152,6 +154,13 @@ const MenuBarApp = () => {
   
   // Use ref to track previous phase to prevent unnecessary updates
   const previousPhaseRef = useRef('');
+  
+  // Enable keyboard navigation for tabs
+  useKeyboardNavigation(
+    [TABS.MOOD, TABS.CALENDAR, TABS.HISTORY, TABS.SETTINGS],
+    activeTab,
+    setActiveTab
+  );
 
   // Load saved data on mount
   useEffect(() => {
@@ -233,6 +242,13 @@ const MenuBarApp = () => {
         if (previousPhaseRef.current !== phase.phase) {
           previousPhaseRef.current = phase.phase;
           setCurrentPhase(phase);
+          
+          // Announce phase change to screen readers
+          const currentDay = calculateCurrentDay(
+            testMode ? new Date(new Date().getTime() - testDays * 24 * 60 * 60 * 1000) : cycleData.startDate,
+            new Date()
+          );
+          announceToScreenReader(getPhaseAriaLabel(phase.phase, currentDay));
           
           // Update tray icon via unified API
           if (window.electronAPI && window.electronAPI.tray) {
@@ -500,14 +516,19 @@ const MenuBarApp = () => {
   // Regular Queen mode UI
   return (
     <div className="responsive-container bg-background">
+      {/* Skip to content link for screen readers */}
+      <a href="#main-content" className="skip-link">Skip to main content</a>
       <div className="p-4">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-heading text-text-primary">MoodbooM</h2>
           <div className="flex items-center gap-3">
             {/* Queen/King Mode Toggle */}
-            <label className={`flex items-center gap-2 ${isSwitching ? 'cursor-wait opacity-50' : 'cursor-pointer'}`}>
-              <span className="text-tiny text-text-secondary">{isKingMode ? 'King' : 'Queen'}</span>
-            <div className="relative">
+            <label 
+              className={`flex items-center gap-2 ${isSwitching ? 'cursor-wait opacity-50' : 'cursor-pointer'}`}
+              aria-label={`Mode toggle. Currently in ${isKingMode ? 'King' : 'Queen'} mode`}
+            >
+              <span className="text-tiny text-text-secondary" aria-hidden="true">{isKingMode ? 'King' : 'Queen'}</span>
+            <div className="relative" role="switch" aria-checked={isKingMode}>
               <input
                 type="checkbox"
                 checked={isKingMode}
@@ -515,10 +536,12 @@ const MenuBarApp = () => {
                   e.stopPropagation();
                   if (!isSwitching) {
                     toggleMode();
+                    announceToScreenReader(`Switched to ${!isKingMode ? 'King' : 'Queen'} mode`);
                   }
                 }}
                 disabled={isSwitching}
                 className="sr-only"
+                aria-label="Toggle between Queen and King mode"
               />
               <div className={`block w-10 h-6 rounded-full transition-colors ${
                 isKingMode ? 'bg-primary' : 'bg-border'
@@ -537,6 +560,7 @@ const MenuBarApp = () => {
             }}
             className="touch-target p-1.5 text-text-muted hover:text-text-primary hover:bg-surface rounded-lg transition-colors"
             title="Quit MoodbooM"
+            aria-label="Close application"
           >
             <X className="w-4 h-4" />
           </button>
@@ -544,9 +568,14 @@ const MenuBarApp = () => {
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex mb-4 bg-surface rounded-lg p-1">
+        <div className="flex mb-4 bg-surface rounded-lg p-1" role="tablist" aria-label="Navigation tabs" aria-orientation="horizontal">
           <button
             onClick={() => setActiveTab(TABS.MOOD)}
+            role="tab"
+            aria-selected={activeTab === TABS.MOOD}
+            aria-controls="mood-panel"
+            id="mood-tab"
+            tabIndex={activeTab === TABS.MOOD ? 0 : -1}
             className={`touch-target flex-1 py-2 px-3 rounded-md transition-colors text-small ${
               activeTab === 'mood' 
                 ? 'bg-background shadow-sm' 
@@ -557,6 +586,11 @@ const MenuBarApp = () => {
           </button>
           <button
             onClick={() => setActiveTab(TABS.CALENDAR)}
+            role="tab"
+            aria-selected={activeTab === TABS.CALENDAR}
+            aria-controls="calendar-panel"
+            id="calendar-tab"
+            tabIndex={activeTab === TABS.CALENDAR ? 0 : -1}
             className={`touch-target flex-1 py-2 px-3 rounded-md transition-colors text-small ${
               activeTab === 'calendar' 
                 ? 'bg-background shadow-sm' 
@@ -567,6 +601,11 @@ const MenuBarApp = () => {
           </button>
           <button
             onClick={() => setActiveTab(TABS.HISTORY)}
+            role="tab"
+            aria-selected={activeTab === TABS.HISTORY}
+            aria-controls="history-panel"
+            id="history-tab"
+            tabIndex={activeTab === TABS.HISTORY ? 0 : -1}
             className={`touch-target flex-1 py-2 px-3 rounded-md transition-colors text-small ${
               activeTab === 'history' 
                 ? 'bg-background shadow-sm' 
@@ -577,6 +616,12 @@ const MenuBarApp = () => {
           </button>
           <button
             onClick={() => setActiveTab(TABS.SETTINGS)}
+            role="tab"
+            aria-selected={activeTab === TABS.SETTINGS}
+            aria-controls="settings-panel"
+            id="settings-tab"
+            aria-label="Settings"
+            tabIndex={activeTab === TABS.SETTINGS ? 0 : -1}
             className={`touch-target py-2 px-3 rounded-md transition-colors text-small ${
               activeTab === 'settings' 
                 ? 'bg-background shadow-sm' 
@@ -587,8 +632,9 @@ const MenuBarApp = () => {
           </button>
         </div>
 
+        <main id="main-content">
         {activeTab === 'mood' ? (
-          <div className="space-y-4">
+          <div className="space-y-4" role="tabpanel" id="mood-panel" aria-labelledby="mood-tab" tabIndex={0}>
           <StatusCard 
             cycleData={cycleData}
             currentPhase={currentPhase}
@@ -615,6 +661,7 @@ const MenuBarApp = () => {
               value={cycleData.startDate.toISOString().split('T')[0]}
               onChange={(e) => handleDateChange(new Date(e.target.value))}
               className="flex-1 p-2 border rounded"
+              aria-label="Cycle start date"
             />
           </div>
 
@@ -633,8 +680,12 @@ const MenuBarApp = () => {
                   value={testDays}
                   onChange={(e) => setTestDays(parseInt(e.target.value))}
                   className="flex-1"
+                  aria-label="Test day slider"
+                  aria-valuemin="0"
+                  aria-valuemax={cycleData.cycleLength}
+                  aria-valuenow={testDays}
                 />
-                <span className="w-8 text-right text-small font-medium">{testDays}</span>
+                <span className="w-8 text-right text-small font-medium" aria-live="polite">{testDays}</span>
               </div>
               <p className="text-tiny text-text-muted mt-1">
                 Showing day {testDays} of your cycle (actual: day {calculateCurrentDay(cycleData.startDate, new Date())})
@@ -644,7 +695,7 @@ const MenuBarApp = () => {
 
         </div>
         ) : activeTab === 'calendar' ? (
-          <div className="space-y-4">
+          <div className="space-y-4" role="tabpanel" id="calendar-panel" aria-labelledby="calendar-tab" tabIndex={0}>
             <Calendar 
               cycleStartDate={testMode 
                 ? new Date(new Date().getTime() - testDays * 24 * 60 * 60 * 1000) 
@@ -667,19 +718,24 @@ const MenuBarApp = () => {
             )}
           </div>
         ) : activeTab === 'history' ? (
-          <HistoryView 
-            cycleHistory={cycleHistory}
-            currentCycleStart={cycleData.startDate}
-            onPeriodStart={handlePeriodStart}
-          />
+          <div role="tabpanel" id="history-panel" aria-labelledby="history-tab" tabIndex={0}>
+            <HistoryView 
+              cycleHistory={cycleHistory}
+              currentCycleStart={cycleData.startDate}
+              onPeriodStart={handlePeriodStart}
+            />
+          </div>
         ) : activeTab === 'settings' ? (
-          <SettingsPanel
-            cycleData={cycleData}
-            preferences={preferences}
-            onSave={handleSettingsSave}
-            onCancel={() => setActiveTab('mood')}
-          />
+          <div role="tabpanel" id="settings-panel" aria-labelledby="settings-tab" tabIndex={0}>
+            <SettingsPanel
+              cycleData={cycleData}
+              preferences={preferences}
+              onSave={handleSettingsSave}
+              onCancel={() => setActiveTab('mood')}
+            />
+          </div>
         ) : null}
+        </main>
       </div>
     </div>
   );
