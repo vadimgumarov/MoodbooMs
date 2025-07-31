@@ -169,6 +169,11 @@ grep -r "bg-\|text-\|border-" src/ | grep -E "(red|green|yellow|pink|blue|indigo
 - PhaseDetail.jsx
 - HistoryView.jsx
 
+### UI Stability When Mode Switching
+**Improvement**: After implementing CSS variable-based theming and accessibility improvements, the UI no longer shifts or jumps when switching between Queen and King modes
+**Cause**: Consistent styling with CSS variables, proper ARIA attributes, and stable component structure
+**Benefit**: Smoother user experience and better visual continuity
+
 ## Debugging Methodology: 5 Whys
 
 When facing persistent issues (like CSS not updating), use the 5 Whys approach:
@@ -261,6 +266,55 @@ The app uses a secure Electron architecture with:
 - `dialog.*` - File dialogs
 - `updates.*` - Auto-updater (future)
 - `dev.*` - Development tools
+
+## Accessibility Architecture
+
+The app implements comprehensive accessibility features following WCAG 2.1 AA standards:
+
+### Keyboard Navigation
+- **Tab Navigation**: Arrow keys, Home, and End keys navigate between tabs
+- **Focus Management**: Proper tabindex management (0 for active, -1 for inactive)
+- **Keyboard Hook**: `useKeyboardNavigation` hook handles all keyboard interactions
+- **Skip Navigation**: Skip link allows quick access to main content
+
+### Screen Reader Support
+- **ARIA Labels**: All interactive elements have descriptive labels
+- **ARIA Roles**: Proper semantic roles (tablist, tab, tabpanel, switch)
+- **Live Regions**: Mode changes announced via `aria-live` regions
+- **Announcements**: `announceToScreenReader` utility for dynamic updates
+
+### Visual Accessibility
+- **Focus Indicators**: High contrast focus outlines for all interactive elements
+- **High Contrast Mode**: Manual toggle in settings with persistent storage
+  - Light mode: Blue primary (#0000FF) on white background
+  - Dark mode: Cyan primary (#00FFFF) on black background
+  - Strong borders and enhanced contrast ratios
+- **Reduced Motion**: Respects `prefers-reduced-motion` system preference
+
+### Implementation Details
+- **Accessibility Utils**: `src/utils/accessibility.js` provides helper functions
+- **Styles**: `src/styles/accessibility.css` contains all accessibility styles
+- **Testing**: `src/tests/accessibility.test.js` uses jest-axe for compliance
+- **Components**: `HighContrastToggle` component for mode switching
+
+### Key Files
+- `/src/hooks/useKeyboardNavigation.js` - Keyboard navigation logic
+- `/src/utils/accessibility.js` - Screen reader announcements, contrast checking
+- `/src/styles/accessibility.css` - Focus indicators, high contrast styles
+- `/src/components/HighContrastToggle.jsx` - High contrast mode toggle
+
+### Testing Accessibility
+```bash
+# Run accessibility tests
+npm test -- --testNamePattern="accessibility"
+
+# Manual testing checklist:
+- [ ] Tab through all controls
+- [ ] Use arrow keys in tab navigation
+- [ ] Test with screen reader (VoiceOver on macOS)
+- [ ] Enable high contrast mode
+- [ ] Check focus indicators
+```
 
 ## Architecture Decisions & Rationale
 

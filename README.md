@@ -46,6 +46,7 @@ Currently in development. Distribution packages coming soon via Epic #43.
 - 💬 **Smart Status Messages** - Humorous phrases for your current phase (✅ Implemented)
 - 💾 **Data Persistence** - Your data saves automatically between sessions (✅ Implemented)
 - 🔄 **Period Adjustment** - Mark new period start for irregular cycles (✅ Implemented)
+- ♿ **Accessibility** - Full keyboard navigation, screen reader support, high contrast mode (✅ Implemented)
 - 🔔 **Optional Notifications** - Customizable reminders and alerts (Planned)
 
 ### Queen/King Mode System
