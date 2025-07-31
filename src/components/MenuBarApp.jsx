@@ -13,6 +13,7 @@ import { calculateFertilityPercentage } from '../utils/phaseDetection';
 import { CYCLE, DEBOUNCE, TABS, DEFAULT_PREFERENCES } from '../constants';
 import { announceToScreenReader, getPhaseAriaLabel } from '../utils/accessibility';
 import { useKeyboardNavigation } from '../hooks/useKeyboardNavigation';
+import { LoadingSpinner, StatusCardSkeleton, Tooltip, ErrorMessage, SuccessMessage } from './feedback';
 
 // Icon mapping for food items
 const foodIconMap = {
@@ -151,6 +152,8 @@ const MenuBarApp = () => {
     theme: 'auto',
     badassMode: false // Keep for backward compatibility
   });
+  const [saveError, setSaveError] = useState(null);
+  const [saveSuccess, setSaveSuccess] = useState(null);
   
   // Use ref to track previous phase to prevent unnecessary updates
   const previousPhaseRef = useRef('');
@@ -416,9 +419,15 @@ const MenuBarApp = () => {
 
   if (isLoading) {
     return (
-      <div className="responsive-container">
-        <div className="p-4 text-center">
-          <p>Loading...</p>
+      <div className="responsive-container bg-background">
+        <div className="p-4">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <LoadingSpinner size="small" inline />
+              <h2 className="text-heading text-text-primary">MoodbooM</h2>
+            </div>
+          </div>
+          <StatusCardSkeleton />
         </div>
       </div>
     );
@@ -523,11 +532,12 @@ const MenuBarApp = () => {
           <h2 className="text-heading text-text-primary">MoodbooM</h2>
           <div className="flex items-center gap-3">
             {/* Queen/King Mode Toggle */}
-            <label 
-              className={`flex items-center gap-2 ${isSwitching ? 'cursor-wait opacity-50' : 'cursor-pointer'}`}
-              aria-label={`Mode toggle. Currently in ${isKingMode ? 'King' : 'Queen'} mode`}
-            >
-              <span className="text-tiny text-text-secondary" aria-hidden="true">{isKingMode ? 'King' : 'Queen'}</span>
+            <Tooltip content={isKingMode ? "Switch to Queen mode (your perspective)" : "Switch to King mode (partner's perspective)"}>
+              <label 
+                className={`flex items-center gap-2 ${isSwitching ? 'cursor-wait opacity-50' : 'cursor-pointer'}`}
+                aria-label={`Mode toggle. Currently in ${isKingMode ? 'King' : 'Queen'} mode`}
+              >
+                <span className="text-tiny text-text-secondary" aria-hidden="true">{isKingMode ? 'King' : 'Queen'}</span>
             <div className="relative" role="switch" aria-checked={isKingMode}>
               <input
                 type="checkbox"
@@ -550,20 +560,22 @@ const MenuBarApp = () => {
                 isKingMode ? 'translate-x-4' : ''
               }`}></div>
             </div>
-          </label>
+              </label>
+            </Tooltip>
           {/* Close Button */}
-          <button
-            onClick={() => {
-              if (window.electronAPI && window.electronAPI.app) {
-                window.electronAPI.app.quit();
-              }
-            }}
-            className="touch-target p-1.5 text-text-muted hover:text-text-primary hover:bg-surface rounded-lg transition-colors"
-            title="Quit MoodbooM"
-            aria-label="Close application"
-          >
-            <X className="w-4 h-4" />
-          </button>
+          <Tooltip content="Close MoodbooM" position="left">
+            <button
+              onClick={() => {
+                if (window.electronAPI && window.electronAPI.app) {
+                  window.electronAPI.app.quit();
+                }
+              }}
+              className="touch-target p-1.5 text-text-muted hover:text-text-primary hover:bg-surface rounded-lg transition-colors"
+              aria-label="Close application"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </Tooltip>
           </div>
         </div>
 

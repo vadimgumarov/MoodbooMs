@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { CYCLE, DEFAULT_PREFERENCES } from '../constants';
 import HighContrastToggle from './HighContrastToggle';
+import { SuccessMessage, ErrorMessage, LoadingSpinner, Tooltip } from './feedback';
 
 const SettingsPanel = ({ 
   cycleData, 
@@ -24,6 +25,8 @@ const SettingsPanel = ({
   const [testMode, setTestMode] = useState(preferences?.testMode || false);
   const [highContrast, setHighContrast] = useState(preferences?.highContrast || false);
   const [hasChanges, setHasChanges] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saveStatus, setSaveStatus] = useState(null); // { type: 'success' | 'error', message: string }
   
   // Track if any values have changed
   useEffect(() => {
@@ -35,19 +38,41 @@ const SettingsPanel = ({
     setHasChanges(changed);
   }, [cycleLength, notifications, testMode, cycleData, preferences]);
 
-  const handleSave = () => {
-    onSave({
-      cycleData: {
-        ...cycleData,
-        cycleLength: cycleLength
-      },
-      preferences: {
-        ...preferences,
-        notifications,
-        testMode,
-        highContrast
-      }
-    });
+  const handleSave = async () => {
+    setSaving(true);
+    setSaveStatus(null);
+    
+    try {
+      await onSave({
+        cycleData: {
+          ...cycleData,
+          cycleLength: cycleLength
+        },
+        preferences: {
+          ...preferences,
+          notifications,
+          testMode,
+          highContrast
+        }
+      });
+      
+      setSaveStatus({
+        type: 'success',
+        message: 'Settings saved successfully!'
+      });
+      
+      // Clear success message after delay
+      setTimeout(() => {
+        setSaveStatus(null);
+      }, 3000);
+    } catch (error) {
+      setSaveStatus({
+        type: 'error',
+        message: 'Failed to save settings. Please try again.'
+      });
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleReset = () => {
@@ -87,7 +112,9 @@ const SettingsPanel = ({
           <div className="pl-6 space-y-3">
             <div>
               <label className="block text-small text-gray-600 mb-2">
-                Cycle Length: {cycleLength} days
+                <Tooltip content="Average menstrual cycle length varies from 21-35 days">
+                  <span>Cycle Length: {cycleLength} days</span>
+                </Tooltip>
               </label>
               <div className="flex items-center gap-3">
                 <span className="text-small text-gray-500">{CYCLE.MIN_LENGTH}</span>
@@ -176,6 +203,23 @@ const SettingsPanel = ({
 
       {/* Footer */}
       <div className="border-t p-4">
+        {saveStatus && (
+          <div className="mb-3">
+            {saveStatus.type === 'success' ? (
+              <SuccessMessage 
+                message={saveStatus.message}
+                onDismiss={() => setSaveStatus(null)}
+                autoHide={true}
+              />
+            ) : (
+              <ErrorMessage
+                error={saveStatus.message}
+                onDismiss={() => setSaveStatus(null)}
+                onRetry={handleSave}
+              />
+            )}
+          </div>
+        )}
         {hasChanges && (
           <div className="flex items-center gap-2 text-amber-600 text-small mb-3">
             <AlertCircle className="w-4 h-4" />
@@ -193,11 +237,17 @@ const SettingsPanel = ({
           </button>
           <button
             onClick={handleSave}
-            disabled={!hasChanges}
+            disabled={!hasChanges || saving}
             className="flex-1 px-4 py-2 bg-indigo-500 text-white rounded hover:bg-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
           >
-            <Save className="w-4 h-4" />
-            Save Changes
+            {saving ? (
+              <LoadingSpinner size="small" inline />
+            ) : (
+              <>
+                <Save className="w-4 h-4" />
+                Save Changes
+              </>
+            )}
           </button>
         </div>
       </div>

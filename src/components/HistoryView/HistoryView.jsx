@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { format, differenceInDays } from 'date-fns';
 import { 
   Calendar, 
@@ -12,8 +12,12 @@ import {
   getRecentCycles,
   predictNextCycleStart 
 } from '../../utils/cycleHistory';
+import { useFeedback } from '../../core/contexts/FeedbackContext';
+import { LoadingSpinner } from '../feedback';
 
 const HistoryView = ({ cycleHistory, currentCycleStart, onPeriodStart, isBadassMode = true }) => {
+  const [isMarking, setIsMarking] = useState(false);
+  const { showSuccess, showError } = useFeedback();
   const stats = calculateCycleStatistics(cycleHistory);
   const recentCycles = getRecentCycles(cycleHistory, 6);
   const nextPredicted = currentCycleStart ? 
@@ -211,10 +215,25 @@ const HistoryView = ({ cycleHistory, currentCycleStart, onPeriodStart, isBadassM
       {cycleHistory.length > 0 && (
         <div className="pt-4">
           <button
-            onClick={onPeriodStart}
-            className="w-full py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors font-medium"
+            onClick={async () => {
+              setIsMarking(true);
+              try {
+                await onPeriodStart();
+                showSuccess('Period start marked successfully!');
+              } catch (error) {
+                showError('Failed to mark period start. Please try again.');
+              } finally {
+                setIsMarking(false);
+              }
+            }}
+            disabled={isMarking}
+            className="w-full py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium flex items-center justify-center gap-2"
           >
-            Mark New Period Start
+            {isMarking ? (
+              <LoadingSpinner size="small" inline />
+            ) : (
+              'Mark New Period Start'
+            )}
           </button>
           <p className="text-tiny text-gray-500 text-center mt-2">
             Use this when your period starts earlier or later than expected
