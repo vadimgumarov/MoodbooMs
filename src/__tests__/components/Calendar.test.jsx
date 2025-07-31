@@ -4,7 +4,7 @@ import { format, startOfMonth, endOfMonth } from 'date-fns';
 import Calendar from '../Calendar';
 
 // Mock the cycle calculations
-jest.mock('../../../utils/cycleCalculations', () => ({
+jest.mock('../../../core/utils/cycleCalculations', () => ({
   calculateCurrentDay: jest.fn((startDate, currentDate, cycleLength) => {
     const msPerDay = 24 * 60 * 60 * 1000;
     const daysDiff = Math.floor((currentDate - startDate) / msPerDay);

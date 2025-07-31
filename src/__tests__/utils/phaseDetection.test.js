@@ -4,7 +4,7 @@ import {
   calculateDaysUntilNextPhase,
   getPhaseProgress,
   getPredictionConfidence
-} from '../phaseDetection';
+} from '../../utils/phaseDetection';
 
 describe('Phase Detection', () => {
   describe('getPhaseInfo', () => {

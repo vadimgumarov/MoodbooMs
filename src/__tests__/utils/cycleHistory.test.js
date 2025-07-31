@@ -6,7 +6,7 @@ import {
   calculateCycleStatistics,
   getRecentCycles,
   predictNextCycleStart
-} from '../cycleHistory';
+} from '../../core/utils/cycleHistory';
 
 describe('Cycle History Utilities', () => {
   describe('createCycleRecord', () => {

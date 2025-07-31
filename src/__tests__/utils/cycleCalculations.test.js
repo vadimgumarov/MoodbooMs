@@ -8,7 +8,7 @@ import {
   calculateAverageCycleLength,
   getCycleProgress,
   getDaysUntilNextPeriod
-} from '../cycleCalculations';
+} from '../../core/utils/cycleCalculations';
 
 describe('Cycle Calculations', () => {
   describe('calculateCurrentDay', () => {
