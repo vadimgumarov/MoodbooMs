@@ -67,6 +67,31 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 **Fix**: Wrap theme application in try-catch and check document.documentElement exists
 **Verify**: No "Cannot read property 'style' of null" errors
 
+### Duplicate Theme Files Crash (July 2025)
+**Symptoms**: 
+- App crashes immediately after theme changes
+- Import errors: "Cannot find module '../../modes/queen/theme'"
+- Previously working app suddenly crashes after "fixing" themes
+**Cause**: 
+- Creating new theme.js files in mode root directories when config/theme.js already exists
+- Results in: `/modes/queen/theme.js` AND `/modes/queen/config/theme.js` existing
+- Import statements pointing to wrong location
+**Fix**:
+1. Remove duplicate files: `rm src/modes/*/theme.js`
+2. Keep only the config subdirectory files: `/modes/*/config/theme.js`
+3. Update all imports to use config path:
+   ```javascript
+   // CORRECT
+   import { queenTheme } from '../../modes/queen/config/theme';
+   // WRONG - causes crash
+   import { queenTheme } from '../../modes/queen/theme';
+   ```
+**Prevention**: 
+- ALWAYS check existing file structure before creating new files
+- Use `ls -la src/modes/*/config/` to see current structure
+- Follow established patterns - theme files belong in config/ subdirectory
+**Verify**: No duplicate theme files exist: `find src/modes -name "theme.js" | grep -v config`
+
 ### Renderer Process Dies Every 5 Seconds
 **Symptoms**: 
 - Heartbeat shows "RENDERER PROCESS ALIVE" followed by "RENDERER PROCESS DIED - No heartbeat for 5 seconds"
@@ -217,6 +242,104 @@ Before stating "the app is working", verify ALL of the following:
    - Mode switching must work at least 3 times
    - No "Renderer dead" messages in last 60 seconds
 
+## Systematic Debugging Approach
+
+### When App Crashes - Follow This Process
+
+1. **Never Trust Initial Appearances**
+   - If logs show "React app loaded: true" - verify it's STILL running
+   - Check heartbeat continuously, not just once
+   - A single "Window show event" doesn't mean app is stable
+
+2. **Use Multiple Information Sources**
+   ```bash
+   # Check all these, not just one:
+   tail -f logs/menu-heartbeat.txt     # Real-time heartbeat
+   tail -30 logs/electron-*.log        # Electron process logs
+   tail -30 logs/app-*.log             # React app logs
+   tail -30 logs/crash-*.log           # Crash monitor logs
+   ps aux | grep -E "electron|npm"     # Process verification
+   ```
+
+3. **Identify Exact Error Timeline**
+   - Note WHEN app last worked (timestamp)
+   - Find FIRST error after that timestamp
+   - Look for pattern changes (e.g., "ALIVE" → "Renderer dead")
+
+4. **Think Before Acting**
+   - Read error messages completely
+   - Check CLAUDE.md for similar crashes
+   - Identify what changed recently (git diff)
+   - Consider module boundaries and import paths
+
+5. **Isolate the Problem**
+   - Start with minimal changes
+   - Test each change for 30+ seconds
+   - Use git stash to remove suspect changes
+   - Binary search: remove half the changes, test again
+
+6. **Verify Fixes Properly**
+   ```bash
+   # Wait at least 60 seconds before claiming success
+   sleep 60 && tail -5 logs/menu-heartbeat.txt
+   # Should show consistent "ALIVE: Main + Renderer"
+   ```
+
+### Common Debugging Mistakes to Avoid
+
+1. **Assuming App is Running Based on Old Logs**
+   - ❌ "React app loaded: true" at 01:04:17 doesn't mean it's still running at 01:10:00
+   - ✅ Always check CURRENT timestamps in heartbeat file
+
+2. **Not Reading Error Messages Completely**
+   - ❌ Seeing "initialized successfully" and ignoring later "RENDERER DIED" messages
+   - ✅ Read entire log sequence to understand what happened AFTER initialization
+
+3. **Making Multiple Changes at Once**
+   - ❌ Changing themes, colors, and file structure simultaneously
+   - ✅ Make ONE change, test for 60 seconds, then proceed
+
+4. **Creating New Files Instead of Modifying Existing**
+   - ❌ "I'll create a new theme.js to fix the theme"
+   - ✅ "Let me check what theme files already exist and modify those"
+
+5. **Not Using Git to Track Changes**
+   - ❌ Making changes without ability to revert
+   - ✅ Use `git diff` to see what changed, `git stash` to temporarily remove changes
+
+## CRITICAL DEVELOPMENT PATTERNS - PREVENT CRASHES
+
+### NEVER Create Duplicate Files
+**Problem**: Creating new files when similar ones exist causes import conflicts and crashes
+**Solution**: 
+- ALWAYS check existing structure first: `ls -la src/modes/*/config/`
+- NEVER create new theme.js if one exists - modify existing instead
+- Use `grep -r "filename" src/` to find existing files before creating new ones
+
+### File Modification Rules
+1. **Themes**: Always modify `/modes/{mode}/config/theme.js` - NEVER create new theme files
+2. **Colors**: Change colors IN PLACE in existing theme files
+3. **Components**: Edit existing components rather than creating duplicates
+4. **Imports**: Keep existing import paths - don't create new paths
+
+### Why This Matters
+- **Duplicate files** → Module resolution errors → App crashes
+- **New import paths** → Breaking existing code → Exit code 15
+- **Multiple theme files** → State conflicts → Renderer process dies
+- **Breaking patterns** → Race conditions → Immediate crashes
+
+### Before ANY File Creation
+1. Check if similar file exists: `find src/ -name "*similar*"`
+2. Check existing imports: `grep -r "import.*theme" src/`
+3. Follow existing architecture - config files go in `/config/` subdirectories
+4. Test changes for 30+ seconds before claiming success
+
+### Common Mistakes That Cause Crashes
+- Creating `/modes/queen/theme.js` when `/modes/queen/config/theme.js` exists
+- Adding new import paths instead of using established ones
+- Not following the modular architecture (files should be in config/ subdirectories)
+- Making changes without understanding existing patterns
+
 ## Project Overview
 
 MoodbooM is an Electron-based menubar application that tracks menstrual cycle phases with humor. It combines a React frontend with Electron to create a macOS menubar app that displays cycle phase information and mood messages.
@@ -226,6 +349,24 @@ MoodbooM is an Electron-based menubar application that tracks menstrual cycle ph
 - **Mode System**: Queen (female first-person) / King (partner warning system) modes
 - **Content**: 360+ unique mood messages and cravings per mode
 - **Architecture**: Modular Queen/King architecture with theme system
+
+### CRITICAL: Current File Structure (DO NOT DUPLICATE)
+```
+src/modes/
+├── queen/
+│   ├── config/
+│   │   ├── theme.js    ← MODIFY THIS for Queen theme changes
+│   │   ├── phrases.js  ← Queen mode messages
+│   │   └── personality.js
+│   └── components/     ← Queen-specific components
+└── king/
+    ├── config/
+    │   ├── theme.js    ← MODIFY THIS for King theme changes
+    │   ├── phrases.js  ← King mode messages
+    │   └── personality.js
+    └── components/     ← King-specific components
+```
+**NEVER create theme.js in /modes/queen/ or /modes/king/ root directories!**
 
 ## Security Architecture
 
@@ -309,6 +450,121 @@ npm test -- src/components/MenuBarApp.test.js
 # Run tests matching pattern
 npm test -- --testNamePattern="test name"
 ```
+
+## Architecture & Data Flow
+
+### High-Level Architecture
+```
+┌─────────────┐     IPC      ┌─────────────────┐
+│   Electron  │◄────────────►│  React App      │
+│  Main Process│              │  (Renderer)     │
+└──────┬──────┘              └────────┬────────┘
+       │                              │
+       ▼                              ▼
+┌─────────────┐              ┌─────────────────┐
+│ Tray Manager│              │ Mode System     │
+│ Store (data)│              │ (Queen/King)    │
+└─────────────┘              └─────────────────┘
+```
+
+### Component Hierarchy & Data Flow
+```
+App.js
+├── DesignSystemProvider
+│   └── SimpleModeProvider (mode state: queen/king)
+│       └── ThemeProvider (applies CSS variables)
+│           └── MenuBarApp (main logic)
+│               ├── StatusCard (phase display)
+│               ├── TabContent
+│               │   ├── Today (mood/cravings)
+│               │   ├── Calendar
+│               │   └── History
+│               └── ModeToggle (Queen ↔ King)
+```
+
+### Critical Data Flows (DO NOT BREAK)
+
+1. **Mode Switching Flow**:
+   ```
+   User Toggle → SimpleModeContext → Store → ThemeProvider → CSS Variables → UI Update
+                                            └→ MenuBarApp → Phase Names → Tray Icon
+   ```
+
+2. **Phase Update Flow**:
+   ```
+   MenuBarApp calculates phase → IPC to main → TrayManager → Icon Update
+                              └→ StatusCard → Display Update
+   ```
+
+3. **Theme Application Flow**:
+   ```
+   Mode Change → ThemeContext loads theme → Apply CSS Variables → Components re-render
+   ```
+
+### File Import Hierarchy (MUST FOLLOW)
+```
+NEVER circular imports! Follow this hierarchy:
+
+Level 1: Core utilities (no imports from app)
+- /core/themes/types.js
+- /utils/cycleCalculations.js
+
+Level 2: Contexts (import from Level 1 only)
+- /core/contexts/SimpleModeContext.js
+- /core/contexts/ThemeContext.js
+
+Level 3: Mode configs (import from Level 1-2)
+- /modes/queen/config/theme.js
+- /modes/king/config/theme.js
+
+Level 4: Components (import from Level 1-3)
+- /components/MenuBarApp.jsx
+- /modes/*/components/*
+```
+
+### State Management Rules
+1. **Mode State**: ONLY in SimpleModeContext
+2. **Theme State**: ONLY in ThemeContext  
+3. **Cycle Data**: ONLY in MenuBarApp (passed down as props)
+4. **Preferences**: Store via IPC, read on mount
+
+### DO NOT:
+- Create new state management systems
+- Add mode state to components (use context)
+- Create new theme files (modify existing)
+- Break the import hierarchy
+- Add circular dependencies
+
+### Module Boundaries (RESPECT THESE)
+
+1. **Mode Modules** (`/modes/queen/`, `/modes/king/`):
+   - Self-contained with their own config/ and components/
+   - NEVER add files to root - use subdirectories
+   - Config files: theme.js, phrases.js, personality.js
+   - Component files: specific to that mode
+
+2. **Core Module** (`/core/`):
+   - Shared utilities and contexts
+   - Mode-agnostic code only
+   - No direct mode references
+
+3. **Theme Files Location**:
+   ```
+   CORRECT: /modes/queen/config/theme.js
+   WRONG:   /modes/queen/theme.js
+   
+   CORRECT: /modes/king/config/theme.js  
+   WRONG:   /modes/king/theme.js
+   ```
+
+4. **Import Paths** (use existing, don't create new):
+   ```javascript
+   // CORRECT - follows established pattern
+   import { queenTheme } from '../../modes/queen/config/theme';
+   
+   // WRONG - creates new pattern
+   import { queenTheme } from '../../modes/queen/theme';
+   ```
 
 ## Architecture
 
