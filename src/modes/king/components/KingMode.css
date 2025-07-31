@@ -1,36 +1,25 @@
 /* King Mode Styles - Partner Warning System Theme */
 
-/* Root King Mode Variables */
+/* Root King Mode Variables - Use theme colors from ThemeContext */
 :root {
-  --king-primary: #FF6B6B;
-  --king-secondary: #4ECDC4;
-  --king-accent: #FFA07A;
-  --king-danger: #DC2626;
-  --king-warning: #F59E0B;
-  --king-safe: #10B981;
-  --king-bg: #1F2937;
-  --king-surface: #374151;
-  --king-card: #4B5563;
-  --king-border: #6B7280;
-  --king-text: #F9FAFB;
-  --king-text-secondary: #D1D5DB;
+  --king-primary: var(--color-primary);
+  --king-secondary: var(--color-primary-light);
+  --king-accent: var(--color-accent);
+  --king-danger: var(--color-error);
+  --king-warning: var(--color-warning);
+  --king-safe: var(--color-success);
+  --king-bg: var(--color-background);
+  --king-surface: var(--color-surface);
+  --king-card: var(--color-surface);
+  --king-border: var(--color-border);
+  --king-text: var(--color-text-primary);
+  --king-text-secondary: var(--color-text-secondary);
   --king-font-tactical: 'SF Pro Display', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
 }
 
-/* King Mode App Container */
+/* King Mode App Container - Inherits from root */
 .king-mode-app {
-  --king-primary: #FF6B6B;
-  --king-secondary: #4ECDC4;
-  --king-accent: #FFA07A;
-  --king-danger: #DC2626;
-  --king-warning: #F59E0B;
-  --king-safe: #10B981;
-  --king-bg: #1F2937;
-  --king-surface: #374151;
-  --king-card: #4B5563;
-  --king-border: #6B7280;
-  --king-text: #F9FAFB;
-  --king-text-secondary: #D1D5DB;
+  /* Colors now inherit from CSS variables set by ThemeContext */
 }
 
 /* King Mode Wrapper */

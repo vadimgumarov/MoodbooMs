@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import SettingsPanel from './SettingsPanel';
+import SettingsPanel from '../../components/SettingsPanel';
 
 describe('SettingsPanel', () => {
   const mockCycleData = {

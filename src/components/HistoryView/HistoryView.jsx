@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { format, differenceInDays } from 'date-fns';
 import { 
   Calendar, 
@@ -12,8 +12,12 @@ import {
   getRecentCycles,
   predictNextCycleStart 
 } from '../../utils/cycleHistory';
+import { useFeedback } from '../../core/contexts/FeedbackContext';
+import { LoadingSpinner } from '../feedback';
 
 const HistoryView = ({ cycleHistory, currentCycleStart, onPeriodStart, isBadassMode = true }) => {
+  const [isMarking, setIsMarking] = useState(false);
+  const { showSuccess, showError } = useFeedback();
   const stats = calculateCycleStatistics(cycleHistory);
   const recentCycles = getRecentCycles(cycleHistory, 6);
   const nextPredicted = currentCycleStart ? 
@@ -22,15 +26,15 @@ const HistoryView = ({ cycleHistory, currentCycleStart, onPeriodStart, isBadassM
   const getRegularityColor = (regularity) => {
     switch (regularity) {
       case 'very-regular':
-        return 'text-green-600';
+        return 'text-success';
       case 'regular':
-        return 'text-green-500';
+        return 'text-success';
       case 'somewhat-irregular':
-        return 'text-yellow-600';
+        return 'text-warning';
       case 'irregular':
-        return 'text-red-600';
+        return 'text-error';
       default:
-        return 'text-gray-600';
+        return 'text-secondary';
     }
   };
 
@@ -67,37 +71,37 @@ const HistoryView = ({ cycleHistory, currentCycleStart, onPeriodStart, isBadassM
   return (
     <div className="p-4 space-y-4">
       {/* Statistics Overview */}
-      <div className="bg-gray-50 rounded-lg p-4">
-        <h3 className="text-lg font-semibold mb-3 flex items-center">
+      <div className="bg-surface rounded-lg p-4">
+        <h3 className="text-heading font-semibold mb-3 flex items-center">
           <BarChart2 className="w-5 h-5 mr-2" />
           {isBadassMode ? "Her Cycle Stats" : "My Stats"}
         </h3>
         
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <p className="text-sm text-gray-600">{isBadassMode ? "Average Duration" : "My Average"}</p>
-            <p className="text-xl font-medium">
+            <p className="text-small text-secondary">{isBadassMode ? "Average Duration" : "My Average"}</p>
+            <p className="text-title font-medium">
               {stats.averageLength || '--'} days
             </p>
           </div>
           
           <div>
-            <p className="text-sm text-gray-600">{isBadassMode ? "Predictability" : "My Pattern"}</p>
-            <p className={`text-lg font-medium ${getRegularityColor(stats.cycleRegularity)}`}>
+            <p className="text-small text-secondary">{isBadassMode ? "Predictability" : "My Pattern"}</p>
+            <p className={`text-heading font-medium ${getRegularityColor(stats.cycleRegularity)}`}>
               {getRegularityText(stats.cycleRegularity)}
             </p>
           </div>
           
           <div>
-            <p className="text-sm text-gray-600">{isBadassMode ? "Shortest Cycle" : "Quickest Hell"}</p>
-            <p className="text-lg">
+            <p className="text-small text-secondary">{isBadassMode ? "Shortest Cycle" : "Quickest Hell"}</p>
+            <p className="text-heading">
               {stats.shortestCycle || '--'} days
             </p>
           </div>
           
           <div>
-            <p className="text-sm text-gray-600">{isBadassMode ? "Longest Cycle" : "Longest Nightmare"}</p>
-            <p className="text-lg">
+            <p className="text-small text-secondary">{isBadassMode ? "Longest Cycle" : "Longest Nightmare"}</p>
+            <p className="text-heading">
               {stats.longestCycle || '--'} days
             </p>
           </div>
@@ -105,7 +109,7 @@ const HistoryView = ({ cycleHistory, currentCycleStart, onPeriodStart, isBadassM
 
         {stats.completedCycles > 0 && (
           <div className="mt-3 pt-3 border-t">
-            <p className="text-sm text-gray-600">
+            <p className="text-small text-gray-600">
               Based on {stats.completedCycles} completed cycles
               {stats.standardDeviation && ` (±${stats.standardDeviation} days)`}
             </p>
@@ -119,11 +123,11 @@ const HistoryView = ({ cycleHistory, currentCycleStart, onPeriodStart, isBadassM
           <div className="flex items-start space-x-2">
             <TrendingUp className="w-5 h-5 text-blue-600 mt-0.5" />
             <div className="flex-1">
-              <p className="text-sm font-medium text-blue-900">{isBadassMode ? "Next Code Red Alert" : "My Next Hell Week"}</p>
-              <p className="text-lg text-blue-800">
+              <p className="text-small font-medium text-blue-900">{isBadassMode ? "Next Code Red Alert" : "My Next Hell Week"}</p>
+              <p className="text-heading text-blue-800">
                 {format(nextPredicted, 'MMMM d, yyyy')}
               </p>
-              <p className="text-xs text-blue-700 mt-1">
+              <p className="text-tiny text-blue-700 mt-1">
                 In {differenceInDays(nextPredicted, new Date())} days
               </p>
             </div>
@@ -133,7 +137,7 @@ const HistoryView = ({ cycleHistory, currentCycleStart, onPeriodStart, isBadassM
 
       {/* Recent Cycles */}
       <div>
-        <h3 className="text-lg font-semibold mb-3 flex items-center">
+        <h3 className="text-heading font-semibold mb-3 flex items-center">
           <Calendar className="w-5 h-5 mr-2" />
           {isBadassMode ? "Recent Incidents" : "My History"}
         </h3>
@@ -142,7 +146,7 @@ const HistoryView = ({ cycleHistory, currentCycleStart, onPeriodStart, isBadassM
           <div className="text-center py-8 text-gray-500">
             <Activity className="w-12 h-12 mx-auto mb-2 opacity-50" />
             <p>{isBadassMode ? "No history recorded" : "No drama logged yet"}</p>
-            <p className="text-sm mt-1">{isBadassMode ? "Track her cycles here" : "Start tracking this sh*t"}</p>
+            <p className="text-small mt-1">{isBadassMode ? "Track her cycles here" : "Start tracking this sh*t"}</p>
           </div>
         ) : (
           <div className="space-y-2">
@@ -162,12 +166,12 @@ const HistoryView = ({ cycleHistory, currentCycleStart, onPeriodStart, isBadassM
                       <p className="font-medium">
                         {format(startDate, 'MMM d, yyyy')}
                         {isCurrentCycle && (
-                          <span className="ml-2 text-xs bg-green-600 text-white px-2 py-1 rounded">
+                          <span className="ml-2 text-tiny bg-green-600 text-white px-2 py-1 rounded">
                             Current
                           </span>
                         )}
                       </p>
-                      <p className="text-sm text-gray-600">
+                      <p className="text-small text-gray-600">
                         {cycle.actualLength ? 
                           `${cycle.actualLength} days` : 
                           `Day ${differenceInDays(new Date(), startDate) + 1}`
@@ -177,10 +181,10 @@ const HistoryView = ({ cycleHistory, currentCycleStart, onPeriodStart, isBadassM
                     
                     {cycle.actualLength && cycle.actualLength !== cycle.cycleLength && (
                       <div className="text-right">
-                        <p className="text-xs text-gray-500">
+                        <p className="text-tiny text-gray-500">
                           Expected: {cycle.cycleLength} days
                         </p>
-                        <p className={`text-xs font-medium ${
+                        <p className={`text-tiny font-medium ${
                           Math.abs(cycle.actualLength - cycle.cycleLength) > 5 ? 
                             'text-red-600' : 'text-yellow-600'
                         }`}>
@@ -194,7 +198,7 @@ const HistoryView = ({ cycleHistory, currentCycleStart, onPeriodStart, isBadassM
                   {/* Show notes or symptoms if any */}
                   {(Object.keys(cycle.notes || {}).length > 0 || 
                     Object.keys(cycle.symptoms || {}).length > 0) && (
-                    <div className="mt-2 pt-2 border-t text-xs text-gray-600">
+                    <div className="mt-2 pt-2 border-t text-tiny text-gray-600">
                       <AlertCircle className="w-3 h-3 inline mr-1" />
                       {Object.keys(cycle.notes || {}).length} notes, 
                       {' '}{Object.keys(cycle.symptoms || {}).length} symptom entries
@@ -211,12 +215,27 @@ const HistoryView = ({ cycleHistory, currentCycleStart, onPeriodStart, isBadassM
       {cycleHistory.length > 0 && (
         <div className="pt-4">
           <button
-            onClick={onPeriodStart}
-            className="w-full py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors font-medium"
+            onClick={async () => {
+              setIsMarking(true);
+              try {
+                await onPeriodStart();
+                showSuccess('Period start marked successfully!');
+              } catch (error) {
+                showError('Failed to mark period start. Please try again.');
+              } finally {
+                setIsMarking(false);
+              }
+            }}
+            disabled={isMarking}
+            className="w-full py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium flex items-center justify-center gap-2"
           >
-            Mark New Period Start
+            {isMarking ? (
+              <LoadingSpinner size="small" inline />
+            ) : (
+              'Mark New Period Start'
+            )}
           </button>
-          <p className="text-xs text-gray-500 text-center mt-2">
+          <p className="text-tiny text-gray-500 text-center mt-2">
             Use this when your period starts earlier or later than expected
           </p>
         </div>

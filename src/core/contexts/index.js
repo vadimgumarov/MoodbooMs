@@ -10,13 +10,18 @@ export { ModeProvider, useMode, MODES } from './SimpleModeContext';
 // Theme Context
 export { ThemeProvider, useTheme, THEME_MODES, THEME_VARIANTS } from './ThemeContext';
 
+// Feedback Context
+export { FeedbackProvider, useFeedback } from './FeedbackContext';
+
 // Combined Provider for convenience
 import React from 'react';
 import { ModeProvider } from './SimpleModeContext';
 import { ThemeProvider } from './ThemeContext';
+import { FeedbackProvider } from './FeedbackContext';
+import { DesignSystemProvider } from '../../design-system';
 
 /**
- * Combined provider that includes both Mode and Theme contexts
+ * Combined provider that includes Mode, Theme contexts, and Design System
  * @param {Object} props
  * @param {React.ReactNode} props.children - Child components
  * @param {string} [props.themeVariant='light'] - Theme variant (light/dark)
@@ -24,9 +29,13 @@ import { ThemeProvider } from './ThemeContext';
 export function AppProviders({ children, themeVariant = 'light' }) {
   return (
     <ModeProvider>
-      <ThemeProvider variant={themeVariant}>
-        {children}
-      </ThemeProvider>
+      <DesignSystemProvider>
+        <ThemeProvider variant={themeVariant}>
+          <FeedbackProvider>
+            {children}
+          </FeedbackProvider>
+        </ThemeProvider>
+      </DesignSystemProvider>
     </ModeProvider>
   );
 }

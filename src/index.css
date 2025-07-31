@@ -4,3 +4,213 @@
 
 /* Import theme animations */
 @import './core/themes/animations.css';
+
+/* Import accessibility styles */
+@import './styles/accessibility.css';
+
+/* Override Tailwind colors with CSS variables */
+@layer utilities {
+  /* Primary colors */
+  .bg-primary {
+    background-color: var(--color-primary) !important;
+  }
+  .bg-primary-light {
+    background-color: var(--color-primary-light) !important;
+  }
+  .bg-primary-dark {
+    background-color: var(--color-primary-dark) !important;
+  }
+  .text-primary {
+    color: var(--color-primary) !important;
+  }
+  .text-primary-light {
+    color: var(--color-primary-light) !important;
+  }
+  .text-primary-dark {
+    color: var(--color-primary-dark) !important;
+  }
+  .border-primary {
+    border-color: var(--color-primary) !important;
+  }
+  
+  /* Background and Surface */
+  .bg-background {
+    background-color: var(--color-background) !important;
+  }
+  .bg-surface {
+    background-color: var(--color-surface) !important;
+  }
+  .bg-surface-light {
+    background-color: color-mix(in srgb, var(--color-surface) 50%, var(--color-background)) !important;
+  }
+  
+  /* Text colors */
+  .text-text-primary {
+    color: var(--color-text-primary) !important;
+  }
+  .text-text-secondary {
+    color: var(--color-text-secondary) !important;
+  }
+  .text-text-muted {
+    color: var(--color-text-muted) !important;
+  }
+  
+  /* Border */
+  .bg-border {
+    background-color: var(--color-border) !important;
+  }
+  .border-border {
+    border-color: var(--color-border) !important;
+  }
+  
+  /* Status colors */
+  .bg-error {
+    background-color: var(--color-error) !important;
+  }
+  .bg-error-light {
+    background-color: color-mix(in srgb, var(--color-error) 20%, var(--color-background)) !important;
+  }
+  .text-error {
+    color: var(--color-error) !important;
+  }
+  .border-error {
+    border-color: var(--color-error) !important;
+  }
+  
+  .bg-warning {
+    background-color: var(--color-warning) !important;
+  }
+  .bg-warning-light {
+    background-color: color-mix(in srgb, var(--color-warning) 20%, var(--color-background)) !important;
+  }
+  .text-warning {
+    color: var(--color-warning) !important;
+  }
+  .text-warning-dark {
+    color: color-mix(in srgb, var(--color-warning) 80%, black) !important;
+  }
+  .border-warning {
+    border-color: var(--color-warning) !important;
+  }
+  
+  .bg-success {
+    background-color: var(--color-success) !important;
+  }
+  .bg-success-light {
+    background-color: color-mix(in srgb, var(--color-success) 20%, var(--color-background)) !important;
+  }
+  .text-success {
+    color: var(--color-success) !important;
+  }
+  .text-success-dark {
+    color: color-mix(in srgb, var(--color-success) 80%, black) !important;
+  }
+  
+  .bg-info {
+    background-color: var(--color-info) !important;
+  }
+  .bg-info-light {
+    background-color: color-mix(in srgb, var(--color-info) 20%, var(--color-background)) !important;
+  }
+  .text-info {
+    color: var(--color-info) !important;
+  }
+  
+  /* Danger alias for error */
+  .bg-danger {
+    background-color: var(--color-error) !important;
+  }
+  .bg-danger-light {
+    background-color: color-mix(in srgb, var(--color-error) 20%, var(--color-background)) !important;
+  }
+  .text-danger {
+    color: var(--color-error) !important;
+  }
+  
+  /* Opacity variants */
+  .bg-error\/80 {
+    background-color: var(--color-error);
+    opacity: 0.8;
+  }
+  .bg-warning\/30 {
+    background-color: var(--color-warning);
+    opacity: 0.3;
+  }
+  .bg-success\/30 {
+    background-color: var(--color-success);
+    opacity: 0.3;
+  }
+
+  /* Typography utilities */
+  .text-display {
+    font-size: 2.5rem;
+    line-height: 1.25;
+    letter-spacing: -0.025em;
+    font-weight: 700;
+  }
+  .text-title {
+    font-size: 1.875rem;
+    line-height: 1.25;
+    letter-spacing: -0.025em;
+    font-weight: 600;
+  }
+  .text-heading {
+    font-size: 1.25rem;
+    line-height: 1.5;
+    letter-spacing: 0em;
+    font-weight: 600;
+  }
+  .text-body {
+    font-size: 1rem;
+    line-height: 1.5;
+    letter-spacing: 0em;
+    font-weight: 400;
+  }
+  .text-small {
+    font-size: 0.875rem;
+    line-height: 1.5;
+    letter-spacing: 0em;
+    font-weight: 400;
+  }
+  .text-tiny {
+    font-size: 0.75rem;
+    line-height: 1.5;
+    letter-spacing: 0.025em;
+    font-weight: 400;
+  }
+
+  /* Responsive utilities */
+  .responsive-container {
+    width: 100%;
+    min-width: 20rem; /* 320px */
+    max-width: 24rem; /* 384px */
+  }
+
+  /* Better text wrapping */
+  .text-wrap-balance {
+    text-wrap: balance;
+  }
+
+  .text-wrap-pretty {
+    text-wrap: pretty;
+  }
+
+  /* Ensure minimum touch targets */
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Better responsive grid */
+  .responsive-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 0.5rem;
+  }
+
+  @media (max-width: 320px) {
+    .responsive-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+}

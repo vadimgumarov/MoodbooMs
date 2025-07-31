@@ -29,7 +29,7 @@ const KingStatusCard = ({ cycleData, currentPhase, testMode, testDays }) => {
             Tactical Assessment
           </h3>
         </div>
-        <span className="text-sm" style={{ color: 'var(--king-text-secondary)' }}>
+        <span className="text-small" style={{ color: 'var(--king-text-secondary)' }}>
           Day {currentDay} of {cycleData.cycleLength}
         </span>
       </div>
@@ -38,11 +38,11 @@ const KingStatusCard = ({ cycleData, currentPhase, testMode, testDays }) => {
         <div className="p-3 rounded" style={{ backgroundColor: 'var(--king-card)' }}>
           <div className="flex items-center gap-2 mb-1">
             <Clock className="w-4 h-4" style={{ color: 'var(--king-accent)' }} />
-            <span className="text-xs" style={{ color: 'var(--king-text-secondary)' }}>
+            <span className="text-tiny" style={{ color: 'var(--king-text-secondary)' }}>
               Current Phase
             </span>
           </div>
-          <p className="font-medium text-sm" style={{ color: 'var(--king-text)' }}>
+          <p className="font-medium text-small" style={{ color: 'var(--king-text)' }}>
             {currentPhase.phase}
           </p>
         </div>
@@ -50,21 +50,21 @@ const KingStatusCard = ({ cycleData, currentPhase, testMode, testDays }) => {
         <div className="p-3 rounded" style={{ backgroundColor: 'var(--king-card)' }}>
           <div className="flex items-center gap-2 mb-1">
             <Calendar className="w-4 h-4" style={{ color: 'var(--king-accent)' }} />
-            <span className="text-xs" style={{ color: 'var(--king-text-secondary)' }}>
+            <span className="text-tiny" style={{ color: 'var(--king-text-secondary)' }}>
               Cycle Started
             </span>
           </div>
-          <p className="font-medium text-sm" style={{ color: 'var(--king-text)' }}>
+          <p className="font-medium text-small" style={{ color: 'var(--king-text)' }}>
             {cycleData.startDate.toLocaleDateString()}
           </p>
         </div>
       </div>
       
       <div className="mt-3 p-2 rounded text-center" style={{ 
-        backgroundColor: 'rgba(255, 107, 107, 0.1)',
-        border: '1px solid var(--king-primary)'
+        backgroundColor: 'var(--king-card)',
+        border: '1px solid var(--king-border)'
       }}>
-        <p className="text-xs" style={{ color: 'var(--king-text)' }}>
+        <p className="text-tiny" style={{ color: 'var(--king-text)' }}>
           {currentPhase.description}
         </p>
       </div>

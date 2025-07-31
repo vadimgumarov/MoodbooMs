@@ -10,6 +10,10 @@ import { createCycleRecord, completeCycleRecord, addCycleToHistory, calculateCur
 import { modeContent, getRandomPhrase, resetPhraseTracking, getUIText } from '../content/modeContent';
 import { useMode, MODES } from '../core/contexts/SimpleModeContext';
 import { calculateFertilityPercentage } from '../utils/phaseDetection';
+import { CYCLE, DEBOUNCE, TABS, DEFAULT_PREFERENCES } from '../constants';
+import { announceToScreenReader, getPhaseAriaLabel } from '../utils/accessibility';
+import { useKeyboardNavigation } from '../hooks/useKeyboardNavigation';
+import { LoadingSpinner, StatusCardSkeleton, Tooltip, ErrorMessage, SuccessMessage } from './feedback';
 
 // Icon mapping for food items
 const foodIconMap = {
@@ -131,8 +135,8 @@ const MenuBarApp = () => {
   
   const [cycleData, setCycleData] = useState({
     startDate: new Date(),
-    cycleLength: 28,
-    notifications: true
+    cycleLength: CYCLE.DEFAULT_LENGTH,
+    notifications: DEFAULT_PREFERENCES.notifications
   });
   const [currentPhase, setCurrentPhase] = useState({ phase: '', icon: null, description: '' });
   const [currentMood, setCurrentMood] = useState("");
@@ -140,7 +144,7 @@ const MenuBarApp = () => {
   const [testMode, setTestMode] = useState(false);
   const [testDays, setTestDays] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('mood'); // 'mood', 'calendar', 'history', or 'settings'
+  const [activeTab, setActiveTab] = useState(TABS.MOOD);
   const [selectedDate, setSelectedDate] = useState(null);
   const [cycleHistory, setCycleHistory] = useState([]);
   const [preferences, setPreferences] = useState({
@@ -148,9 +152,18 @@ const MenuBarApp = () => {
     theme: 'auto',
     badassMode: false // Keep for backward compatibility
   });
+  const [saveError, setSaveError] = useState(null);
+  const [saveSuccess, setSaveSuccess] = useState(null);
   
   // Use ref to track previous phase to prevent unnecessary updates
   const previousPhaseRef = useRef('');
+  
+  // Enable keyboard navigation for tabs
+  useKeyboardNavigation(
+    [TABS.MOOD, TABS.CALENDAR, TABS.HISTORY, TABS.SETTINGS],
+    activeTab,
+    setActiveTab
+  );
 
   // Load saved data on mount
   useEffect(() => {
@@ -225,13 +238,20 @@ const MenuBarApp = () => {
         const phase = calculatePhase(
           testMode ? new Date(new Date().getTime() - testDays * 24 * 60 * 60 * 1000) : cycleData.startDate, 
           cycleData.cycleLength,
-          isKingMode
+          currentMode === MODES.KING
         );
         
         // Only update if phase actually changed
         if (previousPhaseRef.current !== phase.phase) {
           previousPhaseRef.current = phase.phase;
           setCurrentPhase(phase);
+          
+          // Announce phase change to screen readers
+          const currentDay = calculateCurrentDay(
+            testMode ? new Date(new Date().getTime() - testDays * 24 * 60 * 60 * 1000) : cycleData.startDate,
+            new Date()
+          );
+          announceToScreenReader(getPhaseAriaLabel(phase.phase, currentDay));
           
           // Update tray icon via unified API
           if (window.electronAPI && window.electronAPI.tray) {
@@ -256,7 +276,7 @@ const MenuBarApp = () => {
       };
       
       updatePhaseAndIcon();
-    }, 300); // 300ms debounce
+    }, DEBOUNCE.PHASE_UPDATE);
     
     return () => clearTimeout(timer); // Clean up timer
   }, [cycleData.startDate, cycleData.cycleLength, testDays, testMode, isLoading, currentMode]); // Use currentMode instead of isKingMode
@@ -308,7 +328,7 @@ const MenuBarApp = () => {
     }
     
     // Go back to mood tab
-    setActiveTab('mood');
+    setActiveTab(TABS.MOOD);
   };
 
 
@@ -399,9 +419,15 @@ const MenuBarApp = () => {
 
   if (isLoading) {
     return (
-      <div className="w-80">
-        <div className="p-4 text-center">
-          <p>Loading...</p>
+      <div className="responsive-container bg-background">
+        <div className="p-4">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <LoadingSpinner size="small" inline />
+              <h2 className="text-heading text-text-primary">MoodbooM</h2>
+            </div>
+          </div>
+          <StatusCardSkeleton />
         </div>
       </div>
     );
@@ -416,6 +442,15 @@ const MenuBarApp = () => {
 
   // If in King mode, use the King mode integration
   if (isKingMode) {
+    // Don't render until we have a valid phase
+    if (!currentPhase.phase) {
+      return (
+        <div className="responsive-container p-4 text-center" style={{ backgroundColor: 'var(--king-bg)', color: 'var(--king-text)' }}>
+          <p>Loading...</p>
+        </div>
+      );
+    }
+    
     return (
       <KingModeIntegration
         currentPhase={currentPhase}
@@ -489,15 +524,21 @@ const MenuBarApp = () => {
 
   // Regular Queen mode UI
   return (
-    <div className="w-96">
+    <div className="responsive-container bg-background">
+      {/* Skip to content link for screen readers */}
+      <a href="#main-content" className="skip-link">Skip to main content</a>
       <div className="p-4">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold">MoodbooM</h2>
+          <h2 className="text-heading text-text-primary">MoodbooM</h2>
           <div className="flex items-center gap-3">
             {/* Queen/King Mode Toggle */}
-            <label className={`flex items-center gap-2 ${isSwitching ? 'cursor-wait opacity-50' : 'cursor-pointer'}`}>
-              <span className="text-xs text-gray-600">{isKingMode ? 'King' : 'Queen'}</span>
-            <div className="relative">
+            <Tooltip content={isKingMode ? "Switch to Queen mode (your perspective)" : "Switch to King mode (partner's perspective)"}>
+              <label 
+                className={`flex items-center gap-2 ${isSwitching ? 'cursor-wait opacity-50' : 'cursor-pointer'}`}
+                aria-label={`Mode toggle. Currently in ${isKingMode ? 'King' : 'Queen'} mode`}
+              >
+                <span className="text-tiny text-text-secondary" aria-hidden="true">{isKingMode ? 'King' : 'Queen'}</span>
+            <div className="relative" role="switch" aria-checked={isKingMode}>
               <input
                 type="checkbox"
                 checked={isKingMode}
@@ -505,80 +546,107 @@ const MenuBarApp = () => {
                   e.stopPropagation();
                   if (!isSwitching) {
                     toggleMode();
+                    announceToScreenReader(`Switched to ${!isKingMode ? 'King' : 'Queen'} mode`);
                   }
                 }}
                 disabled={isSwitching}
                 className="sr-only"
+                aria-label="Toggle between Queen and King mode"
               />
               <div className={`block w-10 h-6 rounded-full transition-colors ${
-                isKingMode ? 'bg-purple-500' : 'bg-gray-300'
+                isKingMode ? 'bg-primary' : 'bg-border'
               }`}></div>
               <div className={`absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform ${
                 isKingMode ? 'translate-x-4' : ''
               }`}></div>
             </div>
-          </label>
+              </label>
+            </Tooltip>
           {/* Close Button */}
-          <button
-            onClick={() => {
-              if (window.electronAPI && window.electronAPI.app) {
-                window.electronAPI.app.quit();
-              }
-            }}
-            className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-            title="Quit MoodbooM"
-          >
-            <X className="w-4 h-4" />
-          </button>
+          <Tooltip content="Close MoodbooM" position="left">
+            <button
+              onClick={() => {
+                if (window.electronAPI && window.electronAPI.app) {
+                  window.electronAPI.app.quit();
+                }
+              }}
+              className="touch-target p-1.5 text-text-muted hover:text-text-primary hover:bg-surface rounded-lg transition-colors"
+              aria-label="Close application"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </Tooltip>
           </div>
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex mb-4 bg-gray-100 rounded-lg p-1">
+        <div className="flex mb-4 bg-surface rounded-lg p-1" role="tablist" aria-label="Navigation tabs" aria-orientation="horizontal">
           <button
-            onClick={() => setActiveTab('mood')}
-            className={`flex-1 py-2 px-3 rounded-md transition-colors text-sm ${
+            onClick={() => setActiveTab(TABS.MOOD)}
+            role="tab"
+            aria-selected={activeTab === TABS.MOOD}
+            aria-controls="mood-panel"
+            id="mood-tab"
+            tabIndex={activeTab === TABS.MOOD ? 0 : -1}
+            className={`touch-target flex-1 py-2 px-3 rounded-md transition-colors text-small ${
               activeTab === 'mood' 
-                ? 'bg-white shadow-sm' 
-                : 'hover:bg-gray-200'
+                ? 'bg-background shadow-sm' 
+                : 'hover:bg-background'
             }`}
           >
             {getUIText(currentMode, 'tabs', 'mood')}
           </button>
           <button
-            onClick={() => setActiveTab('calendar')}
-            className={`flex-1 py-2 px-3 rounded-md transition-colors text-sm ${
+            onClick={() => setActiveTab(TABS.CALENDAR)}
+            role="tab"
+            aria-selected={activeTab === TABS.CALENDAR}
+            aria-controls="calendar-panel"
+            id="calendar-tab"
+            tabIndex={activeTab === TABS.CALENDAR ? 0 : -1}
+            className={`touch-target flex-1 py-2 px-3 rounded-md transition-colors text-small ${
               activeTab === 'calendar' 
-                ? 'bg-white shadow-sm' 
-                : 'hover:bg-gray-200'
+                ? 'bg-background shadow-sm' 
+                : 'hover:bg-background'
             }`}
           >
             {getUIText(currentMode, 'tabs', 'calendar')}
           </button>
           <button
-            onClick={() => setActiveTab('history')}
-            className={`flex-1 py-2 px-3 rounded-md transition-colors text-sm ${
+            onClick={() => setActiveTab(TABS.HISTORY)}
+            role="tab"
+            aria-selected={activeTab === TABS.HISTORY}
+            aria-controls="history-panel"
+            id="history-tab"
+            tabIndex={activeTab === TABS.HISTORY ? 0 : -1}
+            className={`touch-target flex-1 py-2 px-3 rounded-md transition-colors text-small ${
               activeTab === 'history' 
-                ? 'bg-white shadow-sm' 
-                : 'hover:bg-gray-200'
+                ? 'bg-background shadow-sm' 
+                : 'hover:bg-background'
             }`}
           >
             {getUIText(currentMode, 'tabs', 'history')}
           </button>
           <button
-            onClick={() => setActiveTab('settings')}
-            className={`py-2 px-3 rounded-md transition-colors text-sm ${
+            onClick={() => setActiveTab(TABS.SETTINGS)}
+            role="tab"
+            aria-selected={activeTab === TABS.SETTINGS}
+            aria-controls="settings-panel"
+            id="settings-tab"
+            aria-label="Settings"
+            tabIndex={activeTab === TABS.SETTINGS ? 0 : -1}
+            className={`touch-target py-2 px-3 rounded-md transition-colors text-small ${
               activeTab === 'settings' 
-                ? 'bg-white shadow-sm' 
-                : 'hover:bg-gray-200'
+                ? 'bg-background shadow-sm' 
+                : 'hover:bg-background'
             }`}
           >
             <Settings className="w-4 h-4" />
           </button>
         </div>
 
+        <main id="main-content">
         {activeTab === 'mood' ? (
-          <div className="space-y-4">
+          <div className="space-y-4" role="tabpanel" id="mood-panel" aria-labelledby="mood-tab" tabIndex={0}>
           <StatusCard 
             cycleData={cycleData}
             currentPhase={currentPhase}
@@ -586,15 +654,17 @@ const MenuBarApp = () => {
             testDays={testDays}
           />
 
-          <div className="p-3 bg-gray-100 rounded">
-            <p className="text-sm font-medium">{isKingMode ? "Her Status:" : "My Mood:"}</p>
-            <p className="text-sm italic text-gray-600">{currentMood}</p>
+          <div className="p-3 bg-surface rounded">
+            <p className="text-small font-medium">{isKingMode ? "Her Status:" : "My Mood:"}</p>
+            <p className="text-small italic text-text-secondary break-words">{currentMood}</p>
           </div>
 
-          <div className="p-3 bg-gray-100 rounded flex items-center gap-2">
-            <p className="text-sm">{isKingMode ? "She Needs:" : "I Need:"}</p>
-            <currentCraving.icon className="w-4 h-4" />
-            <p className="text-sm italic">{isKingMode ? `Get her ${currentCraving.text}` : `Need ${currentCraving.text} ASAP`}</p>
+          <div className="p-3 bg-surface rounded">
+            <div className="flex items-start gap-2">
+              <p className="text-small font-medium flex-shrink-0">{isKingMode ? "She Needs:" : "I Need:"}</p>
+              <currentCraving.icon className="w-4 h-4 flex-shrink-0 mt-0.5" />
+              <p className="text-small italic break-words">{isKingMode ? `Get her ${currentCraving.text}` : `Need ${currentCraving.text} ASAP`}</p>
+            </div>
           </div>
 
           <div className="flex items-center gap-2">
@@ -603,17 +673,18 @@ const MenuBarApp = () => {
               value={cycleData.startDate.toISOString().split('T')[0]}
               onChange={(e) => handleDateChange(new Date(e.target.value))}
               className="flex-1 p-2 border rounded"
+              aria-label="Cycle start date"
             />
           </div>
 
           {testMode && (
-            <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded">
+            <div className="mt-4 p-3 bg-warning/10 border border-warning/20 rounded">
               <div className="flex items-center gap-2 mb-2">
-                <AlertCircle className="w-4 h-4 text-amber-600" />
-                <span className="text-sm font-medium text-amber-700">Test Mode Active</span>
+                <AlertCircle className="w-4 h-4 text-warning" />
+                <span className="text-small font-medium text-warning">Test Mode Active</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-600">Test Day:</span>
+                <span className="text-small text-text-secondary">Test Day:</span>
                 <input
                   type="range"
                   min="0"
@@ -621,10 +692,14 @@ const MenuBarApp = () => {
                   value={testDays}
                   onChange={(e) => setTestDays(parseInt(e.target.value))}
                   className="flex-1"
+                  aria-label="Test day slider"
+                  aria-valuemin="0"
+                  aria-valuemax={cycleData.cycleLength}
+                  aria-valuenow={testDays}
                 />
-                <span className="w-8 text-right text-sm font-medium">{testDays}</span>
+                <span className="w-8 text-right text-small font-medium" aria-live="polite">{testDays}</span>
               </div>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-tiny text-text-muted mt-1">
                 Showing day {testDays} of your cycle (actual: day {calculateCurrentDay(cycleData.startDate, new Date())})
               </p>
             </div>
@@ -632,7 +707,7 @@ const MenuBarApp = () => {
 
         </div>
         ) : activeTab === 'calendar' ? (
-          <div className="space-y-4">
+          <div className="space-y-4" role="tabpanel" id="calendar-panel" aria-labelledby="calendar-tab" tabIndex={0}>
             <Calendar 
               cycleStartDate={testMode 
                 ? new Date(new Date().getTime() - testDays * 24 * 60 * 60 * 1000) 
@@ -655,19 +730,24 @@ const MenuBarApp = () => {
             )}
           </div>
         ) : activeTab === 'history' ? (
-          <HistoryView 
-            cycleHistory={cycleHistory}
-            currentCycleStart={cycleData.startDate}
-            onPeriodStart={handlePeriodStart}
-          />
+          <div role="tabpanel" id="history-panel" aria-labelledby="history-tab" tabIndex={0}>
+            <HistoryView 
+              cycleHistory={cycleHistory}
+              currentCycleStart={cycleData.startDate}
+              onPeriodStart={handlePeriodStart}
+            />
+          </div>
         ) : activeTab === 'settings' ? (
-          <SettingsPanel
-            cycleData={cycleData}
-            preferences={preferences}
-            onSave={handleSettingsSave}
-            onCancel={() => setActiveTab('mood')}
-          />
+          <div role="tabpanel" id="settings-panel" aria-labelledby="settings-tab" tabIndex={0}>
+            <SettingsPanel
+              cycleData={cycleData}
+              preferences={preferences}
+              onSave={handleSettingsSave}
+              onCancel={() => setActiveTab('mood')}
+            />
+          </div>
         ) : null}
+        </main>
       </div>
     </div>
   );

@@ -1,4 +1,5 @@
 import { differenceInDays, addDays } from 'date-fns';
+import { CYCLE } from '../constants';
 
 /**
  * Calculate the current day of the menstrual cycle
@@ -7,7 +8,7 @@ import { differenceInDays, addDays } from 'date-fns';
  * @param {number} cycleLength - Length of the cycle (default 28)
  * @returns {number} Current day in cycle (1-cycleLength)
  */
-function calculateCurrentDay(startDate, currentDate, cycleLength = 28) {
+function calculateCurrentDay(startDate, currentDate, cycleLength = CYCLE.DEFAULT_LENGTH) {
   const daysDiff = differenceInDays(currentDate, startDate);
   
   // Handle future start dates
@@ -31,20 +32,20 @@ function calculateCurrentDay(startDate, currentDate, cycleLength = 28) {
  */
 function getCurrentPhase(currentDay, cycleLength) {
   // Menstrual phase: Days 1-5
-  if (currentDay <= 5) {
+  if (currentDay <= CYCLE.PHASE_DAYS.MENSTRUAL_END) {
     return 'menstrual';
   }
   
   // Calculate ovulation day (14 days before end of cycle)
-  const ovulationDay = cycleLength - 14;
+  const ovulationDay = cycleLength - CYCLE.OVULATION_OFFSET;
   
   // Ovulation window: ovulation day and 2 days after (3 days total)
-  if (currentDay >= ovulationDay && currentDay <= ovulationDay + 2 && currentDay > 5) {
+  if (currentDay >= ovulationDay && currentDay <= ovulationDay + 2 && currentDay > CYCLE.PHASE_DAYS.MENSTRUAL_END) {
     return 'ovulation';
   }
   
   // Follicular phase: After menstrual, before ovulation
-  if (currentDay > 5 && currentDay < ovulationDay) {
+  if (currentDay > CYCLE.PHASE_DAYS.MENSTRUAL_END && currentDay < ovulationDay) {
     return 'follicular';
   }
   
@@ -60,11 +61,11 @@ function getCurrentPhase(currentDay, cycleLength) {
  */
 function getFertilityLevel(currentDay, cycleLength) {
   // Very low during period
-  if (currentDay <= 5) {
+  if (currentDay <= CYCLE.PHASE_DAYS.MENSTRUAL_END) {
     return 'very-low';
   }
   
-  const ovulationDay = cycleLength - 14;
+  const ovulationDay = cycleLength - CYCLE.OVULATION_OFFSET;
   
   // Very high during ovulation window (ovulation day and 2 days after)
   if (currentDay >= ovulationDay && currentDay <= ovulationDay + 2) {
@@ -101,7 +102,7 @@ function predictNextPeriod(lastPeriodStart, cycleLength) {
  * @returns {Object} Ovulation window with start, peak, and end days
  */
 function getOvulationWindow(cycleLength) {
-  const ovulationDay = cycleLength - 14;
+  const ovulationDay = cycleLength - CYCLE.OVULATION_OFFSET;
   return {
     start: ovulationDay - 2,
     peak: ovulationDay,
@@ -116,11 +117,11 @@ function getOvulationWindow(cycleLength) {
  */
 function calculateAverageCycleLength(history) {
   if (!history || history.length === 0) {
-    return 28; // Default cycle length
+    return CYCLE.DEFAULT_LENGTH; // Default cycle length
   }
   
   // Use only the last 6 cycles for average
-  const recentCycles = history.slice(-6);
+  const recentCycles = history.slice(-CYCLE.HISTORY_CYCLES_FOR_AVERAGE);
   const sum = recentCycles.reduce((acc, cycle) => acc + cycle.cycleLength, 0);
   return Math.round(sum / recentCycles.length);
 }

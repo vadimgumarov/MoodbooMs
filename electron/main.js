@@ -4,6 +4,7 @@ const { initializeIpcHandlers } = require('./ipcHandlers');
 const { applyCSPToSession } = require('./csp-config');
 const { applySecuritySettings, setupAppSecurity, applySecurityHeaders, verifyWindowSecurity } = require('./security-config');
 const { startHeartbeat } = require('./crash-monitor');
+const { WINDOW_CONFIG, DEV_CONFIG, PATHS, LOGGING, ERROR_MESSAGES } = require('./constants');
 
 let window = null;
 let trayManager = null;
@@ -14,18 +15,17 @@ setupAppSecurity();
 // Disable hardware acceleration to prevent GPU crashes
 app.disableHardwareAcceleration();
 
-// Hide dock icon
-app.dock.hide();
+// Hide dock icon - moved to app.ready to prevent crashes
 
 // Enable better error logging
 const fs = require('fs');
 const path = require('path');
-const logsDir = path.join(__dirname, '..', 'logs');
+const logsDir = path.join(__dirname, '..', LOGGING.LOG_DIR);
 if (!fs.existsSync(logsDir)) {
   fs.mkdirSync(logsDir, { recursive: true });
 }
 
-const logFile = path.join(logsDir, `electron-${new Date().toISOString().split('T')[0]}.log`);
+const logFile = path.join(logsDir, `${LOGGING.LOG_FILE_PREFIX}-${new Date().toISOString().split('T')[0]}.log`);
 
 function logToFile(message) {
   const timestamp = new Date().toISOString();
@@ -54,6 +54,11 @@ process.on('unhandledRejection', (reason, promise) => {
 app.whenReady().then(() => {
   console.log('App is ready, creating window and tray...');
   
+  // Hide dock icon (must be done after app is ready on macOS)
+  if (app.dock) {
+    app.dock.hide();
+  }
+  
   // Run store migrations
   try {
     const { storeOperations } = require('./store');
@@ -71,8 +76,8 @@ app.whenReady().then(() => {
   
   // Create window with security settings
   const windowOptions = applySecuritySettings({
-    width: 420,
-    height: 650,
+    width: WINDOW_CONFIG.WIDTH,
+    height: WINDOW_CONFIG.HEIGHT,
     show: false,
     frame: false,
     resizable: false,
@@ -80,7 +85,7 @@ app.whenReady().then(() => {
     maximizable: false,
     fullscreenable: false,
     webPreferences: {
-      preload: __dirname + '/preload.js'
+      preload: path.join(__dirname, PATHS.PRELOAD_SCRIPT)
     }
   });
   
@@ -98,10 +103,10 @@ app.whenReady().then(() => {
   if (isDev && process.env.REACT_DEV_URL) {
     // Development mode with React dev server
     setTimeout(() => {
-      console.log('Loading URL http://localhost:3000');
-      logToFile('Loading URL http://localhost:3000');
-      window.loadURL('http://localhost:3000');
-    }, 3000);
+      console.log(`Loading URL ${DEV_CONFIG.REACT_DEV_URL}`);
+      logToFile(`Loading URL ${DEV_CONFIG.REACT_DEV_URL}`);
+      window.loadURL(DEV_CONFIG.REACT_DEV_URL);
+    }, DEV_CONFIG.REACT_START_DELAY);
   } else {
     // Production mode - load from built files
     const appPath = path.join(__dirname, '..', 'build', 'index.html');
@@ -156,6 +161,14 @@ app.whenReady().then(() => {
     const loadError = `=== WINDOW FAILED TO LOAD ===\nError code: ${errorCode}\nError description: ${errorDescription}`;
     console.error(loadError);
     logToFile(loadError);
+  });
+  
+  window.webContents.on('console-message', (event, level, message, line, sourceId) => {
+    if (level >= 2) { // Error level
+      const consoleError = `=== CONSOLE ERROR ===\nMessage: ${message}\nSource: ${sourceId}:${line}`;
+      console.error(consoleError);
+      logToFile(consoleError);
+    }
   });
   
   window.webContents.on('did-finish-load', () => {

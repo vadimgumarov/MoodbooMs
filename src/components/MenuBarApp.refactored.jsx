@@ -369,7 +369,7 @@ const MenuBarApp = () => {
       <div className={modeProps.getModeStyle('headerBg')}>
         <div className="p-4 pb-2">
           <div className="flex items-center justify-between mb-2">
-            <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+            <h1 className="text-display font-bold text-white flex items-center gap-2">
               MoodbooM
               <button
                 onClick={toggleMode}
@@ -413,7 +413,7 @@ const MenuBarApp = () => {
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+                className={`px-3 py-1 rounded-full text-small font-medium transition-colors ${
                   activeTab === tab
                     ? 'bg-white text-purple-600'
                     : 'bg-white/20 text-white hover:bg-white/30'
@@ -437,7 +437,7 @@ const MenuBarApp = () => {
                 <div className="mb-4 text-center">
                   <div className="flex items-center justify-center gap-2 mb-2">
                     <currentPhase.icon className="w-8 h-8" />
-                    <h2 className="text-xl font-bold">{currentPhase.phase}</h2>
+                    <h2 className="text-title font-bold">{currentPhase.phase}</h2>
                   </div>
                   <p className="text-gray-600">{currentPhase.description}</p>
                 </div>
@@ -452,14 +452,14 @@ const MenuBarApp = () => {
 
                 <div className="space-y-3">
                   <div className="p-3 bg-purple-50 rounded-lg">
-                    <p className="text-sm font-medium text-purple-700 mb-1">
+                    <p className="text-small font-medium text-purple-700 mb-1">
                       {modeProps.getUIText('moodLabel')}
                     </p>
                     <p className="text-purple-900">{currentMood || 'Loading mood...'}</p>
                   </div>
                   
                   <div className="p-3 bg-pink-50 rounded-lg">
-                    <p className="text-sm font-medium text-pink-700 mb-1">
+                    <p className="text-small font-medium text-pink-700 mb-1">
                       {modeProps.getUIText('cravingLabel')}
                     </p>
                     <div className="flex items-center gap-2">
@@ -475,10 +475,10 @@ const MenuBarApp = () => {
                   <div className="mt-4 p-3 bg-yellow-50 rounded-lg">
                     <div className="flex items-center gap-2 mb-2">
                       <AlertCircle className="w-4 h-4 text-yellow-600" />
-                      <p className="text-sm font-medium text-yellow-700">Test Mode Active</p>
+                      <p className="text-small font-medium text-yellow-700">Test Mode Active</p>
                     </div>
                     <div>
-                      <label className="text-xs text-yellow-600">Test Day: {testDays}</label>
+                      <label className="text-tiny text-yellow-600">Test Day: {testDays}</label>
                       <input
                         type="range"
                         min="0"

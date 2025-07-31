@@ -4,7 +4,7 @@ import { format } from 'date-fns';
 import HistoryView from '../HistoryView';
 
 // Mock the cycle history utilities
-jest.mock('../../../core/utils/cycleHistory', () => ({
+jest.mock('../../../utils/cycleHistory', () => ({
   calculateCycleStatistics: jest.fn(),
   getRecentCycles: jest.fn(),
   predictNextCycleStart: jest.fn()

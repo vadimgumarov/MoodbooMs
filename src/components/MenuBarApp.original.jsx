@@ -495,11 +495,11 @@ const MenuBarApp = () => {
     <div className="w-96">
       <div className="p-4">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold">MoodbooM</h2>
+          <h2 className="text-heading font-semibold">MoodbooM</h2>
           <div className="flex items-center gap-3">
             {/* Queen/King Mode Toggle */}
             <label className={`flex items-center gap-2 ${isSwitching ? 'cursor-wait opacity-50' : 'cursor-pointer'}`}>
-              <span className="text-xs text-gray-600">{isKingMode ? 'King' : 'Queen'}</span>
+              <span className="text-tiny text-gray-600">{isKingMode ? 'King' : 'Queen'}</span>
             <div className="relative">
               <input
                 type="checkbox"
@@ -540,7 +540,7 @@ const MenuBarApp = () => {
         <div className="flex mb-4 bg-gray-100 rounded-lg p-1">
           <button
             onClick={() => setActiveTab('mood')}
-            className={`flex-1 py-2 px-3 rounded-md transition-colors text-sm ${
+            className={`flex-1 py-2 px-3 rounded-md transition-colors text-small ${
               activeTab === 'mood' 
                 ? 'bg-white shadow-sm' 
                 : 'hover:bg-gray-200'
@@ -550,7 +550,7 @@ const MenuBarApp = () => {
           </button>
           <button
             onClick={() => setActiveTab('calendar')}
-            className={`flex-1 py-2 px-3 rounded-md transition-colors text-sm ${
+            className={`flex-1 py-2 px-3 rounded-md transition-colors text-small ${
               activeTab === 'calendar' 
                 ? 'bg-white shadow-sm' 
                 : 'hover:bg-gray-200'
@@ -560,7 +560,7 @@ const MenuBarApp = () => {
           </button>
           <button
             onClick={() => setActiveTab('history')}
-            className={`flex-1 py-2 px-3 rounded-md transition-colors text-sm ${
+            className={`flex-1 py-2 px-3 rounded-md transition-colors text-small ${
               activeTab === 'history' 
                 ? 'bg-white shadow-sm' 
                 : 'hover:bg-gray-200'
@@ -570,7 +570,7 @@ const MenuBarApp = () => {
           </button>
           <button
             onClick={() => setActiveTab('settings')}
-            className={`py-2 px-3 rounded-md transition-colors text-sm ${
+            className={`py-2 px-3 rounded-md transition-colors text-small ${
               activeTab === 'settings' 
                 ? 'bg-white shadow-sm' 
                 : 'hover:bg-gray-200'
@@ -591,14 +591,14 @@ const MenuBarApp = () => {
           />
 
           <div className="p-3 bg-gray-100 rounded">
-            <p className="text-sm font-medium">{isKingMode ? "Her Status:" : "My Mood:"}</p>
-            <p className="text-sm italic text-gray-600">{currentMood}</p>
+            <p className="text-small font-medium">{isKingMode ? "Her Status:" : "My Mood:"}</p>
+            <p className="text-small italic text-gray-600">{currentMood}</p>
           </div>
 
           <div className="p-3 bg-gray-100 rounded flex items-center gap-2">
-            <p className="text-sm">{isKingMode ? "She Needs:" : "I Need:"}</p>
+            <p className="text-small">{isKingMode ? "She Needs:" : "I Need:"}</p>
             <currentCraving.icon className="w-4 h-4" />
-            <p className="text-sm italic">{isKingMode ? `Get her ${currentCraving.text}` : `Need ${currentCraving.text} ASAP`}</p>
+            <p className="text-small italic">{isKingMode ? `Get her ${currentCraving.text}` : `Need ${currentCraving.text} ASAP`}</p>
           </div>
 
           <div className="flex items-center gap-2">
@@ -614,10 +614,10 @@ const MenuBarApp = () => {
             <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded">
               <div className="flex items-center gap-2 mb-2">
                 <AlertCircle className="w-4 h-4 text-amber-600" />
-                <span className="text-sm font-medium text-amber-700">Test Mode Active</span>
+                <span className="text-small font-medium text-amber-700">Test Mode Active</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-600">Test Day:</span>
+                <span className="text-small text-gray-600">Test Day:</span>
                 <input
                   type="range"
                   min="0"
@@ -626,9 +626,9 @@ const MenuBarApp = () => {
                   onChange={(e) => setTestDays(parseInt(e.target.value))}
                   className="flex-1"
                 />
-                <span className="w-8 text-right text-sm font-medium">{testDays}</span>
+                <span className="w-8 text-right text-small font-medium">{testDays}</span>
               </div>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-tiny text-gray-500 mt-1">
                 Showing day {testDays} of your cycle (actual: day {calculateCurrentDay(cycleData.startDate, new Date())})
               </p>
             </div>

@@ -35,15 +35,202 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   - Console output
 - State only what you can prove
 
+## Common Crashes and Fixes
+
+### Exit Code 15 (SIGTERM)
+**Symptoms**: App starts but crashes shortly after with "Exit Code: 15"
+**Cause**: Rapid state updates causing re-render loops
+**Fix**: Ensure 300ms debouncing in MenuBarApp.jsx phase updates
+**Verify**: Check logs for repeated "Updating phase" entries within milliseconds
+
+### Renderer Process Dead
+**Symptoms**: Heartbeat shows "Renderer dead for Xms"
+**Cause**: Missing crashLogger import in App.js
+**Fix**: Ensure `import './utils/crashLogger'` is at top of App.js
+**Verify**: Heartbeat file should show "ALIVE: Main + Renderer"
+
+### app.dock.hide() Crash
+**Symptoms**: Electron crashes on startup (macOS)
+**Cause**: Calling app.dock.hide() before app is ready
+**Fix**: Move app.dock.hide() inside app.whenReady() callback
+**Verify**: No crash logs immediately after "App is ready" message
+
+### Icon Not Updating
+**Symptoms**: Tray icon doesn't change when switching modes
+**Cause**: Phase name mismatch in iconFromPNG.js
+**Fix**: Update phaseIconMap to include all current phase names
+**Note**: Requires full Electron restart to take effect
+
+### Theme Provider Crash
+**Symptoms**: App crashes when ThemeProvider is enabled
+**Cause**: Theme being applied before DOM is ready
+**Fix**: Wrap theme application in try-catch and check document.documentElement exists
+**Verify**: No "Cannot read property 'style' of null" errors
+
+### Renderer Process Dies Every 5 Seconds
+**Symptoms**: 
+- Heartbeat shows "RENDERER PROCESS ALIVE" followed by "RENDERER PROCESS DIED - No heartbeat for 5 seconds"
+- Pattern repeats every minute (alive at :15, dead at :20)
+- App appears to work but renderer keeps restarting
+**Cause**: 
+- React hot reload conflicts with Electron's renderer process
+- Webpack recompilation triggers causing renderer restarts
+- Memory leaks in development mode
+**Fix**:
+1. Ensure React app is stable before starting Electron:
+   ```bash
+   # Start React first and wait for it to stabilize
+   npm start
+   # In another terminal, after React is ready:
+   npm run electron-dev
+   ```
+2. Check for infinite loops in useEffect hooks
+3. Disable React Fast Refresh if persistent:
+   ```
+   FAST_REFRESH=false npm start
+   ```
+**Verify**: Heartbeat should show consistent "ALIVE: Main + Renderer" without death cycles
+
+### Webpack Dynamic Import Warning
+**Symptoms**: 
+- Repeated "Critical dependency: the request of a dependency is an expression" warnings
+- React dev server shows "Compiling..." messages every few seconds
+- Warning specifically in ./src/core/services/phrases/PhraseConfigLoader.js line 54
+**Cause**: 
+- Dynamic import with variable path: `await import(configPath)`
+- Webpack cannot statically analyze dynamic imports
+- Triggers frequent recompilations
+**Impact**: May contribute to renderer process instability
+**Fix**:
+1. Replace dynamic import with static imports for known paths
+2. Use require() instead of import() for CommonJS compatibility
+3. Create a map of known imports instead of dynamic loading
+**Verify**: Check /tmp/react-dev.log - should not show repeated "Compiling..." messages
+
+## CSS and Theme Issues (July 2025)
+
+### CSS Variables Not Applying / Old Colors Showing
+**Symptoms**: 
+- User reports "old colors", "same colors" despite theme changes
+- CSS variables defined but not being used
+- Tailwind classes showing static colors instead of CSS variables
+**Root Cause**: 
+- Tailwind JIT compiler uses static color values at build time
+- Hardcoded Tailwind classes like `bg-pink-400` override CSS variables
+**Fix**:
+1. Add CSS overrides in `index.css` to force Tailwind classes to use CSS variables:
+   ```css
+   @layer utilities {
+     .bg-primary {
+       background-color: var(--color-primary) !important;
+     }
+     .text-primary {
+       color: var(--color-primary) !important;
+     }
+     /* ... etc for all color utilities ... */
+   }
+   ```
+2. Replace ALL hardcoded color classes with CSS variable classes
+3. Search for hardcoded colors: `grep -r "bg-\(red\|green\|pink\|blue\)-[0-9]" src/`
+**Verify**: Check computed styles in DevTools - should show CSS variables not hex values
+
+### Multiple Theme File Confusion
+**Symptoms**: 
+- Theme changes in design-system files don't apply
+- Colors coming from unexpected sources
+**Cause**: 
+- Two separate theme systems: `design-system/tokens/themes/` and `modes/*/theme.js`
+- ThemeContext loading from `modes/*/theme.js` instead of design tokens
+**Fix**: 
+- Update the actual theme files being loaded: `src/modes/queen/theme.js` and `src/modes/king/theme.js`
+- Keep design-system files for future migration
+**Verify**: Check console logs for "ThemeContext: Applying theme" messages
+
+### Aggressive/Unprofessional Colors
+**Symptoms**: 
+- "Screaming" colors, aggressive reds on dark backgrounds
+- User wants "modern yet soft" palette
+**Solution**: 
+- Queen Mode: Simple light theme with neutral indigo (#6366F1) as primary
+- King Mode: Dark gray theme (#1F2937 background) with muted gray accents
+- Remove all bright pinks, aggressive reds, and vibrant colors
+- Use standard semantic colors (error, warning, success) sparingly
+
+### Finding Hardcoded Colors
+**Command**: 
+```bash
+# Find all hardcoded Tailwind color classes
+grep -r "bg-\|text-\|border-" src/ | grep -E "(red|green|yellow|pink|blue|indigo|gray)-[0-9]"
+```
+**Common locations**:
+- StatusCard.jsx
+- SafetyScale.jsx  
+- Calendar.jsx
+- PhaseDetail.jsx
+- HistoryView.jsx
+
+### UI Stability When Mode Switching
+**Improvement**: After implementing CSS variable-based theming and accessibility improvements, the UI no longer shifts or jumps when switching between Queen and King modes
+**Cause**: Consistent styling with CSS variables, proper ARIA attributes, and stable component structure
+**Benefit**: Smoother user experience and better visual continuity
+
+## Debugging Methodology: 5 Whys
+
+When facing persistent issues (like CSS not updating), use the 5 Whys approach:
+
+**Example: "Why are old colors still showing?"**
+1. Why? → Because the app is using hardcoded colors
+2. Why? → Because Tailwind classes like `bg-pink-400` are compiled to static hex values
+3. Why? → Because Tailwind JIT compiler resolves colors at build time, not runtime
+4. Why? → Because that's how Tailwind optimizes for production - it doesn't know about CSS variables
+5. Why? → Because CSS variables are runtime values and Tailwind needs build-time values
+
+**Solution**: Override Tailwind classes with CSS that uses variables, or use utility classes that map to CSS variables.
+
+## Verification Checklist Before Claiming Success
+
+Before stating "the app is working", verify ALL of the following:
+
+1. **Process Check**:
+   ```bash
+   ps aux | grep -E "electron|npm" | grep -v grep
+   # Should show both npm and electron processes
+   ```
+
+2. **Heartbeat Check**:
+   ```bash
+   cat logs/menu-heartbeat.txt
+   # Must show "ALIVE: Main + Renderer" with recent timestamp
+   ```
+
+3. **Functional Tests**:
+   - [ ] Click tray icon - window should appear
+   - [ ] Click outside window - it should hide
+   - [ ] Toggle Queen/King mode - icon should change
+   - [ ] Switch between tabs - no crashes
+   - [ ] Check calendar view - should render without errors
+
+4. **Log Verification**:
+   ```bash
+   # Check for recent crashes
+   tail -20 logs/electron-*.log | grep -i "error\|crash\|exit"
+   # Should be empty or show only old entries
+   ```
+
+5. **Time-Based Verification**:
+   - App must run for at least 30 seconds without crashing
+   - Mode switching must work at least 3 times
+   - No "Renderer dead" messages in last 60 seconds
+
 ## Project Overview
 
 MoodbooM is an Electron-based menubar application that tracks menstrual cycle phases with humor. It combines a React frontend with Electron to create a macOS menubar app that displays cycle phase information and mood messages.
 
 ### Current Development Status (July 2025)
-- **Active Branch**: `feat/epic-68-modular-architecture`
+- **Active Branch**: `main` (Epic #68 completed and merged)
 - **Mode System**: Queen (female first-person) / King (partner warning system) modes
 - **Content**: 360+ unique mood messages and cravings per mode
-- **Architecture**: Transitioning to modular Queen/King architecture (Epic #68)
+- **Architecture**: Modular Queen/King architecture with theme system
 
 ## Security Architecture
 
@@ -79,6 +266,72 @@ The app uses a secure Electron architecture with:
 - `dialog.*` - File dialogs
 - `updates.*` - Auto-updater (future)
 - `dev.*` - Development tools
+
+## Accessibility Architecture
+
+The app implements comprehensive accessibility features following WCAG 2.1 AA standards:
+
+### Keyboard Navigation
+- **Tab Navigation**: Arrow keys, Home, and End keys navigate between tabs
+- **Focus Management**: Proper tabindex management (0 for active, -1 for inactive)
+- **Keyboard Hook**: `useKeyboardNavigation` hook handles all keyboard interactions
+- **Skip Navigation**: Skip link allows quick access to main content
+
+### Screen Reader Support
+- **ARIA Labels**: All interactive elements have descriptive labels
+- **ARIA Roles**: Proper semantic roles (tablist, tab, tabpanel, switch)
+- **Live Regions**: Mode changes announced via `aria-live` regions
+- **Announcements**: `announceToScreenReader` utility for dynamic updates
+
+### Visual Accessibility
+- **Focus Indicators**: High contrast focus outlines for all interactive elements
+- **High Contrast Mode**: Manual toggle in settings with persistent storage
+  - Light mode: Blue primary (#0000FF) on white background
+  - Dark mode: Cyan primary (#00FFFF) on black background
+  - Strong borders and enhanced contrast ratios
+- **Reduced Motion**: Respects `prefers-reduced-motion` system preference
+
+### Implementation Details
+- **Accessibility Utils**: `src/utils/accessibility.js` provides helper functions
+- **Styles**: `src/styles/accessibility.css` contains all accessibility styles
+- **Testing**: `src/tests/accessibility.test.js` uses jest-axe for compliance
+- **Components**: `HighContrastToggle` component for mode switching
+
+### Key Files
+- `/src/hooks/useKeyboardNavigation.js` - Keyboard navigation logic
+- `/src/utils/accessibility.js` - Screen reader announcements, contrast checking
+- `/src/styles/accessibility.css` - Focus indicators, high contrast styles
+- `/src/components/HighContrastToggle.jsx` - High contrast mode toggle
+
+### Testing Accessibility
+```bash
+# Run accessibility tests
+npm test -- --testNamePattern="accessibility"
+
+# Manual testing checklist:
+- [ ] Tab through all controls
+- [ ] Use arrow keys in tab navigation
+- [ ] Test with screen reader (VoiceOver on macOS)
+- [ ] Enable high contrast mode
+- [ ] Check focus indicators
+```
+
+## Architecture Decisions & Rationale
+
+### Why 300ms Debouncing?
+Phase updates in MenuBarApp.jsx use 300ms debouncing to prevent Exit Code 15 crashes. Without this delay, rapid mode switches or state updates can trigger re-render loops that overwhelm the Electron process, causing SIGTERM.
+
+### Why app.dock.hide() After app.ready?
+On macOS, calling dock methods before the app is ready causes immediate crashes. The dock API is only available after Electron's app module is fully initialized. This is a macOS-specific requirement.
+
+### Why crashLogger Import in App.js?
+The crashLogger establishes a heartbeat between main and renderer processes. Without it, the renderer appears dead to the crash monitor. It must be imported at the top level to start monitoring before any components mount.
+
+### Why Separate iconFromPNG.js?
+Lucide React icons can't be used directly in the main process. The PNG-based approach ensures compatibility with macOS menubar requirements (22x22 pixels) and allows for future customization.
+
+### Why SimpleModeContext?
+Centralizing mode state prevents prop drilling and ensures consistency across all components. The context also handles persistence and migration from legacy badassMode.
 
 ## Development Commands
 
@@ -792,8 +1045,8 @@ The app tracks 6 phases with medical accuracy and mode-specific names:
 
 ### If Starting Fresh (Lost Context)
 1. **Check Current Branch**: `git branch --show-current`
-   - Should be on `feat/epic-68-modular-architecture`
-   - If not, switch to it: `git checkout feat/epic-68-modular-architecture`
+   - Should typically be on `main` for new work
+   - For epic work: `feat/epic-XX-description`
 
 2. **Current Mode System**:
    - Queen Mode = Female perspective (toggle OFF)
@@ -819,9 +1072,20 @@ The app tracks 6 phases with medical accuracy and mode-specific names:
    - Phase names differ between modes (see Phase Name Mapping table in Cycle Calculations section)
    - Content is in `modeContent.js`, phase logic in `MenuBarApp.jsx`
 
-6. **Next Steps (Epic #68)**:
-   - Working on modular architecture to separate Queen/King into distinct modules
-   - Start with Issue #69: Extract shared core functionality
+6. **Current Epic Priority**:
+   - **High**: Epic #79 - Modern UI Design & Visual Polish
+   - **Medium**: Epic #53 - Application Modularity
+   - **Low**: Epic #52 - Enhanced Navigation
+
+### UI Epic #79 Workflow
+Before starting any UI changes:
+1. **Review the epic description** with the user
+2. **Discuss and refine** the proposed UI improvements
+3. **Get approval** on the design direction
+4. **Create child issues** based on approved scope
+5. Only then start implementation
+
+DO NOT jump directly into UI changes without discussion!
 
 ### Emergency Recovery Commands
 ```bash
