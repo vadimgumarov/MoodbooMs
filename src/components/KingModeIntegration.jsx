@@ -3,6 +3,7 @@ import KingModeWrapper from '../modes/king/components/KingModeWrapper';
 import KingPhaseDisplay from '../modes/king/components/KingPhaseDisplay';
 import { getRandomKingPhrase, kingPhrases } from '../modes/king/config/phrases';
 import { Calendar, Clock, History, Settings, X, AlertCircle } from 'lucide-react';
+import { Tooltip } from './feedback';
 import '../modes/king/components/KingMode.css';
 
 // Map medical phase names to King mode phase keys
@@ -75,31 +76,33 @@ const KingModeIntegration = ({
             </h2>
             <div className="flex items-center gap-3">
               {/* Queen/King Mode Toggle */}
-              <label className={`flex items-center gap-2 ${isSwitching ? 'cursor-wait opacity-50' : 'cursor-pointer'}`}>
-                <span className="text-tiny" style={{ color: 'var(--king-text-secondary)' }}>
-                  {isKingMode ? 'King' : 'Queen'}
-                </span>
-                <div className="relative">
-                  <input
-                    type="checkbox"
-                    checked={isKingMode}
-                    onChange={(e) => {
-                      e.stopPropagation();
-                      if (!isSwitching) {
-                        onModeToggle();
-                      }
-                    }}
-                    disabled={isSwitching}
-                    className="sr-only"
-                  />
-                  <div className={`block w-10 h-6 rounded-full transition-colors ${
-                    isKingMode ? 'bg-primary' : 'bg-border'
-                  }`}></div>
-                  <div className={`absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform ${
-                    isKingMode ? 'translate-x-4' : ''
-                  }`}></div>
-                </div>
-              </label>
+              <Tooltip content={isKingMode ? "Switch to Queen mode (your perspective)" : "Switch to King mode (partner's perspective)"} position="bottom">
+                <label className={`flex items-center gap-2 ${isSwitching ? 'cursor-wait opacity-50' : 'cursor-pointer'}`}>
+                  <span className="text-tiny" style={{ color: 'var(--king-text-secondary)' }}>
+                    {isKingMode ? 'King' : 'Queen'}
+                  </span>
+                  <div className="relative">
+                    <input
+                      type="checkbox"
+                      checked={isKingMode}
+                      onChange={(e) => {
+                        e.stopPropagation();
+                        if (!isSwitching) {
+                          onModeToggle();
+                        }
+                      }}
+                      disabled={isSwitching}
+                      className="sr-only"
+                    />
+                    <div className={`block w-10 h-6 rounded-full transition-colors ${
+                      isKingMode ? 'bg-primary' : 'bg-border'
+                    }`}></div>
+                    <div className={`absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform ${
+                      isKingMode ? 'translate-x-4' : ''
+                    }`}></div>
+                  </div>
+                </label>
+              </Tooltip>
               {/* Close Button */}
               <button
                 onClick={onQuit}
