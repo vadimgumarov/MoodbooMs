@@ -202,6 +202,20 @@ grep -r "bg-\|text-\|border-" src/ | grep -E "(red|green|yellow|pink|blue|indigo
 - **Type Safety**: Proper constant exports with documentation
 - **Maintainability**: Easy to adjust values without searching codebase
 
+### Module System (Epic #53 - July 2025)
+- **Module Registry**: Central registry for all features with dependency management
+- **ModuleContext**: React Context API for module state management
+- **Persistent State**: Module preferences saved to electron-store
+- **Dependency Validation**: Can't enable modules without dependencies, can't disable if others depend
+- **Dynamic Features**: Components can check if modules are enabled before rendering
+- **Module Demo**: Available at `http://localhost:3000/?modules` for testing
+
+**Key Implementation Details**:
+- 100ms initialization delay prevents renderer conflicts
+- Strict mode double-initialization protection
+- 1s debounced saves to reduce I/O frequency
+- Won't render children until fully initialized
+
 ## Debugging Methodology: 5 Whys
 
 When facing persistent issues (like CSS not updating), use the 5 Whys approach:
