@@ -86,10 +86,18 @@ const ModuleContext = createContext(null);
 export function ModuleProvider({ children }) {
   const [state, dispatch] = useReducer(moduleReducer, initialState);
   const saveTimeoutRef = useRef(null);
+  const initializationRef = useRef(false);
 
-  // Initialize modules on mount
+  // Initialize modules with delay to avoid render conflicts
   useEffect(() => {
+    // Prevent double initialization in React strict mode
+    if (initializationRef.current) return;
+    initializationRef.current = true;
+
     const initializeModules = async () => {
+      // Delay initialization to let the app stabilize
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
       dispatch({ type: MODULE_ACTIONS.SET_LOADING, payload: true });
       
       try {
@@ -98,9 +106,14 @@ export function ModuleProvider({ children }) {
 
         // Load saved state from electron store
         if (window.electronAPI && window.electronAPI.store) {
-          const savedModuleState = await window.electronAPI.store.get('moduleState');
-          if (savedModuleState) {
-            moduleRegistry.restorePersistedState(savedModuleState);
+          try {
+            const savedModuleState = await window.electronAPI.store.get('moduleState');
+            if (savedModuleState) {
+              moduleRegistry.restorePersistedState(savedModuleState);
+            }
+          } catch (storeError) {
+            console.warn('Failed to load module state from store:', storeError);
+            // Continue with defaults if store access fails
           }
         }
 
@@ -132,6 +145,7 @@ export function ModuleProvider({ children }) {
   // Save state to electron store with debouncing
   const saveState = useCallback(() => {
     if (!window.electronAPI || !window.electronAPI.store) return;
+    if (!state.initialized) return; // Don't save until initialized
 
     // Clear existing timeout
     if (saveTimeoutRef.current) {
@@ -146,8 +160,8 @@ export function ModuleProvider({ children }) {
       } catch (error) {
         console.error('Failed to save module state:', error);
       }
-    }, 500); // 500ms debounce
-  }, []);
+    }, 1000); // 1s debounce to reduce save frequency
+  }, [state.initialized]);
 
   // Save state whenever it changes
   useEffect(() => {
@@ -282,6 +296,11 @@ export function ModuleProvider({ children }) {
     // Save method for manual saves
     saveModuleState: saveState
   };
+
+  // Don't render children until initialized to avoid conflicts
+  if (!state.initialized && state.loading) {
+    return null; // Or a minimal loading state
+  }
 
   return (
     <ModuleContext.Provider value={value}>

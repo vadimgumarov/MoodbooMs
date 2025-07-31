@@ -6,7 +6,7 @@
  */
 
 // Window Configuration
-export const WINDOW_CONFIG = {
+const WINDOW_CONFIG = {
   WIDTH: 420,
   HEIGHT: 650,
   MIN_WIDTH: 320,
@@ -17,21 +17,21 @@ export const WINDOW_CONFIG = {
 };
 
 // Development Configuration
-export const DEV_CONFIG = {
+const DEV_CONFIG = {
   REACT_START_DELAY: 2000, // ms to wait for React dev server
   REACT_DEV_URL: 'http://localhost:3000',
   DEV_TOOLS_MODE: 'detach'
 };
 
 // Paths and Files
-export const PATHS = {
+const PATHS = {
   ICONS_DIR: 'icons',
   PRELOAD_SCRIPT: 'preload.js',
   DEFAULT_ICON: 'icon.png'
 };
 
 // IPC Channels
-export const IPC_CHANNELS = {
+const IPC_CHANNELS = {
   // Tray channels
   TRAY_UPDATE_PHASE: 'tray:update-phase',
   TRAY_SET_TOOLTIP: 'tray:set-tooltip',
@@ -61,7 +61,7 @@ export const IPC_CHANNELS = {
 };
 
 // Logging Configuration
-export const LOGGING = {
+const LOGGING = {
   LOG_DIR: 'logs',
   LOG_FILE_PREFIX: 'electron',
   LOG_DATE_FORMAT: 'YYYY-MM-DD',
@@ -70,14 +70,14 @@ export const LOGGING = {
 };
 
 // Tray Configuration
-export const TRAY_CONFIG = {
+const TRAY_CONFIG = {
   ICON_SIZE: 22, // macOS menubar standard
   TOOLTIP_PREFIX: 'MoodbooM',
   DEFAULT_PHASE: 'Bloody Hell Week'
 };
 
 // Security Configuration
-export const SECURITY = {
+const SECURITY = {
   ALLOWED_ORIGINS: [
     'http://localhost:3000',
     'file://'
@@ -90,7 +90,7 @@ export const SECURITY = {
 };
 
 // Timing Constants
-export const TIMING = {
+const TIMING = {
   WINDOW_SHOW_DELAY: 100, // ms delay before showing window
   BLUR_HIDE_DELAY: 100,   // ms delay before hiding on blur
   CRASH_CHECK_INTERVAL: 5000, // ms between crash checks
@@ -98,7 +98,7 @@ export const TIMING = {
 };
 
 // Error Messages
-export const ERROR_MESSAGES = {
+const ERROR_MESSAGES = {
   REACT_CONNECTION: 'Failed to connect to React dev server',
   IPC_HANDLER: 'IPC handler error',
   STORE_ACCESS: 'Failed to access store',
@@ -107,10 +107,24 @@ export const ERROR_MESSAGES = {
 };
 
 // Default Values
-export const DEFAULTS = {
+const DEFAULTS = {
   CYCLE_LENGTH: 28,
   CYCLE_START_DATE: new Date().toISOString(),
   NOTIFICATIONS_ENABLED: true,
   THEME: 'auto',
   MODE: 'queen'
+};
+
+// Export all constants
+module.exports = {
+  WINDOW_CONFIG,
+  DEV_CONFIG,
+  PATHS,
+  IPC_CHANNELS,
+  LOGGING,
+  TRAY_CONFIG,
+  SECURITY,
+  TIMING,
+  ERROR_MESSAGES,
+  DEFAULTS
 };
