@@ -590,6 +590,7 @@ We use modified versions of standard workflow scripts that automatically handle 
    - Creates epic branches from main
    - Creates issue branches from current epic branch
    - Handles branch naming: `feat/epic-1/issue-2-description`
+   - **Automatically updates GitHub Project status from "Todo" to "In Progress"**
 
 2. **Finishing Work (Commit, Push, and Merge)**
    ```bash
@@ -598,6 +599,7 @@ We use modified versions of standard workflow scripts that automatically handle 
    - Commits and pushes changes
    - For issue branches: offers to merge to parent epic branch
    - For epic branches: reminds to merge to main when complete
+   - **Automatically updates GitHub Project status from "In Progress" to "Done" when closing issues**
    - Optionally closes GitHub issues
 
 3. **Other Useful Scripts**
@@ -606,7 +608,7 @@ We use modified versions of standard workflow scripts that automatically handle 
    ./scripts/test.sh    # Run tests
    ./scripts/check.sh   # Quality assurance checks
    ./scripts/log.sh     # Update project log
-   ./scripts/hotfix.sh  # Quick fixes
+   ./scripts/fix.sh     # Quick fixes
    ```
 
 #### Manual Workflow (if needed):
@@ -614,6 +616,25 @@ We use modified versions of standard workflow scripts that automatically handle 
 1. **Epic Branch**: `feat/epic-{number}-{description}`
 2. **Issue Branch**: `feat/epic-{number}/issue-{number}-{description}`
 3. **Merge Pattern**: Issue → Epic → Main
+
+### GitHub Project Board Integration
+
+The workflow scripts automatically sync with the MoodbooMs GitHub Project board:
+
+1. **Automatic Status Updates**:
+   - `start.sh`: Moves issues from "Todo" → "In Progress"
+   - `finish.sh`: Moves issues from "In Progress" → "Done" (when closing)
+   
+2. **Project Configuration**:
+   - Project: MoodbooMs (ID: 6)
+   - Status Field: Todo, In Progress, Done
+   - Works for both regular issues and epics
+   
+3. **Benefits**:
+   - No manual project board updates needed
+   - Always reflects current work state
+   - Clear visibility of work progress
+   - Handles edge cases gracefully (issues not in project, etc.)
 
 ### Current Development Focus (Epic #68)
 

@@ -166,6 +166,29 @@ npm run electron
 npm run check
 ```
 
+### Development Workflow
+
+The project uses custom scripts with GitHub Project board integration:
+
+```bash
+# Start work on an issue (auto-updates status to "In Progress")
+./scripts/start.sh [issue-number]
+
+# Finish work (auto-updates status to "Done" when closing)
+./scripts/finish.sh
+
+# Other workflow scripts
+./scripts/status.sh  # Check current status
+./scripts/test.sh    # Run tests
+./scripts/log.sh     # Update project log
+```
+
+**Key Features:**
+- Automatic GitHub Project status updates (Todo → In Progress → Done)
+- Epic-based branching strategy
+- Integrated commit/merge workflow
+- No manual project board updates needed
+
 ## Troubleshooting
 
 ### Production Build Issues

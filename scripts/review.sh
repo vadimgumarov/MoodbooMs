@@ -69,7 +69,7 @@ detect_outdated() {
     
     # Check for old script names
     if echo "$content" | grep -E "wi\.sh|fw\.sh|cs\.sh|rt\.sh|qa\.sh|pl\.sh|fix\.sh" >/dev/null 2>&1; then
-        outdated="${outdated}\n- Old script names found (should be: start.sh, finish.sh, status.sh, test.sh, check.sh, log.sh, hotfix.sh)"
+        outdated="${outdated}\n- Old script names found (should be: start.sh, finish.sh, status.sh, test.sh, check.sh, log.sh, fix.sh)"
     fi
     
     # Check for deprecated patterns

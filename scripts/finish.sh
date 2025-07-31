@@ -251,6 +251,25 @@ $(gh issue list --label "epic-$EPIC_NUM" --state closed --json number,title | jq
                 # Close the epic issue
                 echo ""
                 echo -e "${BLUE}Closing epic issue #$EPIC_NUM...${NC}"
+                
+                # Update project status to "Done" before closing
+                echo -e "${BLUE}📊 Updating epic status to 'Done'...${NC}"
+                EPIC_ITEM_DATA=$(gh project item-list 6 --owner vadimgumarov --format json --limit 100 2>/dev/null | jq -r ".items[] | select(.content.number == $EPIC_NUM) | {id: .id, fieldValues: .fieldValues}" 2>/dev/null)
+                
+                if [ -n "$EPIC_ITEM_DATA" ]; then
+                    EPIC_ITEM_ID=$(echo "$EPIC_ITEM_DATA" | jq -r '.id')
+                    if [ -n "$EPIC_ITEM_ID" ]; then
+                        # Update the status field to "Done" (id: 98236657)
+                        gh project item-edit --project-id PVT_kwHOAVLXms4A-2sf --id "$EPIC_ITEM_ID" --field-id PVTSSF_lAHOAVLXms4A-2sfzgyIiHA --single-select-option-id 98236657 2>/dev/null && {
+                            echo -e "${GREEN}   ✓ Epic status updated to 'Done'${NC}"
+                        } || {
+                            echo -e "${YELLOW}   ⚠ Could not update epic status${NC}"
+                        }
+                    fi
+                else
+                    echo -e "${YELLOW}   Note: Epic not found in project board${NC}"
+                fi
+                
                 gh issue close $EPIC_NUM --comment "✅ Epic completed and merged to main!"
                 echo -e "${GREEN}✅ Epic #$EPIC_NUM closed${NC}"
                 
@@ -294,6 +313,25 @@ if [ -n "$ISSUE_NUM" ]; then
     # Ask about closing issue
     read -p "Close issue #$ISSUE_NUM? (y/N): " CLOSE_ISSUE
     if [[ "$CLOSE_ISSUE" == "y" || "$CLOSE_ISSUE" == "Y" ]]; then
+        # Update project status to "Done" before closing
+        echo -e "${BLUE}📊 Updating project status to 'Done'...${NC}"
+        ITEM_DATA=$(gh project item-list 6 --owner vadimgumarov --format json --limit 100 2>/dev/null | jq -r ".items[] | select(.content.number == $ISSUE_NUM) | {id: .id, fieldValues: .fieldValues}" 2>/dev/null)
+        
+        if [ -n "$ITEM_DATA" ]; then
+            ITEM_ID=$(echo "$ITEM_DATA" | jq -r '.id')
+            if [ -n "$ITEM_ID" ]; then
+                # Update the status field to "Done" (id: 98236657)
+                gh project item-edit --project-id PVT_kwHOAVLXms4A-2sf --id "$ITEM_ID" --field-id PVTSSF_lAHOAVLXms4A-2sfzgyIiHA --single-select-option-id 98236657 2>/dev/null && {
+                    echo -e "${GREEN}   ✓ Status updated to 'Done'${NC}"
+                } || {
+                    echo -e "${YELLOW}   ⚠ Could not update status${NC}"
+                }
+            fi
+        else
+            echo -e "${YELLOW}   Note: Issue not found in project board${NC}"
+        fi
+        
+        # Close the issue
         gh issue close "$ISSUE_NUM"
         echo -e "${GREEN}✅ Issue #$ISSUE_NUM closed${NC}"
     fi
