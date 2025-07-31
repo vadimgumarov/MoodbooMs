@@ -10,6 +10,7 @@ import { createCycleRecord, completeCycleRecord, addCycleToHistory, calculateCur
 import { modeContent, getRandomPhrase, resetPhraseTracking, getUIText } from '../content/modeContent';
 import { useMode, MODES } from '../core/contexts/SimpleModeContext';
 import { calculateFertilityPercentage } from '../utils/phaseDetection';
+import { CYCLE, DEBOUNCE, TABS, DEFAULT_PREFERENCES } from '../constants';
 
 // Icon mapping for food items
 const foodIconMap = {
@@ -131,8 +132,8 @@ const MenuBarApp = () => {
   
   const [cycleData, setCycleData] = useState({
     startDate: new Date(),
-    cycleLength: 28,
-    notifications: true
+    cycleLength: CYCLE.DEFAULT_LENGTH,
+    notifications: DEFAULT_PREFERENCES.notifications
   });
   const [currentPhase, setCurrentPhase] = useState({ phase: '', icon: null, description: '' });
   const [currentMood, setCurrentMood] = useState("");
@@ -140,7 +141,7 @@ const MenuBarApp = () => {
   const [testMode, setTestMode] = useState(false);
   const [testDays, setTestDays] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('mood'); // 'mood', 'calendar', 'history', or 'settings'
+  const [activeTab, setActiveTab] = useState(TABS.MOOD);
   const [selectedDate, setSelectedDate] = useState(null);
   const [cycleHistory, setCycleHistory] = useState([]);
   const [preferences, setPreferences] = useState({
@@ -256,7 +257,7 @@ const MenuBarApp = () => {
       };
       
       updatePhaseAndIcon();
-    }, 300); // 300ms debounce
+    }, DEBOUNCE.PHASE_UPDATE);
     
     return () => clearTimeout(timer); // Clean up timer
   }, [cycleData.startDate, cycleData.cycleLength, testDays, testMode, isLoading, currentMode]); // Use currentMode instead of isKingMode
@@ -308,7 +309,7 @@ const MenuBarApp = () => {
     }
     
     // Go back to mood tab
-    setActiveTab('mood');
+    setActiveTab(TABS.MOOD);
   };
 
 
@@ -545,7 +546,7 @@ const MenuBarApp = () => {
         {/* Tab Navigation */}
         <div className="flex mb-4 bg-surface rounded-lg p-1">
           <button
-            onClick={() => setActiveTab('mood')}
+            onClick={() => setActiveTab(TABS.MOOD)}
             className={`touch-target flex-1 py-2 px-3 rounded-md transition-colors text-small ${
               activeTab === 'mood' 
                 ? 'bg-background shadow-sm' 
@@ -555,7 +556,7 @@ const MenuBarApp = () => {
             {getUIText(currentMode, 'tabs', 'mood')}
           </button>
           <button
-            onClick={() => setActiveTab('calendar')}
+            onClick={() => setActiveTab(TABS.CALENDAR)}
             className={`touch-target flex-1 py-2 px-3 rounded-md transition-colors text-small ${
               activeTab === 'calendar' 
                 ? 'bg-background shadow-sm' 
@@ -565,7 +566,7 @@ const MenuBarApp = () => {
             {getUIText(currentMode, 'tabs', 'calendar')}
           </button>
           <button
-            onClick={() => setActiveTab('history')}
+            onClick={() => setActiveTab(TABS.HISTORY)}
             className={`touch-target flex-1 py-2 px-3 rounded-md transition-colors text-small ${
               activeTab === 'history' 
                 ? 'bg-background shadow-sm' 
@@ -575,7 +576,7 @@ const MenuBarApp = () => {
             {getUIText(currentMode, 'tabs', 'history')}
           </button>
           <button
-            onClick={() => setActiveTab('settings')}
+            onClick={() => setActiveTab(TABS.SETTINGS)}
             className={`touch-target py-2 px-3 rounded-md transition-colors text-small ${
               activeTab === 'settings' 
                 ? 'bg-background shadow-sm' 
