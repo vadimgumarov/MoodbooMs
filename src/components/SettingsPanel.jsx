@@ -8,6 +8,7 @@ import {
   Monitor,
   AlertCircle
 } from 'lucide-react';
+import { CYCLE, DEFAULT_PREFERENCES } from '../constants';
 
 const SettingsPanel = ({ 
   cycleData, 
@@ -16,8 +17,8 @@ const SettingsPanel = ({
   onCancel
 }) => {
   // Local state for form values
-  const [cycleLength, setCycleLength] = useState(cycleData?.cycleLength || 28);
-  const [notifications, setNotifications] = useState(preferences?.notifications ?? true);
+  const [cycleLength, setCycleLength] = useState(cycleData?.cycleLength || CYCLE.DEFAULT_LENGTH);
+  const [notifications, setNotifications] = useState(preferences?.notifications ?? DEFAULT_PREFERENCES.notifications);
   const [testMode, setTestMode] = useState(preferences?.testMode || false);
   const [hasChanges, setHasChanges] = useState(false);
   
@@ -83,19 +84,19 @@ const SettingsPanel = ({
                 Cycle Length: {cycleLength} days
               </label>
               <div className="flex items-center gap-3">
-                <span className="text-small text-gray-500">21</span>
+                <span className="text-small text-gray-500">{CYCLE.MIN_LENGTH}</span>
                 <input
                   type="range"
-                  min="21"
-                  max="35"
+                  min={CYCLE.MIN_LENGTH}
+                  max={CYCLE.MAX_LENGTH}
                   value={cycleLength}
                   onChange={(e) => setCycleLength(parseInt(e.target.value))}
                   className="flex-1"
                 />
-                <span className="text-small text-gray-500">35</span>
+                <span className="text-small text-gray-500">{CYCLE.MAX_LENGTH}</span>
               </div>
               <p className="text-tiny text-gray-500 mt-1">
-                Average cycle length is 28 days
+                Average cycle length is {CYCLE.DEFAULT_LENGTH} days
               </p>
             </div>
           </div>
