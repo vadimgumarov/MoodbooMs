@@ -1,209 +1,213 @@
-// King Mode Theme Configuration
-// Partner-focused design with warning colors and clear status indicators
+/**
+ * King Mode Theme (Dark Mode)
+ * 
+ * Modern dark theme using the same color system as Queen mode
+ * Only backgrounds and text colors are inverted for dark mode
+ * 
+ * Uses exact same accent colors as Queen mode for consistency
+ */
 
 export const kingTheme = {
   name: 'King Mode',
-  description: 'Partner warning system with survival guide aesthetics',
+  mode: 'king',
   
-  // Color palette - Warning/Alert focused
   colors: {
-    // Primary colors - Warning tones
-    primary: '#FF6B6B',        // Alert red
-    secondary: '#4ECDC4',      // Safe teal
-    accent: '#FFE66D',         // Caution yellow
+    // Primary palette - Same as Queen but adapted for dark
+    primary: '#8B5CF6', // Violet
+    secondary: '#7C3AED', // Purple
+    tertiary: '#6D28D9', // Deep purple
     
-    // Status colors matching danger levels
-    danger: '#DC2626',         // Code red
-    warning: '#F59E0B',        // Orange alert
-    safe: '#10B981',           // Green safe zone
-    caution: '#6366F1',        // Blue caution
+    // Backgrounds - Dark mode
+    background: '#111827', // Very dark gray
+    surface: '#1F2937', // Dark gray
+    surfaceAlt: '#374151', // Medium dark gray
     
-    // Background colors
-    background: '#1F2937',     // Dark tactical
-    surface: '#374151',        // Elevated surface
-    card: '#4B5563',          // Card background
+    // Text colors - Light for dark mode
+    text: '#F9FAFB', // Almost white
+    textSecondary: '#D1D5DB', // Light gray
+    textOnPrimary: '#FFFFFF',
+    textOnSecondary: '#FFFFFF',
     
-    // Text colors
-    text: {
-      primary: '#F9FAFB',      // High contrast white
-      secondary: '#D1D5DB',    // Muted gray
-      danger: '#FCA5A5',       // Light red
-      warning: '#FCD34D',      // Light yellow
-      safe: '#86EFAC',         // Light green
-    },
+    // Borders and dividers
+    border: '#374151', // Dark gray
+    borderLight: '#4B5563', // Medium gray
     
-    // Phase-specific colors
+    // States - Same as Queen mode
+    error: '#DC2626', // Red
+    warning: '#F59E0B', // Amber
+    success: '#10B981', // Emerald
+    info: '#3B82F6', // Blue
+    
+    // Phase-specific colors - Same as Queen mode
     phases: {
-      menstrual: '#DC2626',    // Code Red Alert
-      follicular: '#10B981',   // Safe Zone Active
-      ovulation: '#FFE66D',    // High Energy Warning
-      luteal: '#F59E0B',       // Patience Level: Low
-      lateLuteal: '#7C3AED',   // Volatility Alert
-      premenstrual: '#991B1B'  // DEFCON 1
+      menstrual: '#DC2626', // Red
+      follicular: '#10B981', // Green (growth/safe)
+      ovulation: '#F59E0B', // Amber (peak/caution)
+      luteal: '#8B5CF6', // Violet
+      lateLuteal: '#6366F1', // Indigo
+      premenstrual: '#EC4899' // Pink
     },
     
-    // UI element colors
-    ui: {
-      border: '#6B7280',
-      divider: '#4B5563',
-      hover: '#6366F1',
-      active: '#8B5CF6',
-      disabled: '#4B5563',
-      overlay: 'rgba(0, 0, 0, 0.7)'
+    // Fertility indicator colors (for calendar) - Darker versions
+    fertility: {
+      veryLow: '#374151', // Dark gray
+      low: '#4B5563', // Medium gray
+      medium: '#F59E0B', // Amber
+      high: '#10B981', // Green
+      veryHigh: '#34D399' // Bright green
+    },
+    
+    // Interactive states
+    hover: {
+      primary: '#7C3AED', // Darker violet
+      secondary: '#6D28D9' // Even darker
+    },
+    
+    // Gradients - Adapted for dark mode
+    gradients: {
+      primary: 'linear-gradient(135deg, #1F2937 0%, #111827 100%)',
+      secondary: 'linear-gradient(135deg, #374151 0%, #1F2937 100%)',
+      hero: 'linear-gradient(135deg, #8B5CF6 0%, #7C3AED 50%, #6D28D9 100%)'
     }
   },
   
-  // Typography - Clear and bold
   typography: {
-    fontFamily: {
-      primary: '-apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif',
-      mono: '"SF Mono", "Monaco", "Inconsolata", "Fira Code", monospace'
+    // Clean, professional fonts
+    fontFamily: '-apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif',
+    headingFontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+    
+    sizes: {
+      display: '3rem',
+      hero: '2.5rem',
+      title: '2rem',
+      heading: '1.5rem',
+      body: '1rem',
+      small: '0.875rem',
+      tiny: '0.75rem'
     },
-    fontSize: {
-      xs: '0.75rem',
-      sm: '0.875rem',
-      base: '1rem',
-      lg: '1.125rem',
-      xl: '1.25rem',
-      '2xl': '1.5rem',
-      '3xl': '1.875rem'
-    },
-    fontWeight: {
+    
+    weights: {
       normal: 400,
       medium: 500,
       semibold: 600,
       bold: 700
+    },
+    
+    // Line heights
+    lineHeights: {
+      tight: 1.3,
+      normal: 1.6,
+      relaxed: 1.8
     }
   },
   
-  // Spacing system
   spacing: {
     xs: '0.25rem',
     sm: '0.5rem',
     md: '1rem',
     lg: '1.5rem',
     xl: '2rem',
-    '2xl': '3rem'
+    xxl: '3rem'
   },
   
-  // Border radius - Sharp, tactical feel
   borderRadius: {
     none: '0',
     sm: '0.25rem',
-    base: '0.375rem',
     md: '0.5rem',
     lg: '0.75rem',
-    full: '9999px'
+    xl: '1rem',
+    xxl: '1.5rem',
+    full: '9999px',
+    button: '0.5rem', // More conservative button radius
+    card: '0.75rem'
   },
   
-  // Shadows - Strong definition
   shadows: {
-    sm: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
-    base: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
-    md: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-    lg: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
-    xl: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
+    sm: '0 1px 2px rgba(0, 0, 0, 0.3)',
+    md: '0 4px 6px rgba(0, 0, 0, 0.4)',
+    lg: '0 10px 15px rgba(0, 0, 0, 0.5)',
+    glow: '0 0 15px rgba(139, 92, 246, 0.4)',
+    button: '0 4px 6px rgba(0, 0, 0, 0.3)'
+  },
+  
+  transitions: {
+    fast: '150ms ease-in-out',
+    normal: '300ms ease-in-out',
+    slow: '500ms ease-in-out',
+    bounce: '300ms cubic-bezier(0.68, -0.55, 0.265, 1.55)'
+  },
+  
+  animations: {
+    modeSwitch: 'kingModeSwitch 400ms ease-in-out',
+    fadeIn: 'fadeIn 200ms ease-in',
+    slideIn: 'slideInLeft 300ms ease-out',
+    pulse: 'none', // No pulse animations
+    bounce: 'none' // No bounce animations
   },
   
   // Component-specific styles
   components: {
     button: {
       primary: {
-        background: '#FF6B6B',
-        color: '#FFFFFF',
-        hover: '#DC2626',
-        active: '#991B1B'
-      },
-      secondary: {
-        background: '#4ECDC4',
-        color: '#1F2937',
-        hover: '#06B6D4',
-        active: '#0891B2'
-      },
-      danger: {
-        background: '#DC2626',
-        color: '#FFFFFF',
-        hover: '#991B1B',
-        active: '#7F1D1D'
+        background: 'var(--color-primary)',
+        color: 'var(--color-text-on-primary)',
+        borderRadius: 'var(--radius-button)',
+        fontWeight: 'var(--font-weight-medium)',
+        transition: 'var(--transition-fast)',
+        boxShadow: 'var(--shadow-button)',
+        '&:hover': {
+          background: 'var(--color-hover-primary)',
+          boxShadow: 'var(--shadow-md)'
+        }
       }
     },
     
     card: {
-      background: '#374151',
-      border: '#4B5563',
-      shadow: '0 4px 6px -1px rgba(0, 0, 0, 0.3)'
-    },
-    
-    input: {
-      background: '#1F2937',
-      border: '#4B5563',
-      focus: '#FF6B6B',
-      text: '#F9FAFB',
-      placeholder: '#9CA3AF'
-    },
-    
-    toggle: {
-      background: '#4B5563',
-      active: '#FF6B6B',
-      handle: '#FFFFFF'
-    },
-    
-    badge: {
-      danger: {
-        background: '#DC2626',
-        text: '#FFFFFF'
-      },
-      warning: {
-        background: '#F59E0B',
-        text: '#1F2937'
-      },
-      safe: {
-        background: '#10B981',
-        text: '#1F2937'
+      background: 'var(--color-surface)',
+      borderRadius: 'var(--radius-card)',
+      boxShadow: 'var(--shadow-sm)',
+      border: '1px solid var(--color-border)',
+      '&:hover': {
+        boxShadow: 'var(--shadow-md)'
       }
+    },
+    
+    header: {
+      background: 'var(--gradient-primary)',
+      color: 'var(--color-text-on-primary)',
+      boxShadow: 'var(--shadow-md)'
     }
-  },
-  
-  // CSS variables for easy access
-  cssVariables: `
-    --king-primary: #FF6B6B;
-    --king-secondary: #4ECDC4;
-    --king-accent: #FFE66D;
-    --king-danger: #DC2626;
-    --king-warning: #F59E0B;
-    --king-safe: #10B981;
-    --king-caution: #6366F1;
-    --king-bg: #1F2937;
-    --king-surface: #374151;
-    --king-card: #4B5563;
-    --king-text: #F9FAFB;
-    --king-text-secondary: #D1D5DB;
-    --king-border: #6B7280;
-  `
+  }
 };
 
-// Export theme utilities
+// King mode is already dark, so dark variant is the same
+export const kingThemeDark = kingTheme;
+
+// King mode CSS classes and mappings
+export const kingThemeClasses = {
+  'bg-gray-900': 'bg-king-surface',
+  'bg-gray-800': 'bg-king-surface-alt',
+  'text-gray-100': 'text-king-text',
+  'text-gray-400': 'text-king-text-secondary',
+  'border-gray-700': 'border-king-border'
+};
+
+// Export phase colors
 export const getPhaseColor = (phase) => {
-  return kingTheme.colors.phases[phase] || kingTheme.colors.primary;
+  const phaseKey = phase.toLowerCase().replace(/\s+/g, '');
+  return kingTheme.colors.phases[phaseKey] || kingTheme.colors.primary;
 };
 
+// Export danger level for King mode
 export const getDangerLevel = (phase) => {
   const dangerMap = {
-    menstrual: 'danger',
-    follicular: 'safe',
-    ovulation: 'safe',
-    luteal: 'warning',
-    lateLuteal: 'caution',
-    premenstrual: 'danger'
+    'codered': 'critical',
+    'defcon1': 'extreme',
+    'volatilityalert': 'high',
+    'patiencelevellow': 'moderate',
+    'safezoneactive': 'low',
+    'highenergywarning': 'caution'
   };
-  return dangerMap[phase] || 'warning';
-};
-
-// Export theme class names for King mode
-export const kingThemeClasses = {
-  container: 'king-mode-container',
-  phaseCard: 'king-phase-card',
-  dangerBadge: 'king-danger-badge',
-  statusIndicator: 'king-status-indicator',
-  warningAlert: 'king-warning-alert'
+  const key = phase.toLowerCase().replace(/\s+/g, '');
+  return dangerMap[key] || 'unknown';
 };

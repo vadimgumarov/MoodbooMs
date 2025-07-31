@@ -46,16 +46,14 @@ class PhraseConfigLoader {
    * Import configuration (can be extended for different sources)
    */
   async importConfig(configPath) {
-    // For now, we'll use dynamic imports
-    // In future, this could load from JSON files, APIs, etc.
-    if (typeof configPath === 'string') {
-      const module = await import(configPath);
-      return module.default || module;
-    } else if (typeof configPath === 'object') {
-      // Direct config object
+    // Handle direct config objects
+    if (typeof configPath === 'object') {
       return configPath;
     }
-    throw new Error('Invalid config path');
+    
+    // For now, we don't support dynamic string paths to avoid webpack warnings
+    // In future, this could be enhanced to load from JSON files, APIs, etc.
+    throw new Error('Dynamic config paths not yet supported. Please pass config objects directly.');
   }
 
   /**

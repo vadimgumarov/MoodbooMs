@@ -8,6 +8,9 @@ import {
   Monitor,
   AlertCircle
 } from 'lucide-react';
+import { Button } from './ui/Button';
+import { Switch } from './ui/Switch';
+import { Slider } from './ui/Slider';
 
 const SettingsPanel = ({ 
   cycleData, 
@@ -59,13 +62,15 @@ const SettingsPanel = ({
           <Settings className="w-5 h-5" />
           <h2 className="text-heading font-semibold">Settings</h2>
         </div>
-        <button
+        <Button
           onClick={onCancel}
-          className="p-1 hover:bg-gray-100 rounded transition-colors"
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8"
           aria-label="Close settings"
         >
-          <X className="w-5 h-5" />
-        </button>
+          <X className="w-4 h-4" />
+        </Button>
       </div>
 
       {/* Content */}
@@ -82,18 +87,14 @@ const SettingsPanel = ({
               <label className="block text-small text-gray-600 mb-2">
                 Cycle Length: {cycleLength} days
               </label>
-              <div className="flex items-center gap-3">
-                <span className="text-small text-gray-500">21</span>
-                <input
-                  type="range"
-                  min="21"
-                  max="35"
-                  value={cycleLength}
-                  onChange={(e) => setCycleLength(parseInt(e.target.value))}
-                  className="flex-1"
-                />
-                <span className="text-small text-gray-500">35</span>
-              </div>
+              <Slider
+                min={21}
+                max={35}
+                value={cycleLength}
+                onChange={setCycleLength}
+                showLabels={true}
+                className="flex-1"
+              />
               <p className="text-tiny text-gray-500 mt-1">
                 Average cycle length is 28 days
               </p>
@@ -110,11 +111,9 @@ const SettingsPanel = ({
           
           <div className="pl-6">
             <label className="flex items-center gap-3 cursor-pointer">
-              <input
-                type="checkbox"
+              <Switch
                 checked={notifications}
-                onChange={(e) => setNotifications(e.target.checked)}
-                className="rounded"
+                onChange={setNotifications}
               />
               <span className="text-small">Enable notifications</span>
             </label>
@@ -133,11 +132,9 @@ const SettingsPanel = ({
           
           <div className="pl-6 space-y-3">
             <label className="flex items-center gap-3 cursor-pointer">
-              <input
-                type="checkbox"
+              <Switch
                 checked={testMode}
-                onChange={(e) => setTestMode(e.target.checked)}
-                className="rounded"
+                onChange={setTestMode}
               />
               <span className="text-small">Enable test mode</span>
             </label>
@@ -159,21 +156,22 @@ const SettingsPanel = ({
         )}
         
         <div className="flex gap-3">
-          <button
+          <Button
             onClick={handleReset}
             disabled={!hasChanges}
-            className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            variant="outline"
+            className="flex-1"
           >
             Reset
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={handleSave}
             disabled={!hasChanges}
-            className="flex-1 px-4 py-2 bg-indigo-500 text-white rounded hover:bg-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+            className="flex-1"
           >
             <Save className="w-4 h-4" />
             Save Changes
-          </button>
+          </Button>
         </div>
       </div>
     </div>

@@ -210,7 +210,7 @@ app.whenReady().then(() => {
       // window.webContents.openDevTools({ mode: 'detach' });
     }
     // TEMPORARILY ENABLE DEVTOOLS TO DEBUG CRASH
-    window.webContents.openDevTools({ mode: 'detach' });
+    // window.webContents.openDevTools({ mode: 'detach' });
   });
   
   window.webContents.on('render-process-gone', (event, details) => {

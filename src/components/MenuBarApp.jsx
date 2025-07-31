@@ -542,47 +542,75 @@ const MenuBarApp = () => {
           </div>
         </div>
 
-        {/* Tab Navigation */}
-        <div className="flex mb-4 bg-surface rounded-lg p-1">
+        {/* Tab Navigation - Enhanced with smooth transitions */}
+        <div className="flex mb-4 bg-gray-100 rounded-lg p-1">
           <button
             onClick={() => setActiveTab('mood')}
-            className={`touch-target flex-1 py-2 px-3 rounded-md transition-colors text-small ${
-              activeTab === 'mood' 
-                ? 'bg-background shadow-sm' 
-                : 'hover:bg-background'
-            }`}
+            className={`
+              relative flex-1 py-2 px-3 rounded-md transition-all duration-200 text-small font-medium
+              focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary 
+              focus-visible:ring-offset-2
+              ${activeTab === 'mood' 
+                ? 'bg-white text-primary shadow-sm' 
+                : 'text-gray-600 hover:text-gray-900 hover:bg-white/50'
+              }
+            `}
           >
             {getUIText(currentMode, 'tabs', 'mood')}
+            {activeTab === 'mood' && (
+              <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-12 h-0.5 bg-primary rounded-full" />
+            )}
           </button>
           <button
             onClick={() => setActiveTab('calendar')}
-            className={`touch-target flex-1 py-2 px-3 rounded-md transition-colors text-small ${
-              activeTab === 'calendar' 
-                ? 'bg-background shadow-sm' 
-                : 'hover:bg-background'
-            }`}
+            className={`
+              relative flex-1 py-2 px-3 rounded-md transition-all duration-200 text-small font-medium
+              focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary 
+              focus-visible:ring-offset-2
+              ${activeTab === 'calendar' 
+                ? 'bg-white text-primary shadow-sm' 
+                : 'text-gray-600 hover:text-gray-900 hover:bg-white/50'
+              }
+            `}
           >
             {getUIText(currentMode, 'tabs', 'calendar')}
+            {activeTab === 'calendar' && (
+              <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-12 h-0.5 bg-primary rounded-full" />
+            )}
           </button>
           <button
             onClick={() => setActiveTab('history')}
-            className={`touch-target flex-1 py-2 px-3 rounded-md transition-colors text-small ${
-              activeTab === 'history' 
-                ? 'bg-background shadow-sm' 
-                : 'hover:bg-background'
-            }`}
+            className={`
+              relative flex-1 py-2 px-3 rounded-md transition-all duration-200 text-small font-medium
+              focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary 
+              focus-visible:ring-offset-2
+              ${activeTab === 'history' 
+                ? 'bg-white text-primary shadow-sm' 
+                : 'text-gray-600 hover:text-gray-900 hover:bg-white/50'
+              }
+            `}
           >
             {getUIText(currentMode, 'tabs', 'history')}
+            {activeTab === 'history' && (
+              <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-12 h-0.5 bg-primary rounded-full" />
+            )}
           </button>
           <button
             onClick={() => setActiveTab('settings')}
-            className={`touch-target py-2 px-3 rounded-md transition-colors text-small ${
-              activeTab === 'settings' 
-                ? 'bg-background shadow-sm' 
-                : 'hover:bg-background'
-            }`}
+            className={`
+              relative py-2 px-3 rounded-md transition-all duration-200
+              focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary 
+              focus-visible:ring-offset-2
+              ${activeTab === 'settings' 
+                ? 'bg-white text-primary shadow-sm' 
+                : 'text-gray-600 hover:text-gray-900 hover:bg-white/50'
+              }
+            `}
           >
             <Settings className="w-4 h-4" />
+            {activeTab === 'settings' && (
+              <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-primary rounded-full" />
+            )}
           </button>
         </div>
 

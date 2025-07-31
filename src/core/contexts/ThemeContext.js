@@ -7,8 +7,8 @@
 
 import React, { createContext, useContext, useEffect, useMemo } from 'react';
 import { useMode } from './SimpleModeContext';
-import { queenTheme, queenThemeDark } from '../../modes/queen/theme';
-import { kingTheme, kingThemeDark } from '../../modes/king/theme';
+import { queenTheme, queenThemeDark } from '../../modes/queen/config/theme';
+import { kingTheme, kingThemeDark } from '../../modes/king/config/theme';
 import { THEME_MODES, THEME_VARIANTS } from '../themes/types';
 
 // Theme Context

@@ -1,240 +1,218 @@
-// Queen Mode Theme Configuration
-// BadAss personality with bold, sarcastic styling
+/**
+ * Queen Mode Theme (Light Mode)
+ * 
+ * Modern, clean light theme with purple accent colors
+ * 
+ * COLOR SYSTEM:
+ * - Primary: Violet (#8B5CF6) - Main brand color
+ * - Secondary: Purple (#7C3AED) - Darker accent
+ * - Tertiary: Deep Purple (#6D28D9) - Darkest accent
+ * 
+ * - States: Red (error), Amber (warning), Emerald (success), Blue (info)
+ * - Phases: Red, Green, Amber, Violet, Indigo, Pink
+ * 
+ * Total unique colors: ~12-15 colors used consistently across both modes
+ * Queen = Light backgrounds, King = Dark backgrounds, same accent colors
+ */
 
 export const queenTheme = {
-  // Color palette for Queen mode
-  colors: {
-    // Primary colors
-    primary: '#FF1744',        // Bold red for BadAss energy
-    secondary: '#D500F9',      // Electric purple for sass
-    accent: '#FF6E40',         // Fiery orange for attitude
-    
-    // Phase-specific colors (calendar and UI)
-    phases: {
-      menstrual: '#B71C1C',      // Deep blood red
-      follicular: '#4CAF50',     // Vibrant green for energy
-      ovulation: '#FF4081',      // Hot pink for peak fertility
-      luteal: '#FF9800',         // Burnt orange for exhaustion
-      lateLuteal: '#9C27B0',     // Moody purple
-      premenstrual: '#D32F2F'    // Warning red
-    },
-    
-    // Fertility indicator colors
-    fertility: {
-      veryLow: '#424242',        // Dark gray
-      low: '#616161',            // Medium gray
-      medium: '#FFC107',         // Amber
-      high: '#8BC34A',           // Light green
-      veryHigh: '#4CAF50'        // Vibrant green
-    },
-    
-    // UI colors
-    background: '#1A1A1A',       // Dark background for drama
-    surface: '#2D2D2D',          // Slightly lighter surface
-    text: {
-      primary: '#FFFFFF',        // White text for contrast
-      secondary: '#B0B0B0',      // Gray for secondary text
-      accent: '#FF1744'          // Red for emphasis
-    },
-    
-    // Status colors
-    error: '#F44336',
-    warning: '#FF9800',
-    success: '#4CAF50',
-    info: '#2196F3'
-  },
+  name: 'Queen Mode',
+  mode: 'queen',
   
-  // Typography
-  typography: {
-    // Font families
-    fontFamily: {
-      primary: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-      display: '"Bebas Neue", "Impact", sans-serif',  // Bold display font
-      mono: '"Courier New", monospace'
+  colors: {
+    // Primary palette - Modern purple/violet
+    primary: '#8B5CF6', // Violet
+    secondary: '#7C3AED', // Purple
+    tertiary: '#6D28D9', // Deep purple
+    
+    // Backgrounds - Light mode
+    background: '#FFFFFF', // Pure white
+    surface: '#F9FAFB', // Light gray
+    surfaceAlt: '#F3F4F6', // Slightly darker gray
+    
+    // Text colors - Dark for light mode
+    text: '#111827', // Almost black
+    textSecondary: '#6B7280', // Gray
+    textOnPrimary: '#FFFFFF',
+    textOnSecondary: '#FFFFFF',
+    
+    // Borders and dividers
+    border: '#E5E7EB', // Light gray
+    borderLight: '#F3F4F6', // Very light gray
+    
+    // States - Consistent across modes
+    error: '#DC2626', // Red
+    warning: '#F59E0B', // Amber
+    success: '#10B981', // Emerald
+    info: '#3B82F6', // Blue
+    
+    // Phase-specific colors - Medical/informative
+    phases: {
+      menstrual: '#DC2626', // Red
+      follicular: '#10B981', // Green (growth/safe)
+      ovulation: '#F59E0B', // Amber (peak/caution)
+      luteal: '#8B5CF6', // Violet
+      lateLuteal: '#6366F1', // Indigo
+      premenstrual: '#EC4899' // Pink
     },
     
-    // Font sizes
-    fontSize: {
-      xs: '0.75rem',    // 12px
-      sm: '0.875rem',   // 14px
-      base: '1rem',     // 16px
-      lg: '1.125rem',   // 18px
-      xl: '1.25rem',    // 20px
-      '2xl': '1.5rem',  // 24px
-      '3xl': '2rem',    // 32px
-      '4xl': '2.5rem'   // 40px
+    // Fertility indicator colors (for calendar)
+    fertility: {
+      veryLow: '#F3F4F6', // Very light gray
+      low: '#E5E7EB', // Light gray
+      medium: '#FCD34D', // Yellow
+      high: '#86EFAC', // Light green
+      veryHigh: '#34D399' // Bright green
     },
     
-    // Font weights
-    fontWeight: {
-      normal: 400,
-      medium: 500,
-      semibold: 600,
-      bold: 700,
-      black: 900        // Extra bold for attitude
+    // Interactive states
+    hover: {
+      primary: '#7C3AED', // Darker violet
+      secondary: '#6D28D9' // Even darker
+    },
+    
+    // Gradients - Subtle for light mode
+    gradients: {
+      primary: 'linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%)',
+      secondary: 'linear-gradient(135deg, #F9FAFB 0%, #F3F4F6 100%)',
+      hero: 'linear-gradient(135deg, #8B5CF6 0%, #7C3AED 50%, #6D28D9 100%)'
     }
   },
   
-  // Spacing
-  spacing: {
-    xs: '0.25rem',    // 4px
-    sm: '0.5rem',     // 8px
-    md: '1rem',       // 16px
-    lg: '1.5rem',     // 24px
-    xl: '2rem',       // 32px
-    '2xl': '3rem',    // 48px
-    '3xl': '4rem'     // 64px
+  typography: {
+    // Playful, modern fonts
+    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+    headingFontFamily: '"Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+    
+    sizes: {
+      display: '3rem',
+      hero: '2.5rem',
+      title: '2rem',
+      heading: '1.5rem',
+      body: '1rem',
+      small: '0.875rem',
+      tiny: '0.75rem'
+    },
+    
+    weights: {
+      normal: 400,
+      medium: 500,
+      semibold: 600,
+      bold: 700
+    },
+    
+    // Line heights
+    lineHeights: {
+      tight: 1.2,
+      normal: 1.5,
+      relaxed: 1.75
+    }
   },
   
-  // Border radius
+  spacing: {
+    xs: '0.25rem',
+    sm: '0.5rem',
+    md: '1rem',
+    lg: '1.5rem',
+    xl: '2rem',
+    xxl: '3rem'
+  },
+  
   borderRadius: {
     none: '0',
-    sm: '0.125rem',   // 2px
-    base: '0.25rem',  // 4px
-    md: '0.375rem',   // 6px
-    lg: '0.5rem',     // 8px
-    xl: '0.75rem',    // 12px
-    '2xl': '1rem',    // 16px
-    full: '9999px'
+    sm: '0.25rem',
+    md: '0.5rem',
+    lg: '0.75rem',
+    xl: '1rem',
+    xxl: '1.5rem',
+    full: '9999px',
+    button: '2rem', // Rounded buttons
+    card: '1rem'
   },
   
-  // Shadows
   shadows: {
-    sm: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
-    base: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
-    md: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-    lg: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
-    xl: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
-    glow: '0 0 20px rgba(255, 23, 68, 0.5)'  // Red glow for drama
+    sm: '0 1px 2px rgba(0, 0, 0, 0.05)',
+    md: '0 4px 6px rgba(0, 0, 0, 0.07)',
+    lg: '0 10px 15px rgba(0, 0, 0, 0.1)',
+    glow: '0 0 15px rgba(139, 92, 246, 0.3)',
+    button: '0 4px 6px rgba(139, 92, 246, 0.2)'
   },
   
-  // Transitions
   transitions: {
     fast: '150ms ease-in-out',
-    base: '200ms ease-in-out',
-    slow: '300ms ease-in-out',
-    slower: '500ms ease-in-out'
+    normal: '300ms ease-in-out',
+    slow: '500ms ease-in-out',
+    bounce: '300ms cubic-bezier(0.68, -0.55, 0.265, 1.55)'
+  },
+  
+  animations: {
+    modeSwitch: 'queenModeSwitch 600ms ease-in-out',
+    fadeIn: 'fadeIn 300ms ease-in',
+    slideIn: 'slideInBottom 400ms ease-out',
+    pulse: 'pulse 2s infinite',
+    bounce: 'bounce 1s infinite'
   },
   
   // Component-specific styles
   components: {
-    // Button styles
     button: {
       primary: {
-        background: '#FF1744',
-        color: '#FFFFFF',
-        hover: '#F50057',
-        active: '#C51162'
-      },
-      secondary: {
-        background: 'transparent',
-        color: '#FF1744',
-        border: '2px solid #FF1744',
-        hover: '#FF17441A',
-        active: '#FF174433'
+        background: 'var(--color-primary)',
+        color: 'var(--color-text-on-primary)',
+        borderRadius: 'var(--radius-button)',
+        fontWeight: 'var(--font-weight-semibold)',
+        transition: 'var(--transition-fast)',
+        boxShadow: 'var(--shadow-button)',
+        '&:hover': {
+          background: 'var(--color-hover-primary)',
+          transform: 'translateY(-2px)',
+          boxShadow: 'var(--shadow-lg)'
+        }
       }
     },
     
-    // Card styles
     card: {
-      background: '#2D2D2D',
-      border: '1px solid #3D3D3D',
-      hover: {
-        border: '1px solid #FF1744',
-        shadow: '0 0 20px rgba(255, 23, 68, 0.3)'
+      background: 'var(--color-surface)',
+      borderRadius: 'var(--radius-card)',
+      boxShadow: 'var(--shadow-md)',
+      border: '1px solid var(--color-border-light)',
+      '&:hover': {
+        boxShadow: 'var(--shadow-lg)',
+        transform: 'translateY(-2px)'
       }
     },
     
-    // Badge styles for phases
-    badge: {
-      menstrual: {
-        background: '#B71C1C',
-        color: '#FFFFFF'
-      },
-      follicular: {
-        background: '#4CAF50',
-        color: '#FFFFFF'
-      },
-      ovulation: {
-        background: '#FF4081',
-        color: '#FFFFFF'
-      },
-      luteal: {
-        background: '#FF9800',
-        color: '#FFFFFF'
-      },
-      lateLuteal: {
-        background: '#9C27B0',
-        color: '#FFFFFF'
-      },
-      premenstrual: {
-        background: '#D32F2F',
-        color: '#FFFFFF'
-      }
-    }
-  },
-  
-  // Animations
-  animations: {
-    // Pulse animation for important elements
-    pulse: {
-      keyframes: {
-        '0%': { opacity: 1 },
-        '50%': { opacity: 0.5 },
-        '100%': { opacity: 1 }
-      },
-      duration: '2s',
-      timing: 'ease-in-out',
-      iteration: 'infinite'
-    },
-    
-    // Shake animation for attitude
-    shake: {
-      keyframes: {
-        '0%, 100%': { transform: 'translateX(0)' },
-        '10%, 30%, 50%, 70%, 90%': { transform: 'translateX(-2px)' },
-        '20%, 40%, 60%, 80%': { transform: 'translateX(2px)' }
-      },
-      duration: '0.5s',
-      timing: 'ease-in-out'
-    },
-    
-    // Glow animation for emphasis
-    glow: {
-      keyframes: {
-        '0%': { boxShadow: '0 0 5px rgba(255, 23, 68, 0.5)' },
-        '50%': { boxShadow: '0 0 20px rgba(255, 23, 68, 0.8)' },
-        '100%': { boxShadow: '0 0 5px rgba(255, 23, 68, 0.5)' }
-      },
-      duration: '2s',
-      timing: 'ease-in-out',
-      iteration: 'infinite'
+    header: {
+      background: 'var(--gradient-primary)',
+      color: 'var(--color-text-on-primary)',
+      boxShadow: 'var(--shadow-lg)'
     }
   }
 };
 
-// Export theme utilities
-export const getPhaseColor = (phase) => {
-  return queenTheme.colors.phases[phase] || queenTheme.colors.primary;
-};
+// For now, dark mode variant is the same as light
+// In the future, we might want a true dark variant of Queen mode
+export const queenThemeDark = queenTheme;
 
-export const getFertilityColor = (fertilityLevel) => {
-  if (fertilityLevel >= 85) return queenTheme.colors.fertility.veryHigh;
-  if (fertilityLevel >= 60) return queenTheme.colors.fertility.high;
-  if (fertilityLevel >= 30) return queenTheme.colors.fertility.medium;
-  if (fertilityLevel >= 10) return queenTheme.colors.fertility.low;
-  return queenTheme.colors.fertility.veryLow;
-};
-
-// Export CSS variables for easy use in components
+// Theme CSS variables for Queen mode
 export const queenCSSVariables = {
-  '--queen-primary': queenTheme.colors.primary,
-  '--queen-secondary': queenTheme.colors.secondary,
-  '--queen-accent': queenTheme.colors.accent,
-  '--queen-bg': queenTheme.colors.background,
-  '--queen-surface': queenTheme.colors.surface,
-  '--queen-text-primary': queenTheme.colors.text.primary,
-  '--queen-text-secondary': queenTheme.colors.text.secondary,
-  '--queen-text-accent': queenTheme.colors.text.accent,
-  '--queen-font-display': queenTheme.typography.fontFamily.display
+  '--color-primary': queenTheme.colors.primary,
+  '--color-secondary': queenTheme.colors.secondary,
+  '--color-tertiary': queenTheme.colors.tertiary,
+  '--color-background': queenTheme.colors.background,
+  '--color-surface': queenTheme.colors.surface,
+  '--color-text': queenTheme.colors.text,
+  '--color-text-secondary': queenTheme.colors.textSecondary,
+  '--color-border': queenTheme.colors.border
+};
+
+// Export phase colors for calendar
+export const getPhaseColor = (phase) => {
+  const phaseKey = phase.toLowerCase().replace(/\s+/g, '');
+  return queenTheme.colors.phases[phaseKey] || queenTheme.colors.primary;
+};
+
+// Export fertility colors for calendar
+export const getFertilityColor = (level) => {
+  return queenTheme.colors.fertility[level] || queenTheme.colors.fertility.low;
 };
