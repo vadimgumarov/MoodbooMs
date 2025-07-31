@@ -1,7 +1,24 @@
 PROJECT WORK LOG - MoodbooM
 ===================================
 
-2025-07-31 15:36: Issue #95 - Implement Core Modules COMPLETED
+2025-07-31 23:26: GitHub Workflow Enhancement - Auto-Update Issue Status
+------------------------------------------------------------------------------
+Implemented automatic project board status updates in start.sh script:
+
+Enhancement:
+- Issues now automatically move from "Todo" to "In Progress" on project board
+- Integrated with GitHub Projects API (MoodbooMs project)
+- Shows clear feedback when status is updated
+- Handles edge cases (issue not in project, update failures)
+
+Implementation:
+- Added project field lookup to find Status field and options
+- Queries project items to find issue and update its status
+- Uses proper project IDs and field IDs for reliable updates
+
+This ensures project board always reflects current work state without manual updates.
+
+2025-07-31 16:05: Issue #95 - Implement Core Modules COMPLETED
 ------------------------------------------------------------------------------
 Successfully converted all core tabs to modular components:
 
@@ -16,6 +33,7 @@ Technical Improvements:
 - Fixed infinite re-render caused by availableTabs.join() dependency
 - Added useMemo for tab calculation to prevent unnecessary re-renders
 - Positioned tooltips below toggle to avoid UI obstruction
+- Fixed missing tooltip in King mode integration
 - Maintained all existing functionality while adding modularity
 
 All modules tested and working correctly with enable/disable functionality.

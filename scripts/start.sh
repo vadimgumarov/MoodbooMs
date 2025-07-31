@@ -181,6 +181,25 @@ if [ -z "$ISSUE_ASSIGNEES" ]; then
     gh issue edit "$ISSUE_NUM" --add-assignee @me
 fi
 
+# Update project status to "In Progress"
+echo -e "${GREEN}📊 Updating project status to 'In Progress'...${NC}"
+# First, we need to find the item ID in the project for this issue
+ITEM_DATA=$(gh project item-list 6 --owner vadimgumarov --format json --limit 100 2>/dev/null | jq -r ".items[] | select(.content.number == $ISSUE_NUM) | {id: .id, fieldValues: .fieldValues}" 2>/dev/null)
+
+if [ -n "$ITEM_DATA" ]; then
+    ITEM_ID=$(echo "$ITEM_DATA" | jq -r '.id')
+    if [ -n "$ITEM_ID" ]; then
+        # Update the status field
+        gh project item-edit --project-id PVT_kwHOAVLXms4A-2sf --id "$ITEM_ID" --field-id PVTSSF_lAHOAVLXms4A-2sfzgyIiHA --single-select-option-id 47fc9ee4 2>/dev/null && {
+            echo -e "${GREEN}   ✓ Status updated to 'In Progress'${NC}"
+        } || {
+            echo -e "${YELLOW}   ⚠ Could not update status${NC}"
+        }
+    fi
+else
+    echo -e "${YELLOW}   Note: Issue not found in project board${NC}"
+fi
+
 # Add comment to issue with branch name
 echo -e "${GREEN}💬 Adding comment to issue...${NC}"
 gh issue comment "$ISSUE_NUM" --body "Started work on this issue in branch \`$BRANCH_NAME\`"
