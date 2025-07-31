@@ -174,6 +174,34 @@ grep -r "bg-\|text-\|border-" src/ | grep -E "(red|green|yellow|pink|blue|indigo
 **Cause**: Consistent styling with CSS variables, proper ARIA attributes, and stable component structure
 **Benefit**: Smoother user experience and better visual continuity
 
+## Recent Improvements (Epic #79 - July 2025)
+
+### Design System Implementation
+- **Token-based architecture**: CSS variables for colors, spacing, typography
+- **Mode-aware theming**: Separate Queen/King palettes with smooth transitions
+- **Component consistency**: All UI elements use design tokens
+- **Typography scale**: Proper hierarchy with responsive sizing
+
+### Accessibility Features
+- **WCAG 2.1 AA Compliance**: Full keyboard navigation, proper contrast ratios
+- **Screen Reader Support**: ARIA labels, live regions, semantic HTML
+- **Focus Management**: Visible focus indicators, logical tab order
+- **High Contrast Mode**: Toggle in settings for improved visibility
+- **Keyboard Shortcuts**: Arrow keys for tab navigation, Escape to close
+
+### Feedback System
+- **Loading States**: Spinners with size variants, skeleton loaders
+- **Error Handling**: Mode-aware error messages with retry actions
+- **Success Feedback**: Temporary success messages with auto-dismiss
+- **Tooltips**: Contextual help throughout the interface
+- **Global Notifications**: FeedbackContext for app-wide alerts
+
+### Constants System
+- **Eliminated Magic Numbers**: All values extracted to constants
+- **Centralized Configuration**: Single source of truth for limits/defaults
+- **Type Safety**: Proper constant exports with documentation
+- **Maintainability**: Easy to adjust values without searching codebase
+
 ## Debugging Methodology: 5 Whys
 
 When facing persistent issues (like CSS not updating), use the 5 Whys approach:

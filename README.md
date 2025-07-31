@@ -82,10 +82,14 @@ The menubar icon changes to reflect your cycle phase:
 - Cycle history and statistics with predictions
 - Period adjustment for irregular cycles
 - Theme system with mode-specific styling
+- Modern UI with design system and CSS variables
+- Full accessibility support (WCAG 2.1 AA compliant)
+- Comprehensive feedback states (loading, error, success)
+- Keyboard navigation and screen reader support
+- High contrast mode for improved visibility
 
 🚧 **Active Development:**
-- **Epic #79**: Modern UI Design & Visual Polish (HIGH PRIORITY)
-- **Epic #53**: Application Modularity & User Customization (MEDIUM)
+- **Epic #53**: Application Modularity & User Customization (MEDIUM PRIORITY)
 - **Epic #52**: Enhanced Navigation & Date Selection (LOW)
 - **Epic #43**: Cross-Platform Packaging & Distribution (INFRASTRUCTURE)
 
