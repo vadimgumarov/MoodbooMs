@@ -55,7 +55,9 @@ export const CYCLE = {
     OVULATION_END: 16,
     LUTEAL_END: 20,
     LATE_LUTEAL_END: 24
-  }
+  },
+  OVULATION_OFFSET: 14, // Days before end of cycle
+  HISTORY_CYCLES_FOR_AVERAGE: 6 // Number of recent cycles to use for average
 };
 
 // Fertility Levels
