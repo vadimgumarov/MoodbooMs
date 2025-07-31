@@ -158,7 +158,7 @@ const MenuBarApp = () => {
   const previousPhaseRef = useRef('');
   
   // Get dynamic tabs based on enabled modules
-  const getAvailableTabs = () => {
+  const availableTabs = React.useMemo(() => {
     const tabs = [];
     if (isModuleEnabled('mood')) tabs.push(TABS.MOOD);
     if (isModuleEnabled('calendar')) tabs.push(TABS.CALENDAR);
@@ -166,9 +166,7 @@ const MenuBarApp = () => {
     // Settings is always available
     tabs.push(TABS.SETTINGS);
     return tabs;
-  };
-
-  const availableTabs = getAvailableTabs();
+  }, [isModuleEnabled]); // Only recalculate when module state changes
 
   // Enable keyboard navigation for dynamic tabs
   useKeyboardNavigation(
@@ -183,7 +181,7 @@ const MenuBarApp = () => {
       // Default to first available tab or settings
       setActiveTab(availableTabs[0] || TABS.SETTINGS);
     }
-  }, [availableTabs.join(','), activeTab]);
+  }, [availableTabs.length, activeTab]); // Use length instead of join to avoid creating new strings
 
   // Load saved data on mount
   useEffect(() => {
