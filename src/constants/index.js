@@ -67,7 +67,11 @@ export const FERTILITY = {
     LOW: { min: 10, max: 30, name: 'Low' },
     VERY_LOW: { min: 0, max: 10, name: 'Very Low' }
   },
-  PEAK_DAYS: [13, 14, 15] // Days with highest fertility
+  PEAK_DAYS: [13, 14, 15], // Days with highest fertility
+  SAFETY_THRESHOLDS: {
+    SAFE: 20,    // <= 20% fertility is safe
+    CAUTION: 50  // 20-50% is caution, >50% is danger
+  }
 };
 
 // Mode System

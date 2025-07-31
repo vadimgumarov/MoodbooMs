@@ -1,14 +1,15 @@
 import React from 'react';
 import { Shield, AlertCircle, AlertTriangle } from 'lucide-react';
 import { calculateFertilityPercentage } from '../core/utils';
+import { FERTILITY } from '../constants';
 
 const SafetyScale = ({ cycleDay, cycleLength, compact = false }) => {
   const fertilityPercentage = calculateFertilityPercentage(cycleDay, cycleLength);
   
   // Determine safety level based on fertility percentage
   const getSafetyLevel = (percentage) => {
-    if (percentage <= 20) return { level: 'safe', color: 'green', icon: Shield };
-    if (percentage <= 50) return { level: 'caution', color: 'yellow', icon: AlertTriangle };
+    if (percentage <= FERTILITY.SAFETY_THRESHOLDS.SAFE) return { level: 'safe', color: 'green', icon: Shield };
+    if (percentage <= FERTILITY.SAFETY_THRESHOLDS.CAUTION) return { level: 'caution', color: 'yellow', icon: AlertTriangle };
     return { level: 'danger', color: 'red', icon: AlertCircle };
   };
   
