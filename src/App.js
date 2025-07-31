@@ -3,6 +3,7 @@ import MenuBarApp from './components/MenuBarApp';
 import TestKingMode from './components/TestKingMode';
 import TestPhraseSystem from './components/TestPhraseSystem';
 import StyleGuide from './components/StyleGuide/StyleGuide';
+import ModuleDemo from './components/ModuleDemo';
 // import { ModeProvider } from './core/contexts/SimpleModeContext';
 import { AppProviders } from './core/contexts';
 import ErrorBoundary from './components/ErrorBoundary';
@@ -17,6 +18,9 @@ function App() {
   // Toggle this to view the style guide (development only)
   const showStyleGuide = process.env.NODE_ENV === 'development' && 
     window.location.search.includes('styleguide');
+  // Toggle this to test the module system
+  const showModuleDemo = process.env.NODE_ENV === 'development' && 
+    window.location.search.includes('modules');
   
   // Dark mode management
   const [isDark] = useDarkMode();
@@ -51,6 +55,7 @@ function App() {
       <AppProviders themeVariant={isDark ? 'dark' : 'light'}>
         <div className="App">
           {showStyleGuide ? <StyleGuide /> : 
+           showModuleDemo ? <ModuleDemo /> :
            testPhraseSystem ? <TestPhraseSystem /> : 
            testKingMode ? <TestKingMode /> : 
            <MenuBarApp />}
