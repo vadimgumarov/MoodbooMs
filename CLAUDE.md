@@ -1129,6 +1129,34 @@ Before starting any UI changes:
 
 DO NOT jump directly into UI changes without discussion!
 
+### Module System (Epic #53)
+The app now uses a modular architecture for tabs:
+
+1. **Module Registry** (`/core/modules/registry.js`):
+   - Defines available modules: mood, calendar, history, phaseDetail
+   - Each module has metadata (name, description, category, dependencies)
+   - Modules can be enabled/disabled dynamically
+
+2. **Module Context** (`/core/contexts/ModuleContext.js`):
+   - Manages module state globally
+   - Persists enabled/disabled state
+   - Prevents render loops with proper initialization
+
+3. **Module Components** (`/modules/`):
+   - MoodModule: Today tab content
+   - CalendarModule: Calendar view
+   - HistoryModule: Cycle history
+   - Each checks if enabled before rendering
+
+4. **Dynamic Tab Navigation**:
+   - Tabs appear/disappear based on enabled modules
+   - Uses memoization to prevent re-renders
+   - Settings tab always visible
+
+5. **Common Module Issues**:
+   - **Render loops**: Use `availableTabs.length` not `join()` for dependencies
+   - **Tooltip obstruction**: Position tooltips to not cover interactive elements
+
 ### Emergency Recovery Commands
 ```bash
 # Check status
