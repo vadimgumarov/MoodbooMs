@@ -75,9 +75,9 @@ const Calendar = ({ cycleStartDate, cycleLength = 28, onDateSelect }) => {
   };
 
   return (
-    <div className="p-4">
+    <div className="p-6">
       {/* Calendar Header */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-6">
         <button
           onClick={previousMonth}
           className="p-2 hover:bg-surface rounded-full transition-colors"
@@ -100,16 +100,16 @@ const Calendar = ({ cycleStartDate, cycleLength = 28, onDateSelect }) => {
       </div>
 
       {/* Day labels */}
-      <div className="grid grid-cols-7 gap-1 mb-2">
+      <div className="grid grid-cols-7 gap-2 mb-4">
         {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-          <div key={day} className="text-center text-tiny font-medium text-text-secondary py-2">
+          <div key={day} className="text-center text-small font-medium text-text-secondary py-3">
             {day}
           </div>
         ))}
       </div>
 
       {/* Calendar Grid */}
-      <div className="grid grid-cols-7 gap-1">
+      <div className="grid grid-cols-7 gap-2">
         {calendarDays.map((day, index) => {
           const isCurrentMonth = isSameMonth(day, currentMonth);
           const isToday = isSameDay(day, today);
@@ -122,7 +122,7 @@ const Calendar = ({ cycleStartDate, cycleLength = 28, onDateSelect }) => {
               key={index}
               onClick={() => onDateSelect && onDateSelect(day)}
               className={`
-                relative p-2 h-12 rounded-lg transition-all
+                relative p-3 h-16 rounded-lg transition-all flex flex-col items-center justify-center
                 ${isCurrentMonth ? '' : 'opacity-40'}
                 ${isToday ? 'ring-2 ring-blue-500 ring-offset-1' : ''}
                 ${fertilityColor}
@@ -130,11 +130,11 @@ const Calendar = ({ cycleStartDate, cycleLength = 28, onDateSelect }) => {
               `}
               disabled={!isCurrentMonth}
             >
-              <div className="text-small font-medium">
+              <div className="text-small font-medium leading-none">
                 {getDate(day)}
               </div>
               {cycleDay && isCurrentMonth && (
-                <div className="text-tiny opacity-75">
+                <div className="text-tiny opacity-75 mt-1 leading-none">
                   D{cycleDay}
                 </div>
               )}
@@ -144,11 +144,11 @@ const Calendar = ({ cycleStartDate, cycleLength = 28, onDateSelect }) => {
       </div>
 
       {/* Legend */}
-      <div className="mt-6 space-y-2">
+      <div className="mt-8 space-y-3">
         <h3 className="text-small font-medium text-text-primary">
           {isKingMode ? "Threat Level Monitor" : "My Cycle Map"}
         </h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-tiny">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-tiny">
           <div className="flex items-center space-x-2">
             <div className="w-4 h-4 bg-error rounded flex-shrink-0"></div>
             <span className="break-words">{isKingMode ? "Code Red - Maximum Alert" : "The Red Wedding"}</span>

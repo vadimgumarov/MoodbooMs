@@ -8,11 +8,17 @@ import {
   Monitor,
   AlertCircle,
   Contrast,
-  Power
+  Power,
+  Package,
+  ToggleLeft,
+  ToggleRight,
+  Info,
+  RefreshCw
 } from 'lucide-react';
 import { CYCLE, DEFAULT_PREFERENCES } from '../constants';
 import HighContrastToggle from './HighContrastToggle';
 import { SuccessMessage, ErrorMessage, LoadingSpinner, Tooltip } from './feedback';
+import { useModules } from '../core/contexts';
 
 const SettingsPanel = ({ 
   cycleData, 
@@ -20,6 +26,16 @@ const SettingsPanel = ({
   onSave, 
   onCancel
 }) => {
+  // Hook for module context
+  const { 
+    initialized: modulesInitialized,
+    getAllModules, 
+    isModuleEnabled, 
+    toggleModule,
+    canEnableModule,
+    getDependentModules
+  } = useModules();
+  
   // Local state for form values
   const [cycleLength, setCycleLength] = useState(cycleData?.cycleLength || CYCLE.DEFAULT_LENGTH);
   const [notifications, setNotifications] = useState(preferences?.notifications ?? DEFAULT_PREFERENCES.notifications);
@@ -30,21 +46,62 @@ const SettingsPanel = ({
   const [saveStatus, setSaveStatus] = useState(null); // { type: 'success' | 'error', message: string }
   const [showQuitConfirm, setShowQuitConfirm] = useState(false);
   
+  // Module-specific state
+  const [moduleStates, setModuleStates] = useState({});
+  const [moduleChanges, setModuleChanges] = useState(false);
+  const [moduleError, setModuleError] = useState(null);
+  
+  // Initialize module states when modules are loaded
+  useEffect(() => {
+    if (modulesInitialized) {
+      const modules = getAllModules();
+      const initialStates = {};
+      modules.forEach(module => {
+        initialStates[module.id] = isModuleEnabled(module.id);
+      });
+      setModuleStates(initialStates);
+    }
+  }, [modulesInitialized, getAllModules, isModuleEnabled]);
+
   // Track if any values have changed
   useEffect(() => {
-    const changed = 
+    const settingsChanged = 
       cycleLength !== (cycleData?.cycleLength || 28) ||
       notifications !== (preferences?.notifications ?? true) ||
       testMode !== (preferences?.testMode || false) ||
       highContrast !== (preferences?.highContrast || false);
-    setHasChanges(changed);
-  }, [cycleLength, notifications, testMode, cycleData, preferences]);
+    
+    // Check for module changes
+    const moduleChangesDetected = modulesInitialized && Object.keys(moduleStates).some(moduleId => {
+      return moduleStates[moduleId] !== isModuleEnabled(moduleId);
+    });
+    
+    setModuleChanges(moduleChangesDetected);
+    setHasChanges(settingsChanged || moduleChangesDetected);
+  }, [cycleLength, notifications, testMode, highContrast, cycleData, preferences, moduleStates, modulesInitialized, isModuleEnabled]);
 
   const handleSave = async () => {
     setSaving(true);
     setSaveStatus(null);
+    setModuleError(null);
     
     try {
+      // Save module changes first if any
+      if (moduleChanges) {
+        for (const [moduleId, enabled] of Object.entries(moduleStates)) {
+          const currentlyEnabled = isModuleEnabled(moduleId);
+          if (enabled !== currentlyEnabled) {
+            try {
+              await toggleModule(moduleId);
+            } catch (moduleError) {
+              setModuleError(`Failed to ${enabled ? 'enable' : 'disable'} ${getAllModules().find(m => m.id === moduleId)?.name}: ${moduleError.message}`);
+              return; // Don't save other settings if module save fails
+            }
+          }
+        }
+      }
+      
+      // Save other settings
       await onSave({
         cycleData: {
           ...cycleData,
@@ -82,6 +139,40 @@ const SettingsPanel = ({
     setNotifications(preferences?.notifications ?? true);
     setTestMode(preferences?.testMode || false);
     setHighContrast(preferences?.highContrast || false);
+    
+    // Reset module states to current actual states
+    if (modulesInitialized) {
+      const modules = getAllModules();
+      const currentStates = {};
+      modules.forEach(module => {
+        currentStates[module.id] = isModuleEnabled(module.id);
+      });
+      setModuleStates(currentStates);
+    }
+    
+    setModuleError(null);
+  };
+
+  // Handle module toggle
+  const handleModuleToggle = (moduleId) => {
+    setModuleError(null);
+    setModuleStates(prev => ({
+      ...prev,
+      [moduleId]: !prev[moduleId]
+    }));
+  };
+
+  // Reset modules to defaults
+  const handleResetModulesToDefaults = () => {
+    if (modulesInitialized) {
+      const modules = getAllModules();
+      const defaultStates = {};
+      modules.forEach(module => {
+        defaultStates[module.id] = module.defaultEnabled;
+      });
+      setModuleStates(defaultStates);
+      setModuleError(null);
+    }
   };
 
   const handleQuit = async () => {
@@ -232,6 +323,101 @@ const SettingsPanel = ({
             <p className="text-tiny text-gray-500 mt-1 ml-6">
               Improves visibility with higher contrast colors
             </p>
+          </div>
+        </div>
+
+        {/* Modules Section */}
+        <div className="space-y-4">
+          <div className="flex items-center gap-2 text-gray-700">
+            <Package className="w-4 h-4" />
+            <h3 className="font-medium">Modules</h3>
+          </div>
+          
+          <div className="pl-6 space-y-4">
+            {modulesInitialized && getAllModules().map(module => {
+              const enabled = moduleStates[module.id] ?? false;
+              const { canEnable, missingDependencies } = canEnableModule(module.id);
+              const dependentModules = getDependentModules(module.id);
+              const hasEnabledDependents = dependentModules.some(dep => moduleStates[dep.id]);
+              
+              return (
+                <div key={module.id} className="border rounded-lg p-3 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <Tooltip 
+                        content={enabled ? "Click to disable this module" : 
+                                (!canEnable && !enabled) ? 
+                                `Cannot enable: requires ${missingDependencies.join(', ')}` :
+                                "Click to enable this module"}
+                      >
+                        <button
+                          onClick={() => handleModuleToggle(module.id)}
+                          disabled={(!canEnable && !enabled) || (enabled && hasEnabledDependents)}
+                          className={`flex items-center gap-2 p-1 rounded transition-colors ${
+                            enabled 
+                              ? 'text-blue-600 hover:text-blue-700' 
+                              : 'text-gray-400 hover:text-gray-600'
+                          } ${(!canEnable && !enabled) || (enabled && hasEnabledDependents) ? 
+                            'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                        >
+                          {enabled ? <ToggleRight className="w-5 h-5" /> : <ToggleLeft className="w-5 h-5" />}
+                        </button>
+                      </Tooltip>
+                      
+                      <div>
+                        <h4 className="font-medium text-small">{module.name}</h4>
+                        <p className="text-tiny text-gray-600">{module.description}</p>
+                      </div>
+                    </div>
+                    
+                    {(module.dependencies?.length > 0 || dependentModules.length > 0) && (
+                      <Tooltip content={
+                        `${module.dependencies?.length > 0 ? 
+                          `Requires: ${module.dependencies.map(id => 
+                            getAllModules().find(m => m.id === id)?.name).join(', ')}` : ''}${
+                          module.dependencies?.length > 0 && dependentModules.length > 0 ? '; ' : ''}${
+                          dependentModules.length > 0 ? 
+                          `Required by: ${dependentModules.map(m => m.name).join(', ')}` : ''}`
+                      }>
+                        <Info className="w-4 h-4 text-gray-400" />
+                      </Tooltip>
+                    )}
+                  </div>
+                  
+                  {/* Show dependency warnings */}
+                  {!canEnable && !enabled && missingDependencies.length > 0 && (
+                    <div className="flex items-center gap-2 text-amber-600 text-tiny">
+                      <AlertCircle className="w-3 h-3" />
+                      <span>Requires: {missingDependencies.map(id => 
+                        getAllModules().find(m => m.id === id)?.name).join(', ')}</span>
+                    </div>
+                  )}
+                  
+                  {enabled && hasEnabledDependents && (
+                    <div className="flex items-center gap-2 text-amber-600 text-tiny">
+                      <AlertCircle className="w-3 h-3" />
+                      <span>Required by: {dependentModules.filter(dep => moduleStates[dep.id]).map(m => m.name).join(', ')}</span>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+            
+            <div className="flex gap-2 pt-2">
+              <button
+                onClick={handleResetModulesToDefaults}
+                className="flex items-center gap-2 px-3 py-1 text-tiny border border-gray-300 rounded hover:bg-gray-50 transition-colors"
+              >
+                <RefreshCw className="w-3 h-3" />
+                Reset to Defaults
+              </button>
+            </div>
+            
+            {moduleError && (
+              <div className="text-tiny text-red-600 mt-2">
+                {moduleError}
+              </div>
+            )}
           </div>
         </div>
 
