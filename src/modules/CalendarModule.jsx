@@ -7,7 +7,7 @@
 import React, { useState } from 'react';
 import { useModules } from '../core/contexts';
 import { MODULE_IDS } from '../core/modules/types';
-import Calendar from '../components/Calendar';
+import Calendar from '../components/Calendar/Calendar';
 import PhaseDetail from '../components/PhaseDetail';
 
 const CalendarModule = ({ cycleData, testMode, testDays }) => {

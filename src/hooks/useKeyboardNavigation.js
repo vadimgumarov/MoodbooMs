@@ -113,3 +113,27 @@ export function useEscapeKey(onEscape, enabled = true) {
     };
   }, [onEscape, enabled]);
 }
+
+/**
+ * Hook for quit keyboard shortcut (Cmd/Ctrl+Q)
+ * @param {Function} onQuit - Function to call on quit shortcut
+ * @param {boolean} enabled - Whether quit shortcut is enabled
+ */
+export function useQuitShortcut(onQuit, enabled = true) {
+  useEffect(() => {
+    if (!enabled) return;
+    
+    const handleQuit = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'q') {
+        e.preventDefault();
+        onQuit();
+      }
+    };
+    
+    document.addEventListener('keydown', handleQuit);
+    
+    return () => {
+      document.removeEventListener('keydown', handleQuit);
+    };
+  }, [onQuit, enabled]);
+}

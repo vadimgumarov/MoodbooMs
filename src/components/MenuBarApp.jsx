@@ -2,6 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Sun, CloudSun, Cloud, CloudRain, CloudLightning, Tornado, Heart, Coffee, Candy, IceCream, Cookie, Settings, AlertCircle, Soup, Apple, Fish, Salad, Milk, Cherry, Wheat, Carrot, Egg, Nut, Banana, X } from 'lucide-react';
 import SettingsPanel from './SettingsPanel';
 import KingModeIntegration from './KingModeIntegration';
+import Calendar from './Calendar/Calendar';
+import PhaseDetail from './PhaseDetail';
+import HistoryView from './HistoryView';
+import StatusCard from './StatusCard';
 import { createCycleRecord, completeCycleRecord, addCycleToHistory, calculateCurrentDay, getCurrentPhase } from '../core/utils';
 import { modeContent, getRandomPhrase, resetPhraseTracking, getUIText } from '../content/modeContent';
 import { useMode, MODES } from '../core/contexts/SimpleModeContext';
@@ -9,7 +13,7 @@ import { useModules } from '../core/contexts';
 import { calculateFertilityPercentage } from '../utils/phaseDetection';
 import { CYCLE, DEBOUNCE, TABS, DEFAULT_PREFERENCES } from '../constants';
 import { announceToScreenReader, getPhaseAriaLabel } from '../utils/accessibility';
-import { useKeyboardNavigation } from '../hooks/useKeyboardNavigation';
+import { useKeyboardNavigation, useQuitShortcut } from '../hooks/useKeyboardNavigation';
 import { LoadingSpinner, StatusCardSkeleton, Tooltip, ErrorMessage, SuccessMessage } from './feedback';
 import { MoodModule, CalendarModule, HistoryModule } from '../modules';
 
@@ -157,6 +161,18 @@ const MenuBarApp = () => {
   // Use ref to track previous phase to prevent unnecessary updates
   const previousPhaseRef = useRef('');
   
+  // Quit handler
+  const handleQuit = async () => {
+    try {
+      // Check if there are unsaved changes (simplified - in a full implementation, 
+      // we'd check if any settings are dirty)
+      window.electronAPI.app.quit();
+    } catch (error) {
+      console.error('Error during quit:', error);
+      setSaveError('Failed to quit application. Please try again.');
+    }
+  };
+  
   // Get dynamic tabs based on enabled modules
   const availableTabs = React.useMemo(() => {
     const tabs = [];
@@ -174,6 +190,9 @@ const MenuBarApp = () => {
     activeTab,
     setActiveTab
   );
+  
+  // Enable quit keyboard shortcut (Cmd/Ctrl+Q)
+  useQuitShortcut(handleQuit);
   
   // Ensure active tab is still available when modules change
   React.useEffect(() => {
@@ -518,7 +537,7 @@ const MenuBarApp = () => {
                     : cycleData.startDate
                   }
                   cycleLength={cycleData.cycleLength}
-                    />
+                />
               </div>
             )}
           </div>

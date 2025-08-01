@@ -7,7 +7,8 @@ import {
   X,
   Monitor,
   AlertCircle,
-  Contrast
+  Contrast,
+  Power
 } from 'lucide-react';
 import { CYCLE, DEFAULT_PREFERENCES } from '../constants';
 import HighContrastToggle from './HighContrastToggle';
@@ -27,6 +28,7 @@ const SettingsPanel = ({
   const [hasChanges, setHasChanges] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saveStatus, setSaveStatus] = useState(null); // { type: 'success' | 'error', message: string }
+  const [showQuitConfirm, setShowQuitConfirm] = useState(false);
   
   // Track if any values have changed
   useEffect(() => {
@@ -80,6 +82,40 @@ const SettingsPanel = ({
     setNotifications(preferences?.notifications ?? true);
     setTestMode(preferences?.testMode || false);
     setHighContrast(preferences?.highContrast || false);
+  };
+
+  const handleQuit = async () => {
+    try {
+      // If there are unsaved changes, prompt to save first
+      if (hasChanges) {
+        const shouldSave = await window.electronAPI.dialog.showMessageBox({
+          type: 'warning',
+          buttons: ['Save & Quit', 'Quit Without Saving', 'Cancel'],
+          defaultId: 0,
+          cancelId: 2,
+          title: 'Unsaved Changes',
+          message: 'You have unsaved changes. What would you like to do?'
+        });
+
+        if (shouldSave.response === 2) {
+          // Cancel - don't quit
+          return;
+        } else if (shouldSave.response === 0) {
+          // Save first
+          await handleSave();
+        }
+        // If response === 1, quit without saving
+      }
+
+      // Quit the application
+      window.electronAPI.app.quit();
+    } catch (error) {
+      console.error('Error during quit:', error);
+      setSaveStatus({
+        type: 'error',
+        message: 'Failed to quit application. Please try again.'
+      });
+    }
   };
 
 
@@ -195,6 +231,27 @@ const SettingsPanel = ({
             />
             <p className="text-tiny text-gray-500 mt-1 ml-6">
               Improves visibility with higher contrast colors
+            </p>
+          </div>
+        </div>
+
+        {/* Application Control Section */}
+        <div className="space-y-4">
+          <div className="flex items-center gap-2 text-gray-700">
+            <Power className="w-4 h-4" />
+            <h3 className="font-medium">Application</h3>
+          </div>
+          
+          <div className="pl-6">
+            <button
+              onClick={handleQuit}
+              className="flex items-center gap-2 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
+            >
+              <Power className="w-4 h-4" />
+              Quit MoodbooM
+            </button>
+            <p className="text-tiny text-gray-500 mt-2">
+              Close the application completely. Use Cmd+Q as a keyboard shortcut.
             </p>
           </div>
         </div>
