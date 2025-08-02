@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { 
   format, 
@@ -22,8 +22,10 @@ import { useMode } from '../../core/contexts/SimpleModeContext';
 
 const Calendar = ({ cycleStartDate, cycleLength = 28, onDateSelect }) => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [focusedDate, setFocusedDate] = useState(null);
   const today = new Date();
   const { isKingMode } = useMode();
+  const calendarRef = useRef(null);
 
   // Navigation handlers
   const previousMonth = () => setCurrentMonth(subMonths(currentMonth, 1));
@@ -77,11 +79,112 @@ const Calendar = ({ cycleStartDate, cycleLength = 28, onDateSelect }) => {
   // Handler for Today button
   const goToToday = () => {
     setCurrentMonth(new Date());
+    setFocusedDate(today);
     // Clear any selected date by calling onDateSelect with null
     if (onDateSelect) {
       onDateSelect(null);
     }
   };
+
+  // Keyboard navigation handlers
+  const handleKeyDown = useCallback((e) => {
+    if (!focusedDate) return;
+
+    let newFocusedDate = new Date(focusedDate);
+    let monthChanged = false;
+
+    switch (e.key) {
+      case 'ArrowLeft':
+        e.preventDefault();
+        newFocusedDate = addDays(focusedDate, -1);
+        break;
+      case 'ArrowRight':
+        e.preventDefault();
+        newFocusedDate = addDays(focusedDate, 1);
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        newFocusedDate = addDays(focusedDate, -7);
+        break;
+      case 'ArrowDown':
+        e.preventDefault();
+        newFocusedDate = addDays(focusedDate, 7);
+        break;
+      case 'Home':
+        e.preventDefault();
+        newFocusedDate = startOfMonth(currentMonth);
+        break;
+      case 'End':
+        e.preventDefault();
+        newFocusedDate = endOfMonth(currentMonth);
+        break;
+      case 'PageUp':
+        e.preventDefault();
+        if (e.shiftKey) {
+          // Shift+PageUp = previous year
+          newFocusedDate = addMonths(focusedDate, -12);
+        } else {
+          // PageUp = previous month
+          newFocusedDate = subMonths(focusedDate, 1);
+        }
+        monthChanged = true;
+        break;
+      case 'PageDown':
+        e.preventDefault();
+        if (e.shiftKey) {
+          // Shift+PageDown = next year
+          newFocusedDate = addMonths(focusedDate, 12);
+        } else {
+          // PageDown = next month
+          newFocusedDate = addMonths(focusedDate, 1);
+        }
+        monthChanged = true;
+        break;
+      case 'Enter':
+      case ' ':
+        e.preventDefault();
+        if (onDateSelect && isSameMonth(focusedDate, currentMonth)) {
+          onDateSelect(focusedDate);
+        }
+        return;
+      case 'Escape':
+        e.preventDefault();
+        setFocusedDate(null);
+        if (onDateSelect) {
+          onDateSelect(null);
+        }
+        return;
+      default:
+        return;
+    }
+
+    // Update focused date
+    setFocusedDate(newFocusedDate);
+
+    // Change month if necessary
+    if (monthChanged || !isSameMonth(newFocusedDate, currentMonth)) {
+      setCurrentMonth(startOfMonth(newFocusedDate));
+    }
+  }, [focusedDate, currentMonth, onDateSelect]);
+
+  // Focus management
+  useEffect(() => {
+    const calendar = calendarRef.current;
+    if (!calendar) return;
+
+    calendar.addEventListener('keydown', handleKeyDown);
+    
+    return () => {
+      calendar.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [handleKeyDown]);
+
+  // Set initial focus when calendar mounts
+  useEffect(() => {
+    if (!focusedDate) {
+      setFocusedDate(today);
+    }
+  }, [today, focusedDate]);
 
   return (
     <div className="p-4">
@@ -127,10 +230,17 @@ const Calendar = ({ cycleStartDate, cycleLength = 28, onDateSelect }) => {
       </div>
 
       {/* Calendar Grid */}
-      <div className="grid grid-cols-7 gap-1">
+      <div 
+        ref={calendarRef}
+        className="grid grid-cols-7 gap-1"
+        role="grid"
+        aria-label="Calendar"
+        tabIndex={0}
+      >
         {calendarDays.map((day, index) => {
           const isCurrentMonth = isSameMonth(day, currentMonth);
           const isToday = isSameDay(day, today);
+          const isFocused = focusedDate && isSameDay(day, focusedDate);
           const cycleDay = cycleStartDate ? 
             calculateCurrentDay(cycleStartDate, day, cycleLength) : null;
           const fertilityColor = getFertilityColor(day);
@@ -139,14 +249,21 @@ const Calendar = ({ cycleStartDate, cycleLength = 28, onDateSelect }) => {
             <button
               key={index}
               onClick={() => onDateSelect && onDateSelect(day)}
+              onFocus={() => setFocusedDate(day)}
               className={`
                 relative p-2 h-14 rounded-lg transition-all flex flex-col items-center justify-center
                 ${isCurrentMonth ? '' : 'opacity-40'}
                 ${isToday ? 'ring-2 ring-blue-500 ring-offset-1' : ''}
+                ${isFocused ? 'ring-2 ring-primary ring-offset-2 z-10' : ''}
                 ${fertilityColor}
                 hover:opacity-80 hover:scale-105
+                focus:outline-none
               `}
               disabled={!isCurrentMonth}
+              tabIndex={-1}
+              role="gridcell"
+              aria-selected={isFocused}
+              aria-label={`${format(day, 'EEEE, MMMM d, yyyy')}${cycleDay ? `, cycle day ${cycleDay}` : ''}`}
             >
               <div className="text-base font-semibold leading-tight">
                 {getDate(day)}
