@@ -532,7 +532,7 @@ const MenuBarApp = () => {
           <h2 className="text-heading text-text-primary">MoodbooM</h2>
           <div className="flex items-center gap-3">
             {/* Queen/King Mode Toggle */}
-            <Tooltip content={isKingMode ? "Switch to Queen mode (your perspective)" : "Switch to King mode (partner's perspective)"}>
+            <Tooltip content={isKingMode ? "Switch to Queen mode (your perspective)" : "Switch to King mode (partner's perspective)"} position="bottom">
               <label 
                 className={`flex items-center gap-2 ${isSwitching ? 'cursor-wait opacity-50' : 'cursor-pointer'}`}
                 aria-label={`Mode toggle. Currently in ${isKingMode ? 'King' : 'Queen'} mode`}

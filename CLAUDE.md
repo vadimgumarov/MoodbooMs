@@ -4,6 +4,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## CRITICAL RULES - READ FIRST
 
+### 0. DO NOT OVERWRITE WORKING CODE
+- **NEVER change code that works unless directly instructed**
+- If something is working, leave it alone
+- Only modify code when:
+  - User explicitly asks for a change
+  - There's a bug that needs fixing
+  - It's the only way to implement a new feature
+- Always prefer minimal changes over rewriting
+- If you must change working code, explain WHY it's necessary
+
 ### 1. NO CONFIDENT STATEMENTS UNLESS CERTAIN
 - NEVER state "the app is working" or "everything is fine" based on partial log output
 - VERIFY processes are actually running: `ps aux | grep -E "electron|npm"`
