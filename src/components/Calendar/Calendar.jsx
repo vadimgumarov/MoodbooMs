@@ -77,26 +77,28 @@ const Calendar = ({ cycleStartDate, cycleLength = 28, onDateSelect }) => {
   return (
     <div className="p-4">
       {/* Calendar Header */}
-      <div className="flex items-center justify-between mb-4">
-        <button
-          onClick={previousMonth}
-          className="p-2 hover:bg-surface rounded-full transition-colors"
-          aria-label="Previous month"
-        >
-          <ChevronLeft className="w-5 h-5" />
-        </button>
-        
-        <h2 className="text-title">
+      <div className="space-y-3 mb-6">
+        <h2 className="text-title text-center">
           {format(currentMonth, 'MMMM yyyy')}
         </h2>
         
-        <button
-          onClick={nextMonth}
-          className="p-2 hover:bg-surface rounded-full transition-colors"
-          aria-label="Next month"
-        >
-          <ChevronRight className="w-5 h-5" />
-        </button>
+        <div className="flex items-center justify-between">
+          <button
+            onClick={previousMonth}
+            className="p-2 hover:bg-surface rounded-full transition-colors"
+            aria-label="Previous month"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+          
+          <button
+            onClick={nextMonth}
+            className="p-2 hover:bg-surface rounded-full transition-colors"
+            aria-label="Next month"
+          >
+            <ChevronRight className="w-5 h-5" />
+          </button>
+        </div>
       </div>
 
       {/* Day labels */}

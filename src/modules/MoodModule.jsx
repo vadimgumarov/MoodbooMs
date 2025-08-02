@@ -51,12 +51,15 @@ const MoodModule = ({
         </div>
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="space-y-2">
+        <label className="text-small font-medium text-text-secondary">
+          Cycle Start Date
+        </label>
         <input
           type="date"
           value={cycleData.startDate.toISOString().split('T')[0]}
           onChange={(e) => onDateChange(new Date(e.target.value))}
-          className="flex-1 p-2 border rounded"
+          className="w-full p-2 border rounded"
           aria-label="Cycle start date"
         />
       </div>
