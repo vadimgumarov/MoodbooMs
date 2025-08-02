@@ -489,6 +489,7 @@ const MenuBarApp = () => {
                 : cycleData.startDate
               }
               cycleLength={cycleData.cycleLength}
+              cycleHistory={cycleHistory}
               onDateSelect={(date) => setSelectedDate(date)}
             />
             {selectedDate && (
@@ -714,6 +715,7 @@ const MenuBarApp = () => {
                 : cycleData.startDate
               }
               cycleLength={cycleData.cycleLength}
+              cycleHistory={cycleHistory}
               onDateSelect={(date) => setSelectedDate(date)}
             />
             {selectedDate && (

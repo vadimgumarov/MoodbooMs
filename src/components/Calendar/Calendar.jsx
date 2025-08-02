@@ -19,8 +19,9 @@ import {
   getCurrentPhase 
 } from '../../utils/cycleCalculations';
 import { useMode } from '../../core/contexts/SimpleModeContext';
+import PeriodNavigation from './PeriodNavigation';
 
-const Calendar = ({ cycleStartDate, cycleLength = 28, onDateSelect }) => {
+const Calendar = ({ cycleStartDate, cycleLength = 28, onDateSelect, cycleHistory = [] }) => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [focusedDate, setFocusedDate] = useState(null);
   const today = new Date();
@@ -85,6 +86,19 @@ const Calendar = ({ cycleStartDate, cycleLength = 28, onDateSelect }) => {
       onDateSelect(null);
     }
   };
+
+  // Handler for period navigation
+  const handleNavigateToPeriod = useCallback((periodDate) => {
+    // Debounce rapid navigation to prevent re-render loops (Exit Code 15 fix)
+    setTimeout(() => {
+      setCurrentMonth(new Date(periodDate));
+      setFocusedDate(new Date(periodDate));
+      // Select the period date
+      if (onDateSelect) {
+        onDateSelect(new Date(periodDate));
+      }
+    }, 100); // Small delay to prevent rapid updates
+  }, [onDateSelect]);
 
   // Keyboard navigation handlers
   const handleKeyDown = useCallback((e) => {
@@ -218,6 +232,16 @@ const Calendar = ({ cycleStartDate, cycleLength = 28, onDateSelect }) => {
         >
           <ChevronRight className="w-5 h-5" />
         </button>
+      </div>
+
+      {/* Period Navigation */}
+      <div className="flex justify-center mb-4">
+        <PeriodNavigation
+          cycleStartDate={cycleStartDate}
+          cycleLength={cycleLength}
+          cycleHistory={cycleHistory}
+          onNavigateToPeriod={handleNavigateToPeriod}
+        />
       </div>
 
       {/* Day labels */}
