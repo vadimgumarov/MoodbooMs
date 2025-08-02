@@ -16,7 +16,8 @@ import {
 import { 
   calculateCurrentDay, 
   getFertilityLevel,
-  getCurrentPhase 
+  getCurrentPhase,
+  getCalendarPredictions
 } from '../../utils/cycleCalculations';
 import { useMode } from '../../core/contexts/SimpleModeContext';
 import PeriodNavigation from './PeriodNavigation';
@@ -49,6 +50,29 @@ const Calendar = ({ cycleStartDate, cycleLength = 28, onDateSelect, cycleHistory
 
     return days;
   }, [currentMonth]);
+
+  // Get predictions for highlighting
+  const predictions = useMemo(() => {
+    if (!cycleStartDate) return null;
+    return getCalendarPredictions(cycleStartDate, cycleLength, cycleHistory);
+  }, [cycleStartDate, cycleLength, cycleHistory]);
+
+  // Check if a date is a prediction
+  const getPredictionInfo = (date) => {
+    if (!predictions) return null;
+    
+    const { ovulation, nextPeriod } = predictions;
+    
+    if (isSameDay(date, ovulation.date)) {
+      return ovulation;
+    }
+    
+    if (isSameDay(date, nextPeriod.date)) {
+      return nextPeriod;
+    }
+    
+    return null;
+  };
 
   // Get fertility color for a specific date
   const getFertilityColor = (date) => {
@@ -268,6 +292,38 @@ const Calendar = ({ cycleStartDate, cycleLength = 28, onDateSelect, cycleHistory
           const cycleDay = cycleStartDate ? 
             calculateCurrentDay(cycleStartDate, day, cycleLength) : null;
           const fertilityColor = getFertilityColor(day);
+          const predictionInfo = getPredictionInfo(day);
+
+          // Build prediction styling
+          let predictionStyle = '';
+          let predictionIndicator = null;
+          let ariaLabel = `${format(day, 'EEEE, MMMM d, yyyy')}${cycleDay ? `, cycle day ${cycleDay}` : ''}`;
+          
+          if (predictionInfo && isCurrentMonth) {
+            const confidenceClass = {
+              'high': 'border-2 border-dashed border-primary',
+              'medium': 'border-2 border-dashed border-warning',
+              'low': 'border-2 border-dashed border-text-muted'
+            }[predictionInfo.confidence];
+            
+            predictionStyle = confidenceClass;
+            
+            if (predictionInfo.type === 'ovulation') {
+              predictionIndicator = (
+                <div className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-success border border-white text-tiny flex items-center justify-center">
+                  <span className="text-white font-bold text-[8px]">O</span>
+                </div>
+              );
+              ariaLabel += `, predicted ovulation (${predictionInfo.confidence} confidence)`;
+            } else if (predictionInfo.type === 'period') {
+              predictionIndicator = (
+                <div className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-error border border-white text-tiny flex items-center justify-center">
+                  <span className="text-white font-bold text-[8px]">P</span>
+                </div>
+              );
+              ariaLabel += `, predicted period start (${predictionInfo.confidence} confidence)`;
+            }
+          }
 
           return (
             <button
@@ -280,6 +336,7 @@ const Calendar = ({ cycleStartDate, cycleLength = 28, onDateSelect, cycleHistory
                 ${isToday ? 'ring-2 ring-blue-500 ring-offset-1' : ''}
                 ${isFocused ? 'ring-2 ring-primary ring-offset-2 z-10' : ''}
                 ${fertilityColor}
+                ${predictionStyle}
                 hover:opacity-80 hover:scale-105
                 focus:outline-none
               `}
@@ -287,7 +344,7 @@ const Calendar = ({ cycleStartDate, cycleLength = 28, onDateSelect, cycleHistory
               tabIndex={-1}
               role="gridcell"
               aria-selected={isFocused}
-              aria-label={`${format(day, 'EEEE, MMMM d, yyyy')}${cycleDay ? `, cycle day ${cycleDay}` : ''}`}
+              aria-label={ariaLabel}
             >
               <div className="text-base font-semibold leading-tight">
                 {getDate(day)}
@@ -297,16 +354,19 @@ const Calendar = ({ cycleStartDate, cycleLength = 28, onDateSelect, cycleHistory
                   D{cycleDay}
                 </div>
               )}
+              {predictionIndicator}
             </button>
           );
         })}
       </div>
 
       {/* Legend */}
-      <div className="mt-6 space-y-2">
+      <div className="mt-6 space-y-3">
         <h3 className="text-small font-medium text-text-primary">
           {isKingMode ? "Threat Level Monitor" : "My Cycle Map"}
         </h3>
+        
+        {/* Fertility Legend */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-tiny">
           <div className="flex items-center space-x-2">
             <div className="w-4 h-4 bg-error rounded flex-shrink-0"></div>
@@ -329,6 +389,40 @@ const Calendar = ({ cycleStartDate, cycleLength = 28, onDateSelect, cycleHistory
             <span className="break-words">{isKingMode ? "Critical - Peak Fertility" : "I'm Invincible Mode"}</span>
           </div>
         </div>
+
+        {/* Predictions Legend */}
+        {predictions && (
+          <div className="border-t pt-3">
+            <h4 className="text-small font-medium text-text-primary mb-2">
+              {isKingMode ? "Intelligence Predictions" : "My Predictions"}
+            </h4>
+            <div className="grid grid-cols-1 gap-2 text-tiny">
+              <div className="flex items-center space-x-2">
+                <div className="relative w-6 h-6 border-2 border-dashed border-primary rounded flex-shrink-0 flex items-center justify-center">
+                  <div className="w-2 h-2 rounded-full bg-success"></div>
+                </div>
+                <span className="break-words">
+                  {isKingMode ? "Predicted High-Risk Window" : "Predicted Ovulation"}
+                  {predictions.ovulation.confidence === 'high' && " (High Confidence)"}
+                  {predictions.ovulation.confidence === 'low' && " (Low Confidence)"}
+                </span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="relative w-6 h-6 border-2 border-dashed border-primary rounded flex-shrink-0 flex items-center justify-center">
+                  <div className="w-2 h-2 rounded-full bg-error"></div>
+                </div>
+                <span className="break-words">
+                  {isKingMode ? "Predicted Code Red Alert" : "Predicted Next Period"}
+                  {predictions.nextPeriod.confidence === 'high' && " (High Confidence)"}
+                  {predictions.nextPeriod.confidence === 'low' && " (Low Confidence)"}
+                </span>
+              </div>
+              <div className="text-text-muted text-[11px] mt-1">
+                Dotted borders indicate predictions. Confidence based on cycle regularity.
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

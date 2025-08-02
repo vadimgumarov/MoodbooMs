@@ -223,6 +223,74 @@ function getPeriodNavigationInfo(currentPeriodStart, currentCycleLength, cycleHi
   };
 }
 
+/**
+ * Get predicted ovulation date for the current cycle
+ * @param {Date} cycleStartDate - Start date of current cycle
+ * @param {number} cycleLength - Length of the cycle
+ * @returns {Date} Predicted ovulation date
+ */
+function getPredictedOvulationDate(cycleStartDate, cycleLength) {
+  // Ovulation typically occurs 14 days before the end of the cycle
+  const ovulationDay = cycleLength - CYCLE.OVULATION_OFFSET;
+  return addDays(cycleStartDate, ovulationDay - 1); // -1 because ovulation day is 1-indexed
+}
+
+/**
+ * Get predicted next period date for the current cycle
+ * @param {Date} cycleStartDate - Start date of current cycle
+ * @param {number} cycleLength - Length of the cycle
+ * @returns {Date} Predicted next period start date
+ */  
+function getPredictedNextPeriodDate(cycleStartDate, cycleLength) {
+  return addDays(cycleStartDate, cycleLength);
+}
+
+/**
+ * Get all prediction dates for calendar highlighting
+ * @param {Date} cycleStartDate - Start date of current cycle
+ * @param {number} cycleLength - Length of the cycle
+ * @param {Array} cycleHistory - Array of previous cycles for confidence calculation
+ * @returns {Object} Object containing prediction dates and metadata
+ */
+function getCalendarPredictions(cycleStartDate, cycleLength, cycleHistory = []) {
+  const today = new Date();
+  const ovulationDate = getPredictedOvulationDate(cycleStartDate, cycleLength);
+  const nextPeriodDate = getPredictedNextPeriodDate(cycleStartDate, cycleLength);
+  
+  // Calculate confidence based on cycle regularity
+  const hasHistory = cycleHistory && cycleHistory.length > 0;
+  let confidence = hasHistory ? 'medium' : 'low';
+  
+  if (hasHistory && cycleHistory.length >= 3) {
+    const lengths = cycleHistory.slice(-6).map(cycle => cycle.cycleLength || cycle.length || cycleLength);
+    const avgLength = lengths.reduce((sum, len) => sum + len, 0) / lengths.length;
+    const variance = lengths.reduce((sum, len) => sum + Math.pow(len - avgLength, 2), 0) / lengths.length;
+    const stdDev = Math.sqrt(variance);
+    
+    // High confidence if cycles are regular (std dev < 2 days)
+    if (stdDev < 2) {
+      confidence = 'high';
+    } else if (stdDev > 4) {
+      confidence = 'low';
+    }
+  }
+  
+  return {
+    ovulation: {
+      date: ovulationDate,
+      confidence,
+      isPast: ovulationDate < today,
+      type: 'ovulation'
+    },
+    nextPeriod: {
+      date: nextPeriodDate,
+      confidence,
+      isPast: nextPeriodDate < today,
+      type: 'period'
+    }
+  };
+}
+
 export {
   calculateCurrentDay,
   getCurrentPhase,
@@ -234,5 +302,8 @@ export {
   getDaysUntilNextPeriod,
   calculateNextPeriodDate,
   calculatePreviousPeriodDate,
-  getPeriodNavigationInfo
+  getPeriodNavigationInfo,
+  getPredictedOvulationDate,
+  getPredictedNextPeriodDate,
+  getCalendarPredictions
 };
