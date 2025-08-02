@@ -74,19 +74,37 @@ const Calendar = ({ cycleStartDate, cycleLength = 28, onDateSelect }) => {
     }
   };
 
+  // Handler for Today button
+  const goToToday = () => {
+    setCurrentMonth(new Date());
+    // Clear any selected date by calling onDateSelect with null
+    if (onDateSelect) {
+      onDateSelect(null);
+    }
+  };
+
   return (
     <div className="p-4">
-      {/* Calendar Header */}
+      {/* Calendar Header with integrated Today button */}
       <div className="flex items-center justify-between mb-4">
-        <button
-          onClick={previousMonth}
-          className="p-2 hover:bg-surface rounded-full transition-colors"
-          aria-label="Previous month"
-        >
-          <ChevronLeft className="w-5 h-5" />
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={goToToday}
+            className="px-2 py-1 text-tiny bg-primary/10 text-primary rounded hover:bg-primary/20 transition-colors"
+            aria-label="Go to today"
+          >
+            Today
+          </button>
+          <button
+            onClick={previousMonth}
+            className="p-2 hover:bg-surface rounded-full transition-colors"
+            aria-label="Previous month"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+        </div>
         
-        <h2 className="text-title">
+        <h2 className="text-base font-medium">
           {format(currentMonth, 'MMMM yyyy')}
         </h2>
         
@@ -122,7 +140,7 @@ const Calendar = ({ cycleStartDate, cycleLength = 28, onDateSelect }) => {
               key={index}
               onClick={() => onDateSelect && onDateSelect(day)}
               className={`
-                relative p-2 h-12 rounded-lg transition-all
+                relative p-2 h-14 rounded-lg transition-all flex flex-col items-center justify-center
                 ${isCurrentMonth ? '' : 'opacity-40'}
                 ${isToday ? 'ring-2 ring-blue-500 ring-offset-1' : ''}
                 ${fertilityColor}
@@ -130,11 +148,11 @@ const Calendar = ({ cycleStartDate, cycleLength = 28, onDateSelect }) => {
               `}
               disabled={!isCurrentMonth}
             >
-              <div className="text-small font-medium">
+              <div className="text-base font-semibold leading-tight">
                 {getDate(day)}
               </div>
               {cycleDay && isCurrentMonth && (
-                <div className="text-tiny opacity-75">
+                <div className="text-tiny text-text-muted mt-0.5">
                   D{cycleDay}
                 </div>
               )}
