@@ -146,6 +146,83 @@ function getDaysUntilNextPeriod(currentDay, cycleLength) {
   return cycleLength - currentDay + 1;
 }
 
+/**
+ * Calculate the next period date based on cycle history or current cycle
+ * @param {Date} currentPeriodStart - Start date of current period
+ * @param {number} currentCycleLength - Current cycle length
+ * @param {Array} cycleHistory - Array of previous cycles
+ * @returns {Date} Predicted next period start date
+ */
+function calculateNextPeriodDate(currentPeriodStart, currentCycleLength, cycleHistory) {
+  const averageCycleLength = calculateAverageCycleLength(cycleHistory);
+  const cycleLength = cycleHistory && cycleHistory.length > 0 ? averageCycleLength : currentCycleLength;
+  return addDays(currentPeriodStart, cycleLength);
+}
+
+/**
+ * Calculate the previous period date based on cycle history or current cycle
+ * @param {Date} currentPeriodStart - Start date of current period
+ * @param {number} currentCycleLength - Current cycle length
+ * @param {Array} cycleHistory - Array of previous cycles
+ * @returns {Date|null} Previous period start date, or null if none exists
+ */
+function calculatePreviousPeriodDate(currentPeriodStart, currentCycleLength, cycleHistory) {
+  if (!cycleHistory || cycleHistory.length === 0) {
+    // No history, calculate based on current cycle length
+    return addDays(currentPeriodStart, -currentCycleLength);
+  }
+  
+  // Find the most recent previous cycle
+  const sortedHistory = [...cycleHistory].sort((a, b) => 
+    new Date(b.startDate) - new Date(a.startDate)
+  );
+  
+  // Find the cycle that comes before the current one
+  const currentStartTime = currentPeriodStart.getTime();
+  const previousCycle = sortedHistory.find(cycle => 
+    new Date(cycle.startDate).getTime() < currentStartTime
+  );
+  
+  if (previousCycle) {
+    return new Date(previousCycle.startDate);
+  }
+  
+  // No previous cycle found, calculate based on average
+  const averageCycleLength = calculateAverageCycleLength(cycleHistory);
+  return addDays(currentPeriodStart, -averageCycleLength);
+}
+
+/**
+ * Get period navigation info (next/previous dates with metadata)
+ * @param {Date} currentPeriodStart - Start date of current period
+ * @param {number} currentCycleLength - Current cycle length
+ * @param {Array} cycleHistory - Array of previous cycles
+ * @returns {Object} Navigation info with next/previous dates and metadata
+ */
+function getPeriodNavigationInfo(currentPeriodStart, currentCycleLength, cycleHistory) {
+  const nextPeriodDate = calculateNextPeriodDate(currentPeriodStart, currentCycleLength, cycleHistory);
+  const previousPeriodDate = calculatePreviousPeriodDate(currentPeriodStart, currentCycleLength, cycleHistory);
+  
+  // Check if dates are based on history or prediction
+  const hasHistory = cycleHistory && cycleHistory.length > 0;
+  const averageCycleLength = calculateAverageCycleLength(cycleHistory);
+  
+  return {
+    next: {
+      date: nextPeriodDate,
+      isPredicted: true,
+      basedOnHistory: hasHistory,
+      cycleLength: hasHistory ? averageCycleLength : currentCycleLength
+    },
+    previous: {
+      date: previousPeriodDate,
+      isPredicted: !hasHistory, // If no history, it's predicted; if history exists, it might be actual
+      basedOnHistory: hasHistory,
+      cycleLength: hasHistory ? averageCycleLength : currentCycleLength
+    }
+  };
+}
+
 export {
   calculateCurrentDay,
   getCurrentPhase,
@@ -154,5 +231,8 @@ export {
   getOvulationWindow,
   calculateAverageCycleLength,
   getCycleProgress,
-  getDaysUntilNextPeriod
+  getDaysUntilNextPeriod,
+  calculateNextPeriodDate,
+  calculatePreviousPeriodDate,
+  getPeriodNavigationInfo
 };
