@@ -4,15 +4,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## CRITICAL RULES - READ FIRST
 
-### 0. DO NOT OVERWRITE WORKING CODE
-- **NEVER change code that works unless directly instructed**
-- If something is working, leave it alone
-- Only modify code when:
-  - User explicitly asks for a change
-  - There's a bug that needs fixing
-  - It's the only way to implement a new feature
-- Always prefer minimal changes over rewriting
-- If you must change working code, explain WHY it's necessary
+### 0. THINK BEFORE CHANGING WORKING CODE
+- **ALWAYS analyze what your changes might break before implementing**
+- When modifying existing code, consider:
+  - What other components depend on this code?
+  - What side effects could this change have?
+  - Are there any imports, exports, or function signatures that will change?
+  - Will this affect the user interface or user experience?
+- **Test thoroughly** after making changes to working functionality
+- **Prefer additive changes** over modifications when possible
+- If you must change working code, explain WHY and document what could be affected
+- **Make incremental changes** - don't change multiple working systems at once
 
 ### 1. NO CONFIDENT STATEMENTS UNLESS CERTAIN
 - NEVER state "the app is working" or "everything is fine" based on partial log output
