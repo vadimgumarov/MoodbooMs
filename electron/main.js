@@ -5,6 +5,8 @@ const { applyCSPToSession } = require('./csp-config');
 const { applySecuritySettings, setupAppSecurity, applySecurityHeaders, verifyWindowSecurity } = require('./security-config');
 const { startHeartbeat } = require('./crash-monitor');
 const { WINDOW_CONFIG, DEV_CONFIG, PATHS, LOGGING, ERROR_MESSAGES } = require('./constants');
+const errorTracker = require('./errorTracking');
+const analytics = require('./analytics');
 
 let window = null;
 let trayManager = null;
@@ -53,6 +55,10 @@ process.on('unhandledRejection', (reason, promise) => {
 
 app.whenReady().then(() => {
   console.log('App is ready, creating window and tray...');
+  
+  // Initialize error tracking and analytics
+  errorTracker.init();
+  analytics.init();
   
   // Hide dock icon (must be done after app is ready on macOS)
   if (app.dock) {

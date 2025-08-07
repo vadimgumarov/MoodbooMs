@@ -20,6 +20,8 @@
     "dist:all": "npm run build && electron-builder -mwl"
   },
   "dependencies": {
+    "@sentry/electron": "^6.9.0",
+    "@sentry/react": "^10.2.0",
     "concurrently": "^8.2.0",
     "date-fns": "^4.1.0",
     "electron-store": "^8.1.0",
