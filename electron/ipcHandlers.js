@@ -6,8 +6,13 @@ const fs = require('fs');
 const path = require('path');
 const { updateRendererHeartbeat, logRendererCrash, logCrash } = require('./crash-monitor');
 
-// Log phase updates to file
+// Log phase updates to file (development only)
 function logPhaseUpdate(phase, source = 'unknown') {
+  const { app } = require('electron');
+  const isDev = !app.isPackaged || process.env.ELECTRON_DEV === 'true';
+  
+  if (!isDev) return; // Skip file logging in production
+  
   const logDir = path.join(__dirname, '..', 'logs');
   const logFile = path.join(logDir, `phase-updates-${new Date().toISOString().split('T')[0]}.log`);
   const timestamp = new Date().toISOString();
@@ -23,7 +28,7 @@ function logPhaseUpdate(phase, source = 'unknown') {
 // This module sets up all IPC handlers for the main process
 
 // Initialize IPC handlers
-function initializeIpcHandlers(ipcMain, mainWindow, trayManager) {
+function initializeIpcHandlers(ipcMain, mainWindow, trayManager, autoUpdaterManager = null) {
   // CSP Violation Reporting
   ipcMain.on('csp-violation', (event, violation) => {
     handleCSPViolation(violation);
@@ -214,12 +219,17 @@ function initializeIpcHandlers(ipcMain, mainWindow, trayManager) {
     app.quit();
   });
   ipcMain.on('app-log', (event, message) => {
+    const isDev = !app.isPackaged || process.env.ELECTRON_DEV === 'true';
+    
+    console.log(`App log: ${message}`);
+    
+    // Only write to file in development
+    if (!isDev) return;
+    
     const logDir = path.join(__dirname, '..', 'logs');
     const logFile = path.join(logDir, `app-${new Date().toISOString().split('T')[0]}.log`);
     const timestamp = new Date().toISOString();
     const logEntry = `[${timestamp}] ${message}\n`;
-    
-    console.log(`App log: ${message}`);
     
     if (!fs.existsSync(logDir)) {
       fs.mkdirSync(logDir, { recursive: true });
@@ -253,22 +263,27 @@ function initializeIpcHandlers(ipcMain, mainWindow, trayManager) {
     return result;
   });
 
-  // Updates (placeholder - will be implemented later)
+  // Auto-Updater
   ipcMain.handle('update-check', async () => {
-    // TODO: Implement auto-updater
-    console.log('Update check called');
-    return { updateAvailable: false };
+    if (autoUpdaterManager) {
+      await autoUpdaterManager.checkForUpdates(true);
+      return true;
+    }
+    return false;
   });
 
   ipcMain.handle('update-download', async () => {
-    // TODO: Implement auto-updater
-    console.log('Update download called');
+    if (autoUpdaterManager) {
+      await autoUpdaterManager.downloadUpdate();
+      return true;
+    }
     return false;
   });
 
   ipcMain.on('update-install', () => {
-    // TODO: Implement auto-updater
-    console.log('Update install called');
+    if (autoUpdaterManager) {
+      autoUpdaterManager.installUpdate();
+    }
   });
 
   // Development/Debug
@@ -294,14 +309,20 @@ function initializeIpcHandlers(ipcMain, mainWindow, trayManager) {
       } else if (channel === 'crash-report') {
         logRendererCrash(data);
       } else if (channel === 'app-log') {
-        // Log to console and file
+        // Log to console and file (development only)
         const timestamp = new Date().toISOString();
         const logEntry = `[${timestamp}] [${data.level}] ${data.message}`;
         console.log(logEntry, data.data || '');
         
-        // Also append to app log
+        // Only write to file in development
+        const isDev = !app.isPackaged || process.env.ELECTRON_DEV === 'true';
+        if (!isDev) return;
+        
         const logDir = path.join(__dirname, '..', 'logs');
         const appLogFile = path.join(logDir, `app-${new Date().toISOString().split('T')[0]}.log`);
+        if (!fs.existsSync(logDir)) {
+          fs.mkdirSync(logDir, { recursive: true });
+        }
         fs.appendFileSync(appLogFile, `${logEntry}\n${data.data ? JSON.stringify(data.data, null, 2) + '\n' : ''}`);
       }
     });

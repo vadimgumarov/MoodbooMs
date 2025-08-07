@@ -5,15 +5,26 @@ const { applyCSPToSession } = require('./csp-config');
 const { applySecuritySettings, setupAppSecurity, applySecurityHeaders, verifyWindowSecurity } = require('./security-config');
 const { startHeartbeat } = require('./crash-monitor');
 const { WINDOW_CONFIG, DEV_CONFIG, PATHS, LOGGING, ERROR_MESSAGES } = require('./constants');
+const AutoUpdaterManager = require('./autoUpdater');
 
 let window = null;
 let trayManager = null;
+let autoUpdaterManager = null;
 
 // Set up app-wide security policies
 setupAppSecurity();
 
 // Disable hardware acceleration to prevent GPU crashes
 app.disableHardwareAcceleration();
+
+// Additional stability fixes for production
+app.commandLine.appendSwitch('--disable-gpu');
+app.commandLine.appendSwitch('--disable-gpu-sandbox');
+app.commandLine.appendSwitch('--disable-software-rasterizer');
+app.commandLine.appendSwitch('--disable-background-timer-throttling');
+app.commandLine.appendSwitch('--disable-backgrounding-occluded-windows');
+app.commandLine.appendSwitch('--disable-renderer-backgrounding');
+app.commandLine.appendSwitch('--disable-features', 'TranslateUI,BlinkGenPropertyTrees');
 
 // Hide dock icon - moved to app.ready to prevent crashes
 
@@ -244,7 +255,23 @@ app.whenReady().then(() => {
     logToFile(trayError);
   }
   
-  // Initialize all IPC handlers
+  // Initialize Auto-Updater first
+  try {
+    console.log('Initializing Auto-Updater...');
+    logToFile('Initializing Auto-Updater...');
+    
+    autoUpdaterManager = new AutoUpdaterManager();
+    autoUpdaterManager.setMainWindow(window);
+    
+    console.log('Auto-Updater initialized successfully');
+    logToFile('Auto-Updater initialized successfully');
+  } catch (error) {
+    const updaterError = `ERROR initializing Auto-Updater: ${error.message}\nStack: ${error.stack}`;
+    console.error(updaterError);
+    logToFile(updaterError);
+  }
+  
+  // Initialize all IPC handlers (including auto-updater handlers)
   try {
     console.log('Initializing IPC handlers...');
     logToFile('Initializing IPC handlers...');
@@ -255,7 +282,7 @@ app.whenReady().then(() => {
       logToFile(`IPC Message: ${event}`);
     });
     
-    initializeIpcHandlers(ipcMain, window, trayManager);
+    initializeIpcHandlers(ipcMain, window, trayManager, autoUpdaterManager);
     console.log('IPC handlers initialized successfully');
     logToFile('IPC handlers initialized successfully');
   } catch (error) {
@@ -263,6 +290,14 @@ app.whenReady().then(() => {
     console.error(ipcError);
     logToFile(ipcError);
   }
+  
+  // Skip auto-check on startup to prevent crashes
+  // Updates can be checked manually from settings
+  // if (autoUpdaterManager) {
+  //   setTimeout(() => {
+  //     autoUpdaterManager.checkForUpdates(false);
+  //   }, 30000); // Wait 30 seconds before checking
+  // }
 });
 
 // Keep the app running

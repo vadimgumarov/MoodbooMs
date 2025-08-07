@@ -90,14 +90,36 @@ contextBridge.exposeInMainWorld('electronAPI', {
     showMessageBox: (options) => ipcRenderer.invoke('dialog-show-message', options)
   },
 
-  // Updates (future enhancement)
+  // Auto-Updater
   updates: {
     checkForUpdates: () => ipcRenderer.invoke('update-check'),
     downloadUpdate: () => ipcRenderer.invoke('update-download'),
     installUpdate: () => ipcRenderer.send('update-install'),
+    
+    // Event listeners
+    onUpdateChecking: (callback) => {
+      ipcRenderer.on('auto-updater-update-checking', callback);
+      return () => ipcRenderer.removeAllListeners('auto-updater-update-checking');
+    },
     onUpdateAvailable: (callback) => {
-      ipcRenderer.on('update-available', (event, info) => callback(info));
-      return () => ipcRenderer.removeAllListeners('update-available');
+      ipcRenderer.on('auto-updater-update-available', (event, info) => callback(info));
+      return () => ipcRenderer.removeAllListeners('auto-updater-update-available');
+    },
+    onUpdateNotAvailable: (callback) => {
+      ipcRenderer.on('auto-updater-update-not-available', callback);
+      return () => ipcRenderer.removeAllListeners('auto-updater-update-not-available');
+    },
+    onUpdateError: (callback) => {
+      ipcRenderer.on('auto-updater-update-error', (event, error) => callback(error));
+      return () => ipcRenderer.removeAllListeners('auto-updater-update-error');
+    },
+    onDownloadProgress: (callback) => {
+      ipcRenderer.on('auto-updater-update-download-progress', (event, progress) => callback(progress));
+      return () => ipcRenderer.removeAllListeners('auto-updater-update-download-progress');
+    },
+    onUpdateDownloaded: (callback) => {
+      ipcRenderer.on('auto-updater-update-downloaded', (event, info) => callback(info));
+      return () => ipcRenderer.removeAllListeners('auto-updater-update-downloaded');
     }
   },
 

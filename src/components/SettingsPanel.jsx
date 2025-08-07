@@ -7,7 +7,8 @@ import {
   X,
   Monitor,
   AlertCircle,
-  Contrast
+  Contrast,
+  RefreshCw
 } from 'lucide-react';
 import { CYCLE, DEFAULT_PREFERENCES } from '../constants';
 import HighContrastToggle from './HighContrastToggle';
@@ -27,7 +28,25 @@ const SettingsPanel = ({
   const [hasChanges, setHasChanges] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saveStatus, setSaveStatus] = useState(null); // { type: 'success' | 'error', message: string }
+  const [checkingUpdates, setCheckingUpdates] = useState(false);
+  const [appVersion, setAppVersion] = useState('');
   
+  // Get app version
+  useEffect(() => {
+    const getAppVersion = async () => {
+      if (window.electronAPI?.app?.getVersion) {
+        try {
+          const version = await window.electronAPI.app.getVersion();
+          setAppVersion(version);
+        } catch (error) {
+          console.error('Failed to get app version:', error);
+        }
+      }
+    };
+    
+    getAppVersion();
+  }, []);
+
   // Track if any values have changed
   useEffect(() => {
     const changed = 
@@ -72,6 +91,23 @@ const SettingsPanel = ({
       });
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleCheckUpdates = async () => {
+    if (!window.electronAPI?.updates?.checkForUpdates) {
+      setSaveStatus({ type: 'error', message: 'Updates not supported in development mode' });
+      return;
+    }
+
+    setCheckingUpdates(true);
+    try {
+      await window.electronAPI.updates.checkForUpdates();
+      // The UpdateNotification component will handle the UI for update results
+    } catch (error) {
+      setSaveStatus({ type: 'error', message: `Update check failed: ${error.message}` });
+    } finally {
+      setCheckingUpdates(false);
     }
   };
 
@@ -196,6 +232,39 @@ const SettingsPanel = ({
             <p className="text-tiny text-gray-500 mt-1 ml-6">
               Improves visibility with higher contrast colors
             </p>
+          </div>
+        </div>
+
+        {/* Updates Section */}
+        <div className="space-y-4">
+          <div className="flex items-center gap-2 text-gray-700">
+            <RefreshCw className="w-4 h-4" />
+            <h3 className="font-medium">Updates</h3>
+          </div>
+          
+          <div className="pl-6 space-y-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-small text-gray-700">
+                  Current version: {appVersion || 'Unknown'}
+                </p>
+                <p className="text-tiny text-gray-500 mt-1">
+                  Check for new versions and security updates
+                </p>
+              </div>
+              <button
+                onClick={handleCheckUpdates}
+                disabled={checkingUpdates}
+                className="px-3 py-1.5 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white text-sm rounded transition-colors flex items-center gap-2"
+              >
+                {checkingUpdates ? (
+                  <LoadingSpinner size="sm" />
+                ) : (
+                  <RefreshCw className="w-3 h-3" />
+                )}
+                {checkingUpdates ? 'Checking...' : 'Check for Updates'}
+              </button>
+            </div>
           </div>
         </div>
 

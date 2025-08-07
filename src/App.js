@@ -3,6 +3,7 @@ import MenuBarApp from './components/MenuBarApp';
 import TestKingMode from './components/TestKingMode';
 import TestPhraseSystem from './components/TestPhraseSystem';
 import StyleGuide from './components/StyleGuide/StyleGuide';
+import UpdateNotification from './components/UpdateNotification';
 // import { ModeProvider } from './core/contexts/SimpleModeContext';
 import { AppProviders } from './core/contexts';
 import ErrorBoundary from './components/ErrorBoundary';
@@ -54,6 +55,7 @@ function App() {
            testPhraseSystem ? <TestPhraseSystem /> : 
            testKingMode ? <TestKingMode /> : 
            <MenuBarApp />}
+          <UpdateNotification />
         </div>
       </AppProviders>
     </ErrorBoundary>

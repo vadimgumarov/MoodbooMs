@@ -1,11 +1,21 @@
-const { nativeImage } = require('electron');
+const { nativeImage, app } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
 // Load PNG file for menubar icon
 function loadPNGIcon(filename) {
   try {
-    const iconPath = path.join(__dirname, 'assets', 'icons', filename);
+    // In development: use direct path
+    // In production: use extraResources path
+    let iconPath;
+    if (app.isPackaged) {
+      // Production: extraResources are in Contents/Resources/
+      iconPath = path.join(process.resourcesPath, 'assets', 'icons', filename);
+    } else {
+      // Development: use direct path
+      iconPath = path.join(__dirname, 'assets', 'icons', filename);
+    }
+    
     console.log(`Loading PNG from: ${iconPath}`);
     
     if (!fs.existsSync(iconPath)) {

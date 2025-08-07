@@ -26,6 +26,7 @@
     "concurrently": "^8.2.0",
     "date-fns": "^4.1.0",
     "electron-store": "^8.1.0",
+    "electron-updater": "^6.6.2",
     "lucide": "^0.526.0",
     "lucide-react": "^0.263.1",
     "react": "^18.2.0",
@@ -68,6 +69,13 @@
       "output": "dist",
       "buildResources": "buildResources"
     },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "vadimgumarov",
+        "repo": "MoodbooMs"
+      }
+    ],
     "files": [
       "build/**/*",
       "electron/**/*",
@@ -78,7 +86,9 @@
       {
         "from": "electron/assets",
         "to": "assets",
-        "filter": ["**/*"]
+        "filter": [
+          "**/*"
+        ]
       }
     ],
     "mac": {
@@ -87,11 +97,17 @@
       "target": [
         {
           "target": "dmg",
-          "arch": ["x64", "arm64"]
+          "arch": [
+            "x64",
+            "arm64"
+          ]
         },
         {
           "target": "zip",
-          "arch": ["x64", "arm64"]
+          "arch": [
+            "x64",
+            "arm64"
+          ]
         }
       ],
       "hardenedRuntime": true,
@@ -124,11 +140,17 @@
       "target": [
         {
           "target": "nsis",
-          "arch": ["x64", "ia32"]
+          "arch": [
+            "x64",
+            "ia32"
+          ]
         },
         {
           "target": "portable",
-          "arch": ["x64", "ia32"]
+          "arch": [
+            "x64",
+            "ia32"
+          ]
         }
       ],
       "icon": "buildResources/icon.ico",
@@ -145,15 +167,21 @@
       "target": [
         {
           "target": "AppImage",
-          "arch": ["x64"]
+          "arch": [
+            "x64"
+          ]
         },
         {
           "target": "deb",
-          "arch": ["x64"]
+          "arch": [
+            "x64"
+          ]
         },
         {
           "target": "tar.gz",
-          "arch": ["x64"]
+          "arch": [
+            "x64"
+          ]
         }
       ],
       "icon": "buildResources/icons",
