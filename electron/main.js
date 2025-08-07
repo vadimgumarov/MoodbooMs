@@ -17,17 +17,27 @@ app.disableHardwareAcceleration();
 
 // Hide dock icon - moved to app.ready to prevent crashes
 
-// Enable better error logging
+// Enable better error logging (development only)
 const fs = require('fs');
 const path = require('path');
-const logsDir = path.join(__dirname, '..', LOGGING.LOG_DIR);
-if (!fs.existsSync(logsDir)) {
-  fs.mkdirSync(logsDir, { recursive: true });
+const isDev = !app.isPackaged || process.env.ELECTRON_DEV === 'true';
+
+let logsDir = null;
+let logFile = null;
+
+// Only create log files in development
+if (isDev) {
+  logsDir = path.join(__dirname, '..', LOGGING.LOG_DIR);
+  if (!fs.existsSync(logsDir)) {
+    fs.mkdirSync(logsDir, { recursive: true });
+  }
+  logFile = path.join(logsDir, `${LOGGING.LOG_FILE_PREFIX}-${new Date().toISOString().split('T')[0]}.log`);
 }
 
-const logFile = path.join(logsDir, `${LOGGING.LOG_FILE_PREFIX}-${new Date().toISOString().split('T')[0]}.log`);
-
 function logToFile(message) {
+  // Skip file logging in production
+  if (!isDev || !logFile) return;
+  
   const timestamp = new Date().toISOString();
   fs.appendFileSync(logFile, `[${timestamp}] ${message}\n`);
 }

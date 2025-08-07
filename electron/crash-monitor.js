@@ -1,10 +1,20 @@
 const fs = require('fs');
 const path = require('path');
+const { app } = require('electron');
 
-// Enhanced crash monitoring with detailed logging
-const logsDir = path.join(__dirname, '..', 'logs');
-const heartbeatFile = path.join(logsDir, 'menu-heartbeat.txt');
-const crashLogFile = path.join(logsDir, `crash-${new Date().toISOString().split('T')[0]}.log`);
+// Enhanced crash monitoring with detailed logging (development only)
+const isDev = !app.isPackaged || process.env.ELECTRON_DEV === 'true';
+
+let logsDir = null;
+let heartbeatFile = null;
+let crashLogFile = null;
+
+// Only set up file paths in development
+if (isDev) {
+  logsDir = path.join(__dirname, '..', 'logs');
+  heartbeatFile = path.join(logsDir, 'menu-heartbeat.txt');
+  crashLogFile = path.join(logsDir, `crash-${new Date().toISOString().split('T')[0]}.log`);
+}
 
 let lastRendererHeartbeat = Date.now();
 let rendererAlive = false;
@@ -14,11 +24,16 @@ function logCrash(message, error = null) {
   const timestamp = new Date().toISOString();
   const logEntry = `[${timestamp}] ${message}\n${error ? `Error: ${error.message}\nStack: ${error.stack}\n` : ''}\n`;
   
-  try {
-    fs.appendFileSync(crashLogFile, logEntry);
-    console.error(logEntry);
-  } catch (e) {
-    console.error('Failed to write crash log:', e);
+  // Always log to console
+  console.error(logEntry);
+  
+  // Only write to file in development
+  if (isDev && crashLogFile) {
+    try {
+      fs.appendFileSync(crashLogFile, logEntry);
+    } catch (e) {
+      console.error('Failed to write crash log:', e);
+    }
   }
 }
 
@@ -36,13 +51,16 @@ function logMemoryUsage() {
 }
 
 function startHeartbeat() {
-  // Create logs directory if it doesn't exist
-  if (!fs.existsSync(logsDir)) {
+  // Only create logs directory in development
+  if (isDev && logsDir && !fs.existsSync(logsDir)) {
     fs.mkdirSync(logsDir, { recursive: true });
   }
   
-  // Write initial heartbeat
-  fs.writeFileSync(heartbeatFile, `STARTED: ${new Date().toISOString()}`);
+  // Write initial heartbeat (dev only)
+  if (isDev && heartbeatFile) {
+    fs.writeFileSync(heartbeatFile, `STARTED: ${new Date().toISOString()}`);
+  }
+  
   logCrash('=== APP STARTED ===');
   
   // Log initial memory usage
@@ -60,7 +78,9 @@ function startHeartbeat() {
         ? `ALIVE: Main + Renderer (${Date.now() - lastRendererHeartbeat}ms ago)`
         : `ALIVE: Main only (Renderer dead for ${Date.now() - lastRendererHeartbeat}ms)`;
       
-      fs.writeFileSync(heartbeatFile, `${status} at ${new Date().toISOString()}`);
+      if (isDev && heartbeatFile) {
+        fs.writeFileSync(heartbeatFile, `${status} at ${new Date().toISOString()}`);
+      }
       
       // Check if renderer is dead (no heartbeat for 5 seconds)
       if (rendererAlive && Date.now() - lastRendererHeartbeat > 5000) {
@@ -77,7 +97,9 @@ function startHeartbeat() {
     clearInterval(mainHeartbeat);
     clearInterval(memoryInterval);
     const message = `PROCESS EXIT: Code ${code}`;
-    fs.writeFileSync(heartbeatFile, `${message} at ${new Date().toISOString()}`);
+    if (isDev && heartbeatFile) {
+      fs.writeFileSync(heartbeatFile, `${message} at ${new Date().toISOString()}`);
+    }
     logCrash(message);
     logMemoryUsage(); // Log final memory state
   });
@@ -85,7 +107,9 @@ function startHeartbeat() {
   // Crash handlers
   process.on('uncaughtException', (error) => {
     clearInterval(mainHeartbeat);
-    fs.writeFileSync(heartbeatFile, `CRASHED: ${new Date().toISOString()}`);
+    if (isDev && heartbeatFile) {
+      fs.writeFileSync(heartbeatFile, `CRASHED: ${new Date().toISOString()}`);
+    }
     logCrash('UNCAUGHT EXCEPTION', error);
     process.exit(1);
   });
@@ -99,7 +123,9 @@ function startHeartbeat() {
     process.on(signal, () => {
       clearInterval(mainHeartbeat);
       const message = `RECEIVED ${signal}`;
+      if (isDev && heartbeatFile) {
       fs.writeFileSync(heartbeatFile, `${message} at ${new Date().toISOString()}`);
+    }
       logCrash(message);
       process.exit(0);
     });
