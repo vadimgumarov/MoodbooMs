@@ -29,3 +29,14 @@ yarn-error.log*
 /temp
 /logs
 *.log
+
+# Code signing
+*.p12
+*.pfx
+*.cer
+*.pem
+*.key
+certificate.*
+/certs
+.env.local
+.env

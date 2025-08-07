@@ -12,7 +12,12 @@
     "electron-dev": "wait-on http://localhost:3000 && ELECTRON_DEV=true REACT_DEV_URL=true electron .",
     "dev": "concurrently \"npm run start\" \"npm run electron-dev\"",
     "app": "npm run build && npm run electron",
-    "check": "node check-menu.js"
+    "check": "node check-menu.js",
+    "dist": "npm run build && electron-builder",
+    "dist:mac": "npm run build && electron-builder --mac",
+    "dist:win": "npm run build && electron-builder --win",
+    "dist:linux": "npm run build && electron-builder --linux",
+    "dist:all": "npm run build && electron-builder -mwl"
   },
   "dependencies": {
     "concurrently": "^8.2.0",
@@ -26,6 +31,7 @@
   },
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+    "@electron/notarize": "^3.0.1",
     "@testing-library/jest-dom": "^6.6.4",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
@@ -50,5 +56,51 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "build": {
+    "appId": "com.moodbooms.app",
+    "productName": "MoodbooMs",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "build/**/*",
+      "electron/**/*",
+      "node_modules/**/*"
+    ],
+    "mac": {
+      "category": "public.app-category.lifestyle",
+      "icon": "assets/icon.icns",
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "entitlements": "build-resources/entitlements.mac.plist",
+      "entitlementsInherit": "build-resources/entitlements.mac.inherit.plist",
+      "type": "distribution",
+      "identity": "Developer ID Application: ${env.APPLE_DEVELOPER_NAME} (${env.APPLE_TEAM_ID})"
+    },
+    "dmg": {
+      "sign": false
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "assets/icon.ico",
+      "certificateFile": "${env.WINDOWS_CERT_FILE}",
+      "certificatePassword": "${env.WINDOWS_CERT_PASSWORD}",
+      "signingHashAlgorithms": [
+        "sha256"
+      ],
+      "rfc3161TimeStampServer": "http://timestamp.digicert.com",
+      "signDlls": true
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "assets/icon.png",
+      "category": "Utility"
+    },
+    "afterSign": "scripts/notarize.js",
+    "publish": {
+      "provider": "github",
+      "releaseType": "release"
+    }
   }
 }
