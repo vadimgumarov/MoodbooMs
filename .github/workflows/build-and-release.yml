@@ -1,0 +1,348 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  pull_request:
+    branches:
+      - main
+      - 'feat/epic-*'
+  workflow_dispatch:
+    inputs:
+      release_type:
+        description: 'Release type (draft/prerelease/release)'
+        required: true
+        default: 'draft'
+        type: choice
+        options:
+          - draft
+          - prerelease
+          - release
+
+jobs:
+  # Quality checks run on all PRs and releases
+  quality-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run linting
+        run: |
+          # Add linting when configured
+          echo "Linting checks would run here"
+          # npm run lint
+
+      - name: Run tests
+        run: npm test -- --coverage --watchAll=false
+
+      - name: Upload coverage
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: coverage-report
+          path: coverage/
+
+      - name: Check build
+        run: npm run build
+
+      - name: Security audit
+        run: npm audit --audit-level=moderate || true
+
+  # Build jobs only run on tags and manual triggers
+  build-mac:
+    runs-on: macos-latest
+    needs: quality-checks
+    if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Import macOS certificates
+        if: env.MACOS_CERTIFICATE != ''
+        env:
+          MACOS_CERTIFICATE: ${{ secrets.MACOS_CERTIFICATE }}
+          MACOS_CERTIFICATE_PWD: ${{ secrets.MACOS_CERTIFICATE_PWD }}
+        run: |
+          # Create temporary keychain
+          KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
+          KEYCHAIN_PWD=$(openssl rand -base64 32)
+          
+          # Create keychain
+          security create-keychain -p "$KEYCHAIN_PWD" $KEYCHAIN_PATH
+          security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
+          security unlock-keychain -p "$KEYCHAIN_PWD" $KEYCHAIN_PATH
+          
+          # Import certificate
+          echo $MACOS_CERTIFICATE | base64 --decode > certificate.p12
+          security import certificate.p12 -P "$MACOS_CERTIFICATE_PWD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+          security list-keychain -d user -s $KEYCHAIN_PATH
+          
+          # Allow codesign to access keychain
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PWD" $KEYCHAIN_PATH
+
+      - name: Build and sign macOS app
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_DEVELOPER_NAME: ${{ secrets.APPLE_DEVELOPER_NAME }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          npm run dist:mac
+          # List built files
+          ls -la dist/
+
+      - name: Upload macOS artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: mac-dist
+          path: |
+            dist/*.dmg
+            dist/*.zip
+            dist/*.blockmap
+
+      - name: Verify macOS build
+        run: |
+          # Check that DMG was created
+          if [ ! -f dist/*.dmg ]; then
+            echo "Error: DMG file not found"
+            exit 1
+          fi
+          echo "✅ macOS build successful"
+
+  build-windows:
+    runs-on: windows-latest
+    needs: quality-checks
+    if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Import Windows certificate
+        if: env.WINDOWS_CERTIFICATE != ''
+        env:
+          WINDOWS_CERTIFICATE: ${{ secrets.WINDOWS_CERTIFICATE }}
+          WINDOWS_CERTIFICATE_PWD: ${{ secrets.WINDOWS_CERTIFICATE_PWD }}
+        run: |
+          # Decode certificate from base64
+          [System.IO.File]::WriteAllBytes("certificate.pfx", [System.Convert]::FromBase64String($env:WINDOWS_CERTIFICATE))
+          
+          # Import to certificate store
+          $password = ConvertTo-SecureString -String $env:WINDOWS_CERTIFICATE_PWD -Force -AsPlainText
+          Import-PfxCertificate -FilePath certificate.pfx -CertStoreLocation Cert:\CurrentUser\My -Password $password
+        shell: powershell
+
+      - name: Build and sign Windows app
+        env:
+          WINDOWS_CERT_FILE: ./certificate.pfx
+          WINDOWS_CERT_PASSWORD: ${{ secrets.WINDOWS_CERTIFICATE_PWD }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          npm run dist:win
+          # List built files
+          dir dist
+
+      - name: Upload Windows artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: windows-dist
+          path: |
+            dist/*.exe
+            dist/*.blockmap
+
+      - name: Verify Windows build
+        shell: powershell
+        run: |
+          # Check that EXE was created
+          if (!(Test-Path "dist\*.exe")) {
+            Write-Error "EXE file not found"
+            exit 1
+          }
+          Write-Host "✅ Windows build successful"
+
+  build-linux:
+    runs-on: ubuntu-latest
+    needs: quality-checks
+    if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Linux app
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          npm run dist:linux
+          # List built files
+          ls -la dist/
+
+      - name: Upload Linux artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: linux-dist
+          path: |
+            dist/*.AppImage
+            dist/*.snap
+            dist/*.deb
+
+      - name: Verify Linux build
+        run: |
+          # Check that AppImage was created
+          if [ ! -f dist/*.AppImage ]; then
+            echo "Error: AppImage file not found"
+            exit 1
+          fi
+          echo "✅ Linux build successful"
+
+  create-release:
+    needs: [build-mac, build-windows, build-linux]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: dist-artifacts
+
+      - name: List all artifacts
+        run: |
+          echo "📦 Release artifacts:"
+          find dist-artifacts -type f -name "*" | while read file; do
+            size=$(du -h "$file" | cut -f1)
+            echo "  - $(basename "$file") ($size)"
+          done
+
+      - name: Generate release notes
+        id: release_notes
+        run: |
+          # Extract version from tag
+          VERSION=${GITHUB_REF#refs/tags/}
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+          
+          # Generate basic release notes
+          cat > release_notes.md << EOF
+          ## What's New in $VERSION
+          
+          ### Features
+          - Auto-updater functionality
+          - Error tracking and analytics (privacy-focused)
+          - Code signing for trusted installation
+          
+          ### Improvements
+          - Enhanced security with CSP
+          - Better error handling
+          - Performance optimizations
+          
+          ### Downloads
+          - **macOS**: MoodbooMs-$VERSION.dmg
+          - **Windows**: MoodbooMs-Setup-$VERSION.exe
+          - **Linux**: MoodbooMs-$VERSION.AppImage
+          
+          ### Installation
+          1. Download the appropriate file for your platform
+          2. Run the installer
+          3. Enjoy tracking your cycle with humor!
+          
+          ---
+          *Note: First-time users on macOS may need to right-click and select "Open" due to Gatekeeper.*
+          EOF
+          
+          echo "RELEASE_NOTES<<EOF" >> $GITHUB_OUTPUT
+          cat release_notes.md >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: MoodbooMs ${{ steps.release_notes.outputs.VERSION }}
+          body: ${{ steps.release_notes.outputs.RELEASE_NOTES }}
+          draft: ${{ github.event.inputs.release_type == 'draft' }}
+          prerelease: ${{ github.event.inputs.release_type == 'prerelease' }}
+          files: |
+            dist-artifacts/**/*.dmg
+            dist-artifacts/**/*.zip
+            dist-artifacts/**/*.exe
+            dist-artifacts/**/*.AppImage
+            dist-artifacts/**/*.snap
+            dist-artifacts/**/*.deb
+            dist-artifacts/**/*.blockmap
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Notify update server
+        if: success()
+        run: |
+          # In production, this would notify the update server
+          echo "📡 Update server would be notified of new release ${{ steps.release_notes.outputs.VERSION }}"
+          
+          # Example curl command (commented out):
+          # curl -X POST https://updates.moodbooms.com/notify \
+          #   -H "Authorization: Bearer ${{ secrets.UPDATE_SERVER_TOKEN }}" \
+          #   -H "Content-Type: application/json" \
+          #   -d "{\"version\": \"${{ steps.release_notes.outputs.VERSION }}\", \"platform\": \"all\"}"
+
+  # Summary job for status checks
+  release-summary:
+    needs: [quality-checks, create-release]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Summary
+        run: |
+          echo "## 📊 Release Pipeline Summary"
+          echo ""
+          if [ "${{ needs.quality-checks.result }}" == "success" ]; then
+            echo "✅ Quality checks passed"
+          else
+            echo "❌ Quality checks failed"
+          fi
+          
+          if [ "${{ needs.create-release.result }}" == "success" ]; then
+            echo "✅ Release created successfully"
+          elif [ "${{ needs.create-release.result }}" == "skipped" ]; then
+            echo "⏭️ Release creation skipped (not a tag push)"
+          else
+            echo "❌ Release creation failed"
+          fi

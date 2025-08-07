@@ -1,0 +1,89 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches:
+      - main
+      - 'feat/**'
+  pull_request:
+    branches:
+      - main
+      - 'feat/epic-*'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run linting
+        run: |
+          echo "ℹ️ Linting checks will run when ESLint is configured"
+          # npm run lint
+        continue-on-error: true
+
+      - name: Run tests
+        run: npm test -- --coverage --watchAll=false --passWithNoTests
+
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v3
+        if: always()
+        with:
+          files: ./coverage/lcov.info
+          flags: unittests
+          name: codecov-umbrella
+        continue-on-error: true
+
+      - name: Build application
+        run: npm run build
+
+      - name: Check bundle size
+        run: |
+          echo "📊 Build Output Size:"
+          du -sh build/
+          du -sh build/static/js/*.js | head -5
+          du -sh build/static/css/*.css | head -5
+
+      - name: Security audit
+        run: |
+          echo "🔒 Running security audit..."
+          npm audit --audit-level=high || true
+
+  build-test:
+    runs-on: ${{ matrix.os }}
+    needs: test
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+      fail-fast: false
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Test Electron build
+        run: |
+          npm run build
+          echo "✅ Build successful on ${{ matrix.os }}"
+        env:
+          CI: true
