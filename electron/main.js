@@ -61,9 +61,16 @@ process.on('unhandledRejection', (reason, promise) => {
 app.whenReady().then(() => {
   console.log('App is ready, creating window and tray...');
   
-  // Hide dock icon (must be done after app is ready on macOS)
-  if (app.dock) {
-    app.dock.hide();
+  // Platform-specific app behavior
+  if (process.platform === 'darwin') {
+    // Hide dock icon on macOS (must be done after app is ready)
+    if (app.dock) {
+      app.dock.hide();
+    }
+  } else if (process.platform === 'win32') {
+    // Windows-specific settings
+    // Windows apps typically minimize to tray rather than hide dock
+    app.setAppUserModelId('com.moodbooms.app');
   }
   
   // Run store migrations
@@ -283,4 +290,7 @@ app.on('will-quit', () => {
 
 app.on('window-all-closed', () => {
   logToFile('=== ALL WINDOWS CLOSED ===');
+  // On Windows and Linux, keep app running in tray even when all windows are closed
+  // On macOS, apps typically quit when all windows are closed (but we're a tray app)
+  // Since we're a tray app on all platforms, don't quit
 });
