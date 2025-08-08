@@ -23,6 +23,7 @@ import {
 } from '../../utils/cycleCalculations';
 import { useMode } from '../../core/contexts/SimpleModeContext';
 import PeriodNavigation from './PeriodNavigation';
+import ContextMenu from './ContextMenu';
 
 const Calendar = ({ cycleStartDate, cycleLength = 28, onDateSelect, cycleHistory = [] }) => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -31,6 +32,8 @@ const Calendar = ({ cycleStartDate, cycleLength = 28, onDateSelect, cycleHistory
   const [dateInputError, setDateInputError] = useState('');
   const [isAnimating, setIsAnimating] = useState(false);
   const [swipeOffset, setSwipeOffset] = useState(0);
+  const [contextMenu, setContextMenu] = useState(null);
+  const [dateNotes, setDateNotes] = useState({});
   const today = new Date();
   const { isKingMode } = useMode();
   const calendarRef = useRef(null);
@@ -379,6 +382,99 @@ const Calendar = ({ cycleStartDate, cycleLength = 28, onDateSelect, cycleHistory
     }
   }, [today, focusedDate]);
 
+  // Load date notes from electron store on mount
+  useEffect(() => {
+    const loadDateNotes = async () => {
+      try {
+        if (window.electronAPI?.store?.get) {
+          const savedNotes = await window.electronAPI.store.get('dateNotes');
+          if (savedNotes && typeof savedNotes === 'object') {
+            setDateNotes(savedNotes);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to load date notes:', error);
+      }
+    };
+
+    loadDateNotes();
+  }, []);
+
+  // Save date notes to electron store whenever they change
+  useEffect(() => {
+    const saveDateNotes = async () => {
+      try {
+        if (window.electronAPI?.store?.set && Object.keys(dateNotes).length > 0) {
+          await window.electronAPI.store.set({ key: 'dateNotes', value: dateNotes });
+        }
+      } catch (error) {
+        console.error('Failed to save date notes:', error);
+      }
+    };
+
+    // Only save if we have notes (avoid saving empty object on initial load)
+    if (Object.keys(dateNotes).length > 0) {
+      saveDateNotes();
+    }
+  }, [dateNotes]);
+
+  // Context menu handlers
+  const handleContextMenu = useCallback((e, date) => {
+    e.preventDefault();
+    const rect = e.currentTarget.getBoundingClientRect();
+    setContextMenu({
+      date,
+      x: e.clientX,
+      y: e.clientY
+    });
+  }, []);
+
+  const handleCloseContextMenu = useCallback(() => {
+    setContextMenu(null);
+  }, []);
+
+  const handleMarkPeriodStart = useCallback((date) => {
+    console.log('Mark as period start:', date);
+    // This would typically call a parent function to update cycle start date
+    // For now, we'll just log it
+  }, []);
+
+  const handleAddNote = useCallback((date) => {
+    const dateKey = format(date, 'yyyy-MM-dd');
+    const currentNote = dateNotes[dateKey] || '';
+    const newNote = prompt('Add a note for this date:', currentNote);
+    
+    if (newNote !== null) {
+      if (newNote.trim() === '') {
+        // Remove note if empty
+        setDateNotes(prev => {
+          const updated = { ...prev };
+          delete updated[dateKey];
+          return updated;
+        });
+      } else {
+        // Add or update note
+        setDateNotes(prev => ({
+          ...prev,
+          [dateKey]: newNote.trim()
+        }));
+      }
+      console.log('Note updated for', date, ':', newNote.trim() || '(removed)');
+    }
+  }, [dateNotes]);
+
+  const handleSetReminder = useCallback((date) => {
+    console.log('Set reminder for:', date);
+    // This would typically open a reminder modal
+    alert(`Reminder functionality for ${format(date, 'MM/dd/yyyy')} coming soon!`);
+  }, []);
+
+  const handleCopyDate = useCallback((dateString) => {
+    console.log('Date copied:', dateString);
+    // Show a brief success message
+    alert(`Date ${dateString} copied to clipboard!`);
+  }, []);
+
   return (
     <div className="p-4">
       {/* Calendar Header with integrated Today button */}
@@ -585,6 +681,7 @@ const Calendar = ({ cycleStartDate, cycleLength = 28, onDateSelect, cycleHistory
             <button
               key={index}
               onClick={() => onDateSelect && onDateSelect(day)}
+              onContextMenu={(e) => handleContextMenu(e, day)}
               onFocus={() => setFocusedDate(day)}
               className={`
                 relative p-2 h-14 rounded-lg transition-all flex flex-col items-center justify-center
@@ -613,6 +710,12 @@ const Calendar = ({ cycleStartDate, cycleLength = 28, onDateSelect, cycleHistory
               {isToday && isCurrentMonth && (
                 <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 text-[8px] font-bold text-primary">
                   TODAY
+                </div>
+              )}
+              {/* Note indicator */}
+              {dateNotes[format(day, 'yyyy-MM-dd')] && isCurrentMonth && (
+                <div className="absolute -top-1 -left-1 w-3 h-3 rounded-full bg-primary border border-white text-tiny flex items-center justify-center">
+                  <span className="text-white font-bold text-[8px]">N</span>
                 </div>
               )}
               {predictionIndicator}
@@ -697,6 +800,21 @@ const Calendar = ({ cycleStartDate, cycleLength = 28, onDateSelect, cycleHistory
           </div>
         )}
       </div>
+
+      {/* Context Menu */}
+      {contextMenu && (
+        <ContextMenu
+          date={contextMenu.date}
+          x={contextMenu.x}
+          y={contextMenu.y}
+          onClose={handleCloseContextMenu}
+          onMarkPeriodStart={handleMarkPeriodStart}
+          onAddNote={handleAddNote}
+          onSetReminder={handleSetReminder}
+          onCopyDate={handleCopyDate}
+          hasNote={!!dateNotes[format(contextMenu.date, 'yyyy-MM-dd')]}
+        />
+      )}
     </div>
   );
 };
