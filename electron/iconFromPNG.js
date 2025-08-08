@@ -16,9 +16,18 @@ function loadPNGIcon(filename) {
     // For macOS, use createFromPath which handles PNG files properly
     const icon = nativeImage.createFromPath(iconPath);
     
-    // Mark as template for macOS (adapts to dark/light mode)
+    // Platform-specific icon handling
     if (process.platform === 'darwin') {
+      // Mark as template for macOS (adapts to dark/light mode)
       icon.setTemplateImage(true);
+    } else if (process.platform === 'win32') {
+      // Windows: Ensure icon is proper size (16x16 or 32x32 recommended for tray)
+      // Windows automatically scales, but we can resize if needed
+      const size = icon.getSize();
+      if (size.width > 32 || size.height > 32) {
+        // Resize large icons for better Windows tray display
+        return icon.resize({ width: 32, height: 32 });
+      }
     }
     
     console.log(`PNG icon loaded: size=${JSON.stringify(icon.getSize())}, empty=${icon.isEmpty()}`);
@@ -32,15 +41,23 @@ function loadPNGIcon(filename) {
 // Get icon for phase using PNG files
 function getIconForPhase(phase) {
   const phaseIconMap = {
-    // BadAss mode phases
+    // Queen mode phases (female perspective)
     'Bloody Hell Week': 'cloud-lightning.png',
     'Finally Got My Sh*t Together': 'sun.png',
     'Horny AF': 'cloud-sun.png',
     'Getting Real Tired of This BS': 'cloud.png',
-    'Pre-Chaos Mood Swings': 'cloud-rain-wind.png',  // Using rain-wind for mood swings
+    'Pre-Chaos Mood Swings': 'cloud-rain-wind.png',
     'Apocalypse Countdown': 'tornado.png',
     
-    // Professional mode phases (same icons as BadAss for consistency)
+    // King mode phases (partner perspective)
+    'Code Red Alert': 'cloud-lightning.png',
+    'Safe Zone Active': 'sun.png',
+    'High Energy Warning': 'cloud-sun.png',
+    'Patience Level: Low': 'cloud.png',
+    'Volatility Alert': 'cloud-rain-wind.png',
+    'DEFCON 1': 'tornado.png',
+    
+    // Legacy Professional mode phases (kept for compatibility)
     'Menstruation': 'cloud-lightning.png',
     'Follicular Phase': 'sun.png',
     'Ovulation': 'cloud-sun.png',
