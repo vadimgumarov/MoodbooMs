@@ -29,14 +29,38 @@ const Calendar = ({ cycleStartDate, cycleLength = 28, onDateSelect, cycleHistory
   const [focusedDate, setFocusedDate] = useState(null);
   const [dateInputValue, setDateInputValue] = useState('');
   const [dateInputError, setDateInputError] = useState('');
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [swipeOffset, setSwipeOffset] = useState(0);
   const today = new Date();
   const { isKingMode } = useMode();
   const calendarRef = useRef(null);
   const dateInputRef = useRef(null);
+  const calendarGridRef = useRef(null);
+  
+  // Swipe gesture state
+  const swipeState = useRef({
+    isActive: false,
+    startX: 0,
+    startY: 0,
+    currentX: 0,
+    startTime: 0,
+    hasMoved: false
+  });
 
-  // Navigation handlers
-  const previousMonth = () => setCurrentMonth(subMonths(currentMonth, 1));
-  const nextMonth = () => setCurrentMonth(addMonths(currentMonth, 1));
+  // Navigation handlers with animation
+  const previousMonth = () => {
+    if (isAnimating) return;
+    setIsAnimating(true);
+    setCurrentMonth(subMonths(currentMonth, 1));
+    setTimeout(() => setIsAnimating(false), 300);
+  };
+  
+  const nextMonth = () => {
+    if (isAnimating) return;
+    setIsAnimating(true);
+    setCurrentMonth(addMonths(currentMonth, 1));
+    setTimeout(() => setIsAnimating(false), 300);
+  };
 
   // Generate calendar days
   const calendarDays = useMemo(() => {
@@ -160,6 +184,74 @@ const Calendar = ({ cycleStartDate, cycleLength = 28, onDateSelect, cycleHistory
     }
   };
 
+  // Swipe gesture handlers
+  const handleTouchStart = useCallback((e) => {
+    const touch = e.touches[0];
+    swipeState.current = {
+      isActive: true,
+      startX: touch.clientX,
+      startY: touch.clientY,
+      currentX: touch.clientX,
+      startTime: Date.now(),
+      hasMoved: false
+    };
+  }, []);
+
+  const handleTouchMove = useCallback((e) => {
+    if (!swipeState.current.isActive) return;
+
+    const touch = e.touches[0];
+    const deltaX = touch.clientX - swipeState.current.startX;
+    const deltaY = touch.clientY - swipeState.current.startY;
+    
+    // Check if this is a horizontal swipe
+    if (!swipeState.current.hasMoved && Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 10) {
+      swipeState.current.hasMoved = true;
+      e.preventDefault(); // Prevent scrolling
+    }
+
+    if (swipeState.current.hasMoved) {
+      swipeState.current.currentX = touch.clientX;
+      
+      // Calculate swipe offset with resistance
+      const maxOffset = 100;
+      const resistance = 0.5;
+      const offset = Math.max(-maxOffset, Math.min(maxOffset, deltaX * resistance));
+      setSwipeOffset(offset);
+    }
+  }, []);
+
+  const handleTouchEnd = useCallback(() => {
+    if (!swipeState.current.isActive || !swipeState.current.hasMoved) {
+      swipeState.current.isActive = false;
+      setSwipeOffset(0);
+      return;
+    }
+
+    const deltaX = swipeState.current.currentX - swipeState.current.startX;
+    const deltaTime = Date.now() - swipeState.current.startTime;
+    const velocity = Math.abs(deltaX) / deltaTime;
+    
+    // Determine if swipe is significant enough to navigate
+    const shouldNavigate = Math.abs(deltaX) > 50 || velocity > 0.3;
+    
+    if (shouldNavigate) {
+      if (deltaX > 0) {
+        previousMonth(); // Swipe right = previous month
+      } else {
+        nextMonth(); // Swipe left = next month
+      }
+    }
+
+    // Reset state with smooth transition
+    swipeState.current.isActive = false;
+    
+    // Smooth reset of offset
+    setTimeout(() => {
+      setSwipeOffset(0);
+    }, 50);
+  }, [previousMonth, nextMonth]);
+
   // Handler for period navigation
   const handleNavigateToPeriod = useCallback((periodDate) => {
     // Debounce rapid navigation to prevent re-render loops (Exit Code 15 fix)
@@ -261,17 +353,24 @@ const Calendar = ({ cycleStartDate, cycleLength = 28, onDateSelect, cycleHistory
     }
   }, [focusedDate, currentMonth, onDateSelect, goToToday]);
 
-  // Focus management
+  // Focus management and touch events
   useEffect(() => {
     const calendar = calendarRef.current;
-    if (!calendar) return;
+    const calendarGrid = calendarGridRef.current;
+    if (!calendar || !calendarGrid) return;
 
     calendar.addEventListener('keydown', handleKeyDown);
+    calendarGrid.addEventListener('touchstart', handleTouchStart, { passive: false });
+    calendarGrid.addEventListener('touchmove', handleTouchMove, { passive: false });
+    calendarGrid.addEventListener('touchend', handleTouchEnd);
     
     return () => {
       calendar.removeEventListener('keydown', handleKeyDown);
+      calendarGrid.removeEventListener('touchstart', handleTouchStart);
+      calendarGrid.removeEventListener('touchmove', handleTouchMove);
+      calendarGrid.removeEventListener('touchend', handleTouchEnd);
     };
-  }, [handleKeyDown]);
+  }, [handleKeyDown, handleTouchStart, handleTouchMove, handleTouchEnd]);
 
   // Set initial focus when calendar mounts
   useEffect(() => {
@@ -428,11 +527,20 @@ const Calendar = ({ cycleStartDate, cycleLength = 28, onDateSelect, cycleHistory
       {/* Calendar Grid */}
       <div 
         ref={calendarRef}
-        className="grid grid-cols-7 gap-1"
+        className="grid grid-cols-7 gap-1 relative overflow-hidden"
         role="grid"
         aria-label="Calendar"
         tabIndex={0}
       >
+        <div 
+          ref={calendarGridRef}
+          className={`grid grid-cols-7 gap-1 transition-transform duration-300 ease-out ${
+            isAnimating ? 'transition-transform' : ''
+          }`}
+          style={{
+            transform: `translateX(${swipeOffset}px)`,
+          }}
+        >
         {calendarDays.map((day, index) => {
           const isCurrentMonth = isSameMonth(day, currentMonth);
           const isToday = isSameDay(day, today);
@@ -511,6 +619,18 @@ const Calendar = ({ cycleStartDate, cycleLength = 28, onDateSelect, cycleHistory
             </button>
           );
         })}
+        </div>
+        
+        {/* Swipe indicator */}
+        {Math.abs(swipeOffset) > 20 && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/20 rounded-lg backdrop-blur-sm">
+            <div className="bg-white/90 px-4 py-2 rounded-full shadow-lg flex items-center gap-2">
+              <span className="text-sm font-medium">
+                {swipeOffset > 0 ? '← Previous Month' : 'Next Month →'}
+              </span>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Legend */}
