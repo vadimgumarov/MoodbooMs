@@ -283,8 +283,8 @@ const Calendar = ({ cycleStartDate, cycleLength = 28, onDateSelect, cycleHistory
   return (
     <div className="p-4">
       {/* Calendar Header with integrated Today button */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
+      <div className="flex flex-col sm:flex-row items-center gap-3 mb-4">
+        <div className="flex items-center gap-2 w-full sm:w-auto justify-center sm:justify-start">
           <button
             onClick={goToToday}
             className="px-3 py-1 text-tiny bg-primary text-white rounded hover:bg-primary-dark transition-colors font-medium"
@@ -295,24 +295,79 @@ const Calendar = ({ cycleStartDate, cycleLength = 28, onDateSelect, cycleHistory
           </button>
           <button
             onClick={previousMonth}
-            className="p-2 hover:bg-surface rounded-full transition-colors"
+            className="p-2 hover:bg-surface rounded-full transition-colors sm:inline-flex hidden"
             aria-label="Previous month"
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
         </div>
         
-        <h2 className="text-base font-medium">
-          {format(currentMonth, 'MMMM yyyy')}
-        </h2>
+        <div className="flex items-center gap-2">
+          {/* Month Dropdown */}
+          <select
+            value={currentMonth.getMonth()}
+            onChange={(e) => {
+              const newMonth = new Date(currentMonth);
+              newMonth.setMonth(parseInt(e.target.value));
+              setCurrentMonth(newMonth);
+            }}
+            className="px-3 py-1.5 text-sm sm:text-base font-medium bg-white border border-gray-300 rounded-md hover:border-primary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer appearance-none bg-no-repeat bg-[length:16px] bg-[right_8px_center] pr-8"
+            style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E")` }}
+            aria-label="Select month"
+          >
+            {[
+              'January', 'February', 'March', 'April', 'May', 'June',
+              'July', 'August', 'September', 'October', 'November', 'December'
+            ].map((month, index) => (
+              <option key={month} value={index}>
+                {month}
+              </option>
+            ))}
+          </select>
+
+          {/* Year Dropdown */}
+          <select
+            value={currentMonth.getFullYear()}
+            onChange={(e) => {
+              const newMonth = new Date(currentMonth);
+              newMonth.setFullYear(parseInt(e.target.value));
+              setCurrentMonth(newMonth);
+            }}
+            className="px-3 py-1.5 text-sm sm:text-base font-medium bg-white border border-gray-300 rounded-md hover:border-primary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer appearance-none bg-no-repeat bg-[length:16px] bg-[right_8px_center] pr-8"
+            style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E")` }}
+            aria-label="Select year"
+          >
+            {(() => {
+              const currentYear = new Date().getFullYear();
+              const years = [];
+              for (let year = currentYear - 5; year <= currentYear + 2; year++) {
+                years.push(year);
+              }
+              return years.map(year => (
+                <option key={year} value={year}>
+                  {year}
+                </option>
+              ));
+            })()}
+          </select>
+        </div>
         
-        <button
-          onClick={nextMonth}
-          className="p-2 hover:bg-surface rounded-full transition-colors"
-          aria-label="Next month"
-        >
-          <ChevronRight className="w-5 h-5" />
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={previousMonth}
+            className="p-2 hover:bg-surface rounded-full transition-colors inline-flex sm:hidden"
+            aria-label="Previous month"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+          <button
+            onClick={nextMonth}
+            className="p-2 hover:bg-surface rounded-full transition-colors"
+            aria-label="Next month"
+          >
+            <ChevronRight className="w-5 h-5" />
+          </button>
+        </div>
       </div>
 
       {/* Date Jump Input */}
