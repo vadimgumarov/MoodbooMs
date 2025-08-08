@@ -1,13 +1,15 @@
 const { app, BrowserWindow, ipcMain, session } = require('electron');
 const TrayManager = require('./trayManager');
-const { initializeIpcHandlers } = require('./ipcHandlers');
+const { initializeIpcHandlers, setAutoUpdaterManager } = require('./ipcHandlers');
 const { applyCSPToSession } = require('./csp-config');
 const { applySecuritySettings, setupAppSecurity, applySecurityHeaders, verifyWindowSecurity } = require('./security-config');
 const { startHeartbeat } = require('./crash-monitor');
 const { WINDOW_CONFIG, DEV_CONFIG, PATHS, LOGGING, ERROR_MESSAGES } = require('./constants');
+const AutoUpdaterManager = require('./autoUpdater');
 
 let window = null;
 let trayManager = null;
+let autoUpdaterManager = null;
 
 // Set up app-wide security policies
 setupAppSecurity();
@@ -254,6 +256,16 @@ app.whenReady().then(() => {
     initializeIpcHandlers(ipcMain, window, trayManager);
     console.log('IPC handlers initialized successfully');
     logToFile('IPC handlers initialized successfully');
+    
+    // Initialize auto-updater
+    autoUpdaterManager = new AutoUpdaterManager();
+    autoUpdaterManager.setWindow(window);
+    setAutoUpdaterManager(autoUpdaterManager);
+    
+    // Check for updates 5 seconds after app starts
+    setTimeout(() => {
+      autoUpdaterManager.checkForUpdates(false);
+    }, 5000);
   } catch (error) {
     const ipcError = `ERROR initializing IPC handlers: ${error.message}\nStack: ${error.stack}`;
     console.error(ipcError);

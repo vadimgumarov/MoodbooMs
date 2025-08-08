@@ -12,6 +12,7 @@ import {
 import { CYCLE, DEFAULT_PREFERENCES } from '../constants';
 import HighContrastToggle from './HighContrastToggle';
 import { SuccessMessage, ErrorMessage, LoadingSpinner, Tooltip } from './feedback';
+import UpdateManager from './UpdateManager';
 
 const SettingsPanel = ({ 
   cycleData, 
@@ -200,6 +201,9 @@ const SettingsPanel = ({
         </div>
 
       </div>
+
+      {/* Update Manager */}
+      <UpdateManager />
 
       {/* Footer */}
       <div className="border-t p-4">

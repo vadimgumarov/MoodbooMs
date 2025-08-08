@@ -29,6 +29,13 @@ function logPhaseUpdate(phase, source = 'unknown') {
 
 // This module sets up all IPC handlers for the main process
 
+let autoUpdaterManager = null;
+
+// Set the auto-updater manager reference
+function setAutoUpdaterManager(updater) {
+  autoUpdaterManager = updater;
+}
+
 // Initialize IPC handlers
 function initializeIpcHandlers(ipcMain, mainWindow, trayManager) {
   // CSP Violation Reporting
@@ -313,8 +320,49 @@ function initializeIpcHandlers(ipcMain, mainWindow, trayManager) {
       }
     });
   }
+  
+  // Auto-updater handlers
+  ipcMain.handle('updater-check-for-updates', async () => {
+    if (autoUpdaterManager) {
+      autoUpdaterManager.checkForUpdates(true);
+      return { success: true };
+    }
+    return { success: false, error: 'Auto-updater not initialized' };
+  });
+  
+  ipcMain.handle('updater-get-settings', async () => {
+    if (autoUpdaterManager) {
+      return autoUpdaterManager.getUpdateSettings();
+    }
+    return null;
+  });
+  
+  ipcMain.handle('updater-set-auto-download', async (event, enabled) => {
+    if (autoUpdaterManager) {
+      autoUpdaterManager.setAutoDownload(enabled);
+      return { success: true };
+    }
+    return { success: false, error: 'Auto-updater not initialized' };
+  });
+  
+  ipcMain.handle('updater-set-auto-install', async (event, enabled) => {
+    if (autoUpdaterManager) {
+      autoUpdaterManager.setAutoInstallOnQuit(enabled);
+      return { success: true };
+    }
+    return { success: false, error: 'Auto-updater not initialized' };
+  });
+  
+  ipcMain.handle('updater-download-update', async () => {
+    if (autoUpdaterManager) {
+      autoUpdaterManager.downloadUpdate();
+      return { success: true };
+    }
+    return { success: false, error: 'Auto-updater not initialized' };
+  });
 }
 
 module.exports = {
-  initializeIpcHandlers
+  initializeIpcHandlers,
+  setAutoUpdaterManager
 };

@@ -90,14 +90,16 @@ contextBridge.exposeInMainWorld('electronAPI', {
     showMessageBox: (options) => ipcRenderer.invoke('dialog-show-message', options)
   },
 
-  // Updates (future enhancement)
+  // Updates (auto-updater)
   updates: {
-    checkForUpdates: () => ipcRenderer.invoke('update-check'),
-    downloadUpdate: () => ipcRenderer.invoke('update-download'),
-    installUpdate: () => ipcRenderer.send('update-install'),
-    onUpdateAvailable: (callback) => {
-      ipcRenderer.on('update-available', (event, info) => callback(info));
-      return () => ipcRenderer.removeAllListeners('update-available');
+    checkForUpdates: () => ipcRenderer.invoke('updater-check-for-updates'),
+    downloadUpdate: () => ipcRenderer.invoke('updater-download-update'),
+    getSettings: () => ipcRenderer.invoke('updater-get-settings'),
+    setAutoDownload: (enabled) => ipcRenderer.invoke('updater-set-auto-download', enabled),
+    setAutoInstall: (enabled) => ipcRenderer.invoke('updater-set-auto-install', enabled),
+    onUpdateStatus: (callback) => {
+      ipcRenderer.on('update-status', (event, data) => callback(data));
+      return () => ipcRenderer.removeAllListeners('update-status');
     }
   },
 

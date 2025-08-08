@@ -29,6 +29,7 @@
     "concurrently": "^8.2.0",
     "date-fns": "^4.1.0",
     "electron-store": "^8.1.0",
+    "electron-updater": "^6.6.2",
     "lucide": "^0.526.0",
     "lucide-react": "^0.263.1",
     "react": "^18.2.0",
@@ -69,6 +70,12 @@
     "buildVersion": "1.0.0",
     "asar": true,
     "extends": null,
+    "publish": {
+      "provider": "github",
+      "owner": "vadimgumarov",
+      "repo": "MoodbooMs",
+      "releaseType": "release"
+    },
     "directories": {
       "output": "dist",
       "buildResources": "build-resources"
@@ -81,7 +88,9 @@
       {
         "from": "electron/assets/icons/",
         "to": "assets/icons/",
-        "filter": ["**/*"]
+        "filter": [
+          "**/*"
+        ]
       }
     ],
     "mac": {
@@ -89,11 +98,15 @@
       "target": [
         {
           "target": "dmg",
-          "arch": ["universal"]
+          "arch": [
+            "universal"
+          ]
         },
         {
-          "target": "zip", 
-          "arch": ["universal"]
+          "target": "zip",
+          "arch": [
+            "universal"
+          ]
         }
       ],
       "type": "distribution",
@@ -136,11 +149,15 @@
       "target": [
         {
           "target": "nsis",
-          "arch": ["x64"]
+          "arch": [
+            "x64"
+          ]
         },
         {
           "target": "portable",
-          "arch": ["x64"]
+          "arch": [
+            "x64"
+          ]
         }
       ],
       "icon": "electron/assets/icons/icon32.png",
@@ -151,11 +168,15 @@
       "target": [
         {
           "target": "AppImage",
-          "arch": ["x64"]
+          "arch": [
+            "x64"
+          ]
         },
         {
           "target": "snap",
-          "arch": ["x64"]
+          "arch": [
+            "x64"
+          ]
         }
       ],
       "icon": "electron/assets/icons/icon32.png",
