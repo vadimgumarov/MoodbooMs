@@ -6,9 +6,16 @@ const fs = require('fs');
 const path = require('path');
 const { updateRendererHeartbeat, logRendererCrash, logCrash } = require('./crash-monitor');
 
+// Get correct logs directory for both development and production
+function getLogsDir() {
+  return app.isPackaged 
+    ? path.join(app.getPath('userData'), 'logs')
+    : path.join(__dirname, '..', 'logs');
+}
+
 // Log phase updates to file
 function logPhaseUpdate(phase, source = 'unknown') {
-  const logDir = path.join(__dirname, '..', 'logs');
+  const logDir = getLogsDir();
   const logFile = path.join(logDir, `phase-updates-${new Date().toISOString().split('T')[0]}.log`);
   const timestamp = new Date().toISOString();
   const logEntry = `[${timestamp}] Phase update: "${phase}" from ${source}\n`;
@@ -214,7 +221,7 @@ function initializeIpcHandlers(ipcMain, mainWindow, trayManager) {
     app.quit();
   });
   ipcMain.on('app-log', (event, message) => {
-    const logDir = path.join(__dirname, '..', 'logs');
+    const logDir = getLogsDir();
     const logFile = path.join(logDir, `app-${new Date().toISOString().split('T')[0]}.log`);
     const timestamp = new Date().toISOString();
     const logEntry = `[${timestamp}] ${message}\n`;
@@ -300,7 +307,7 @@ function initializeIpcHandlers(ipcMain, mainWindow, trayManager) {
         console.log(logEntry, data.data || '');
         
         // Also append to app log
-        const logDir = path.join(__dirname, '..', 'logs');
+        const logDir = getLogsDir();
         const appLogFile = path.join(logDir, `app-${new Date().toISOString().split('T')[0]}.log`);
         fs.appendFileSync(appLogFile, `${logEntry}\n${data.data ? JSON.stringify(data.data, null, 2) + '\n' : ''}`);
       }

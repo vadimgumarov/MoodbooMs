@@ -1,18 +1,29 @@
 {
   "name": "moodbooms",
   "version": "1.0.0",
-  "main": "electron/main.js",
+  "description": "Menstrual cycle tracking app with humor and heart - Queen & King modes for different perspectives",
+  "author": {
+    "name": "MoodBooMs Team",
+    "email": "hello@moodbooms.app"
+  },
+  "main": "build/electron/main.js",
   "homepage": "./",
   "scripts": {
     "start": "BROWSER=none react-scripts start",
-    "build": "react-scripts build",
+    "build": "react-scripts build && cp -r electron build/",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "electron": "electron .",
     "electron-dev": "wait-on http://localhost:3000 && ELECTRON_DEV=true REACT_DEV_URL=true electron .",
     "dev": "concurrently \"npm run start\" \"npm run electron-dev\"",
     "app": "npm run build && npm run electron",
-    "check": "node check-menu.js"
+    "check": "node check-menu.js",
+    "build:mac": "npm run build && electron-builder --mac",
+    "build:mac-simple": "npm run build && electron-builder --mac zip --publish=never",
+    "build:mac-dmg": "npm run build && electron-builder --mac --publish=never",
+    "build:mac-zip": "npm run build && electron-builder --mac --publish=never --config.mac.target=zip",
+    "dist": "npm run build && electron-builder --mac --publish=never",
+    "dist:all": "npm run build && electron-builder --mac --win --linux --publish=never"
   },
   "dependencies": {
     "concurrently": "^8.2.0",
@@ -50,5 +61,116 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "build": {
+    "productName": "MoodBooMs",
+    "appId": "com.moodbooms.app",
+    "copyright": "Copyright © 2024 MoodBooMs",
+    "buildVersion": "1.0.0",
+    "asar": true,
+    "extends": null,
+    "directories": {
+      "output": "dist",
+      "buildResources": "build-resources"
+    },
+    "files": [
+      "build/**/*",
+      "node_modules/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "electron/assets/icons/",
+        "to": "assets/icons/",
+        "filter": ["**/*"]
+      }
+    ],
+    "mac": {
+      "category": "public.app-category.healthcare-fitness",
+      "target": [
+        {
+          "target": "dmg",
+          "arch": ["universal"]
+        },
+        {
+          "target": "zip", 
+          "arch": ["universal"]
+        }
+      ],
+      "type": "distribution",
+      "hardenedRuntime": false,
+      "gatekeeperAssess": false,
+      "darkModeSupport": true,
+      "minimumSystemVersion": "10.15.0",
+      "mergeASARs": true,
+      "singleArchFiles": "electron/assets/icons/**"
+    },
+    "dmg": {
+      "title": "Install ${productName}",
+      "window": {
+        "width": 540,
+        "height": 380
+      },
+      "contents": [
+        {
+          "x": 140,
+          "y": 200,
+          "type": "file"
+        },
+        {
+          "x": 400,
+          "y": 200,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": "always",
+      "createStartMenuShortcut": true,
+      "installerIcon": "electron/assets/icons/icon32.png",
+      "uninstallerIcon": "electron/assets/icons/icon32.png"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        },
+        {
+          "target": "portable",
+          "arch": ["x64"]
+        }
+      ],
+      "icon": "electron/assets/icons/icon32.png",
+      "publisherName": "MoodBooMs",
+      "verifyUpdateCodeSignature": false
+    },
+    "linux": {
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": ["x64"]
+        },
+        {
+          "target": "snap",
+          "arch": ["x64"]
+        }
+      ],
+      "icon": "electron/assets/icons/icon32.png",
+      "category": "Utility",
+      "desktop": {
+        "Name": "MoodBooMs",
+        "Comment": "Menstrual cycle tracking with humor",
+        "Keywords": "health;cycle;tracking;period;fertility;",
+        "StartupWMClass": "MoodBooMs"
+      }
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "vadimgumarov",
+      "repo": "MoodbooMs"
+    }
   }
 }

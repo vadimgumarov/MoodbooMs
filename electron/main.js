@@ -20,7 +20,12 @@ app.disableHardwareAcceleration();
 // Enable better error logging
 const fs = require('fs');
 const path = require('path');
-const logsDir = path.join(__dirname, '..', LOGGING.LOG_DIR);
+
+// Use proper logs directory - in development use relative path, in production use userData
+const logsDir = app.isPackaged 
+  ? path.join(app.getPath('userData'), LOGGING.LOG_DIR)
+  : path.join(__dirname, '..', LOGGING.LOG_DIR);
+
 if (!fs.existsSync(logsDir)) {
   fs.mkdirSync(logsDir, { recursive: true });
 }
@@ -109,7 +114,8 @@ app.whenReady().then(() => {
     }, DEV_CONFIG.REACT_START_DELAY);
   } else {
     // Production mode - load from built files
-    const appPath = path.join(__dirname, '..', 'build', 'index.html');
+    // In packaged app, __dirname is build/electron, so we need to go up one level to get to build/
+    const appPath = path.join(__dirname, '..', 'index.html');
     console.log('Loading built app from:', appPath);
     logToFile('Loading built app from: ' + appPath);
     window.loadFile(appPath).catch(err => {
