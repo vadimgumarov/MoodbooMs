@@ -1,0 +1,154 @@
+name: Build and Release
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest]
+        include:
+          - os: macos-latest
+            platform: mac
+            artifact_name: MoodBooMs-macOS
+          - os: windows-latest
+            platform: win
+            artifact_name: MoodBooMs-Windows
+
+    runs-on: ${{ matrix.os }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test -- --watchAll=false --passWithNoTests
+
+      - name: Build React app
+        run: npm run build
+
+      # macOS Build
+      - name: Build macOS app
+        if: matrix.os == 'macos-latest'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          npm run build:mac
+
+      # Windows Build
+      - name: Build Windows app
+        if: matrix.os == 'windows-latest'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          npm run build:win
+
+      # Upload macOS artifacts
+      - name: Upload macOS DMG
+        if: matrix.os == 'macos-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}-dmg
+          path: dist/*.dmg
+          if-no-files-found: error
+
+      - name: Upload macOS ZIP
+        if: matrix.os == 'macos-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}-zip
+          path: dist/*.zip
+          if-no-files-found: ignore
+
+      # Upload Windows artifacts
+      - name: Upload Windows Installer
+        if: matrix.os == 'windows-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}-installer
+          path: dist/*Setup*.exe
+          if-no-files-found: error
+
+      - name: Upload Windows Portable
+        if: matrix.os == 'windows-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}-portable
+          path: dist/*Portable*.exe
+          if-no-files-found: error
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./artifacts
+
+      - name: Display structure of downloaded files
+        run: ls -la ./artifacts/
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          draft: true
+          prerelease: false
+          name: Release ${{ github.ref_name }}
+          tag_name: ${{ github.ref }}
+          body: |
+            ## What's Changed
+            <!-- Add release notes here -->
+            
+            ## Downloads
+            
+            ### macOS
+            - **DMG Installer**: For standard installation
+            - **ZIP Archive**: Portable version
+            
+            ### Windows
+            - **Setup Installer**: Full installation with Start Menu integration
+            - **Portable**: No installation required
+            
+            ## Installation Instructions
+            
+            ### macOS
+            1. Download the DMG file
+            2. Open the DMG and drag MoodBooMs to Applications
+            3. Launch from Applications folder
+            
+            ### Windows
+            1. Download the Setup installer
+            2. Run the installer and follow instructions
+            3. Launch from Start Menu or Desktop shortcut
+            
+            For portable version: Extract and run directly
+          files: |
+            artifacts/**/*.dmg
+            artifacts/**/*.zip
+            artifacts/**/*.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

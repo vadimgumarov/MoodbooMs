@@ -1,0 +1,92 @@
+name: Version and Tag
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_type:
+        description: 'Version type'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+      create_release:
+        description: 'Create release after tagging'
+        required: false
+        default: true
+        type: boolean
+
+jobs:
+  version:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Configure Git
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+
+      - name: Get current version
+        id: current_version
+        run: |
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+          echo "version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+          echo "Current version: $CURRENT_VERSION"
+
+      - name: Bump version
+        id: bump_version
+        run: |
+          npm version ${{ github.event.inputs.version_type }} --no-git-tag-version
+          NEW_VERSION=$(node -p "require('./package.json').version")
+          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "New version: $NEW_VERSION"
+
+      - name: Update Electron package.json
+        run: |
+          cd electron
+          npm version ${{ steps.bump_version.outputs.new_version }} --no-git-tag-version --allow-same-version
+          cd ..
+
+      - name: Commit version bump
+        run: |
+          git add package.json package-lock.json electron/package.json
+          git commit -m "chore: bump version to ${{ steps.bump_version.outputs.new_version }}"
+
+      - name: Create tag
+        run: |
+          git tag -a "v${{ steps.bump_version.outputs.new_version }}" -m "Release v${{ steps.bump_version.outputs.new_version }}"
+
+      - name: Push changes
+        run: |
+          git push origin main
+          git push origin "v${{ steps.bump_version.outputs.new_version }}"
+
+      - name: Create changelog
+        id: changelog
+        run: |
+          echo "## Changes in v${{ steps.bump_version.outputs.new_version }}" > CHANGELOG_TEMP.md
+          echo "" >> CHANGELOG_TEMP.md
+          git log --pretty=format:"- %s (%h)" "v${{ steps.current_version.outputs.version }}..HEAD" >> CHANGELOG_TEMP.md
+          echo "" >> CHANGELOG_TEMP.md
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          cat CHANGELOG_TEMP.md >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Trigger build workflow
+        if: github.event.inputs.create_release == 'true'
+        run: |
+          echo "Build workflow will be triggered automatically by the tag push"
+          echo "Check the Actions tab for the build progress"

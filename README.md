@@ -1,5 +1,9 @@
 # MoodbooM - Fertility Tracking Menu Bar App
 
+[![Build and Release](https://github.com/vadimgumarov/MoodbooMs/actions/workflows/build.yml/badge.svg)](https://github.com/vadimgumarov/MoodbooMs/actions/workflows/build.yml)
+[![Test](https://github.com/vadimgumarov/MoodbooMs/actions/workflows/test.yml/badge.svg)](https://github.com/vadimgumarov/MoodbooMs/actions/workflows/test.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 <p align="center">
   <img src="docs/screenshots/hero-image.png" alt="MoodbooM App Screenshot" width="600">
   <br>
