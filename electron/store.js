@@ -297,6 +297,29 @@ const storeOperations = {
       store.reset(...Object.keys(schema));
       throw new Error(`Import failed: ${error.message}`);
     }
+  },
+  
+  // File-based export/import
+  exportToFile: async (filePath, data) => {
+    const fs = require('fs').promises;
+    try {
+      const jsonString = JSON.stringify(data, null, 2);
+      await fs.writeFile(filePath, jsonString, 'utf8');
+      return true;
+    } catch (error) {
+      throw new Error(`Failed to export to file: ${error.message}`);
+    }
+  },
+  
+  importFromFile: async (filePath) => {
+    const fs = require('fs').promises;
+    try {
+      const fileContent = await fs.readFile(filePath, 'utf8');
+      const data = JSON.parse(fileContent);
+      return data;
+    } catch (error) {
+      throw new Error(`Failed to import from file: ${error.message}`);
+    }
   }
 };
 

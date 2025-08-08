@@ -169,6 +169,24 @@ function initializeIpcHandlers(ipcMain, mainWindow, trayManager) {
     }
   });
 
+  ipcMain.handle('store-export-to-file', async (event, { filePath, data }) => {
+    try {
+      return await storeOperations.exportToFile(filePath, data);
+    } catch (error) {
+      console.error('Store export to file error:', error);
+      throw error;
+    }
+  });
+
+  ipcMain.handle('store-import-from-file', async (event, filePath) => {
+    try {
+      return await storeOperations.importFromFile(filePath);
+    } catch (error) {
+      console.error('Store import from file error:', error);
+      throw error;
+    }
+  });
+
   // System Information
   ipcMain.handle('system-get-platform', () => {
     return process.platform; // 'darwin', 'win32', 'linux'

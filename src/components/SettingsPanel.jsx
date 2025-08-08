@@ -13,12 +13,14 @@ import { CYCLE, DEFAULT_PREFERENCES } from '../constants';
 import HighContrastToggle from './HighContrastToggle';
 import { SuccessMessage, ErrorMessage, LoadingSpinner, Tooltip } from './feedback';
 import UpdateManager from './UpdateManager';
+import DataManagement from './DataManagement';
 
 const SettingsPanel = ({ 
   cycleData, 
   preferences = {}, 
   onSave, 
-  onCancel
+  onCancel,
+  onDataImported
 }) => {
   // Local state for form values
   const [cycleLength, setCycleLength] = useState(cycleData?.cycleLength || CYCLE.DEFAULT_LENGTH);
@@ -200,6 +202,11 @@ const SettingsPanel = ({
           </div>
         </div>
 
+      </div>
+
+      {/* Data Management */}
+      <div className="border-t p-4">
+        <DataManagement onDataImported={onDataImported} />
       </div>
 
       {/* Update Manager */}

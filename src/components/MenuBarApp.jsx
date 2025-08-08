@@ -517,6 +517,7 @@ const MenuBarApp = () => {
             preferences={preferences}
             onSave={handleSettingsSave}
             onCancel={() => setActiveTab('mood')}
+            onDataImported={loadSavedData}
           />
         ) : null}
       </KingModeIntegration>
@@ -746,6 +747,7 @@ const MenuBarApp = () => {
               preferences={preferences}
               onSave={handleSettingsSave}
               onCancel={() => setActiveTab('mood')}
+              onDataImported={loadSavedData}
             />
           </div>
         ) : null}
