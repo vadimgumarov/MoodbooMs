@@ -12,7 +12,17 @@
     "electron-dev": "wait-on http://localhost:3000 && ELECTRON_DEV=true REACT_DEV_URL=true electron .",
     "dev": "concurrently \"npm run start\" \"npm run electron-dev\"",
     "app": "npm run build && npm run electron",
-    "check": "node check-menu.js"
+    "check": "node check-menu.js",
+    "e2e": "playwright test",
+    "e2e:headed": "playwright test --headed",
+    "e2e:debug": "playwright test --debug",
+    "e2e:ui": "playwright test --ui",
+    "e2e:report": "playwright show-report e2e/test-results/html",
+    "e2e:setup": "playwright test e2e/tests/01-first-time-setup.e2e.js",
+    "e2e:daily": "playwright test e2e/tests/02-daily-usage.e2e.js",
+    "e2e:data": "playwright test e2e/tests/03-data-management.e2e.js",
+    "e2e:visual": "playwright test e2e/tests/04-visual-regression.e2e.js",
+    "e2e:perf": "playwright test e2e/tests/05-performance.e2e.js"
   },
   "dependencies": {
     "concurrently": "^8.2.0",
@@ -26,6 +36,7 @@
   },
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+    "@playwright/test": "^1.54.2",
     "@testing-library/jest-dom": "^6.6.4",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
@@ -35,6 +46,7 @@
     "electron": "^28.3.3",
     "electron-builder": "^24.0.0",
     "jest": "^27.5.1",
+    "playwright": "^1.54.2",
     "postcss": "^8.4.31",
     "tailwindcss": "^3.3.0",
     "wait-on": "^8.0.2"
