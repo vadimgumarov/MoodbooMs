@@ -22,6 +22,8 @@
     "build:mac-simple": "npm run build && electron-builder --mac zip --publish=never",
     "build:mac-dmg": "npm run build && electron-builder --mac --publish=never",
     "build:mac-zip": "npm run build && electron-builder --mac --publish=never --config.mac.target=zip",
+    "build:win": "npm run build && electron-builder --win --publish=never",
+    "build:win-portable": "npm run build && electron-builder --win portable --publish=never",
     "dist": "npm run build && electron-builder --mac --publish=never",
     "dist:all": "npm run build && electron-builder --mac --win --linux --publish=never"
   },
@@ -73,8 +75,7 @@
     "publish": {
       "provider": "github",
       "owner": "vadimgumarov",
-      "repo": "MoodbooMs",
-      "releaseType": "release"
+      "repo": "MoodbooMs"
     },
     "directories": {
       "output": "dist",
@@ -139,18 +140,25 @@
     },
     "nsis": {
       "oneClick": false,
+      "perMachine": false,
       "allowToChangeInstallationDirectory": true,
-      "createDesktopShortcut": "always",
+      "allowElevation": true,
+      "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "installerIcon": "electron/assets/icons/icon32.png",
-      "uninstallerIcon": "electron/assets/icons/icon32.png"
+      "shortcutName": "MoodBooMs",
+      "deleteAppDataOnUninstall": false,
+      "differentialPackage": true,
+      "displayLanguageSelector": false,
+      "menuCategory": true,
+      "artifactName": "${productName}-Setup-${version}.${ext}"
     },
     "win": {
       "target": [
         {
           "target": "nsis",
           "arch": [
-            "x64"
+            "x64",
+            "ia32"
           ]
         },
         {
@@ -160,9 +168,20 @@
           ]
         }
       ],
-      "icon": "electron/assets/icons/icon32.png",
       "publisherName": "MoodBooMs",
-      "verifyUpdateCodeSignature": false
+      "verifyUpdateCodeSignature": false,
+      "requestedExecutionLevel": "asInvoker",
+      "legalTrademarks": "Copyright © 2025 MoodBooMs",
+      "fileAssociations": [
+        {
+          "ext": "mbm",
+          "name": "MoodBooMs Data",
+          "description": "MoodBooMs Backup File"
+        }
+      ]
+    },
+    "portable": {
+      "artifactName": "${productName}-Portable-${version}.${ext}"
     },
     "linux": {
       "target": [
@@ -179,7 +198,7 @@
           ]
         }
       ],
-      "icon": "electron/assets/icons/icon32.png",
+      "icon": "electron/assets/icons/icon.png",
       "category": "Utility",
       "desktop": {
         "Name": "MoodBooMs",
@@ -187,11 +206,6 @@
         "Keywords": "health;cycle;tracking;period;fertility;",
         "StartupWMClass": "MoodBooMs"
       }
-    },
-    "publish": {
-      "provider": "github",
-      "owner": "vadimgumarov",
-      "repo": "MoodbooMs"
     }
   }
 }
