@@ -101,6 +101,13 @@ contextBridge.exposeInMainWorld('electronAPI', {
     }
   },
 
+  // Performance Monitoring
+  performance: {
+    getData: () => ipcRenderer.invoke('performance-get-data'),
+    generateReport: () => ipcRenderer.invoke('performance-generate-report'),
+    measureOperation: (name, operation) => ipcRenderer.invoke('performance-measure-operation', { name, operation })
+  },
+
   // Development/Debug (only in dev mode)
   dev: {
     openDevTools: () => ipcRenderer.send('dev-open-devtools'),

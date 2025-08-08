@@ -5,6 +5,7 @@ const { handleCSPViolation } = require('./csp-config');
 const fs = require('fs');
 const path = require('path');
 const { updateRendererHeartbeat, logRendererCrash, logCrash } = require('./crash-monitor');
+const performanceMonitor = require('./performance-monitor');
 
 // Log phase updates to file
 function logPhaseUpdate(phase, source = 'unknown') {
@@ -306,6 +307,19 @@ function initializeIpcHandlers(ipcMain, mainWindow, trayManager) {
       }
     });
   }
+
+  // Performance Monitoring
+  ipcMain.handle('performance-get-data', () => {
+    return performanceMonitor.getPerformanceData();
+  });
+
+  ipcMain.handle('performance-generate-report', () => {
+    return performanceMonitor.generateReport();
+  });
+
+  ipcMain.handle('performance-measure-operation', (event, { name, operation }) => {
+    return performanceMonitor.measureOperation(name, operation);
+  });
 }
 
 module.exports = {

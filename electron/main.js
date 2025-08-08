@@ -5,6 +5,7 @@ const { applyCSPToSession } = require('./csp-config');
 const { applySecuritySettings, setupAppSecurity, applySecurityHeaders, verifyWindowSecurity } = require('./security-config');
 const { startHeartbeat } = require('./crash-monitor');
 const { WINDOW_CONFIG, DEV_CONFIG, PATHS, LOGGING, ERROR_MESSAGES } = require('./constants');
+const performanceMonitor = require('./performance-monitor');
 
 let window = null;
 let trayManager = null;

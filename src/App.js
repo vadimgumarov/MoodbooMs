@@ -3,13 +3,21 @@ import MenuBarApp from './components/MenuBarApp';
 import TestKingMode from './components/TestKingMode';
 import TestPhraseSystem from './components/TestPhraseSystem';
 import StyleGuide from './components/StyleGuide/StyleGuide';
+import PerformanceDashboard from './components/PerformanceDashboard';
 // import { ModeProvider } from './core/contexts/SimpleModeContext';
 import { AppProviders } from './core/contexts';
 import ErrorBoundary from './components/ErrorBoundary';
 import { useDarkMode } from './hooks/useDarkMode';
 import './utils/crashLogger'; // Initialize crash logger with heartbeat
+import performanceMonitor, { measureStartup } from './utils/performance';
 
 function App() {
+  // Mark app startup
+  React.useEffect(() => {
+    measureStartup('begin');
+    return () => measureStartup('complete');
+  }, []);
+  
   // Toggle this to test the new King mode module
   const testKingMode = false;
   // Toggle this to test the phrase configuration system
@@ -17,6 +25,10 @@ function App() {
   // Toggle this to view the style guide (development only)
   const showStyleGuide = process.env.NODE_ENV === 'development' && 
     window.location.search.includes('styleguide');
+    
+  // Show performance dashboard in development
+  const showPerformanceDashboard = process.env.NODE_ENV === 'development' && 
+    window.location.search.includes('perf');
   
   // Dark mode management
   const [isDark] = useDarkMode();
@@ -54,6 +66,9 @@ function App() {
            testPhraseSystem ? <TestPhraseSystem /> : 
            testKingMode ? <TestKingMode /> : 
            <MenuBarApp />}
+          
+          {/* Performance Dashboard (development only) */}
+          <PerformanceDashboard isVisible={showPerformanceDashboard} />
         </div>
       </AppProviders>
     </ErrorBoundary>

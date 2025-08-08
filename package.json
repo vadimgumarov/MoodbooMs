@@ -22,7 +22,10 @@
     "e2e:daily": "playwright test e2e/tests/02-daily-usage.e2e.js",
     "e2e:data": "playwright test e2e/tests/03-data-management.e2e.js",
     "e2e:visual": "playwright test e2e/tests/04-visual-regression.e2e.js",
-    "e2e:perf": "playwright test e2e/tests/05-performance.e2e.js"
+    "e2e:perf": "playwright test e2e/tests/05-performance.e2e.js",
+    "test:performance": "npm test -- --testNamePattern=\"Performance Tests\"",
+    "perf:monitor": "REACT_APP_PERF_DASHBOARD=true npm start",
+    "perf:analyze": "npm run build && npx webpack-bundle-analyzer build/static/js/*.js"
   },
   "dependencies": {
     "concurrently": "^8.2.0",

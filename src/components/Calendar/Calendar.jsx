@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
+import React, { useState, useMemo, useCallback, useRef, useEffect, Profiler } from 'react';
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon } from 'lucide-react';
 import { 
   format, 
@@ -24,6 +24,7 @@ import {
 import { useMode } from '../../core/contexts/SimpleModeContext';
 import PeriodNavigation from './PeriodNavigation';
 import ContextMenu from './ContextMenu';
+import { onRenderCallback, measureOperation } from '../../utils/performance';
 
 const Calendar = ({ cycleStartDate, cycleLength = 28, onDateSelect, cycleHistory = [] }) => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -53,16 +54,20 @@ const Calendar = ({ cycleStartDate, cycleLength = 28, onDateSelect, cycleHistory
   // Navigation handlers with animation
   const previousMonth = () => {
     if (isAnimating) return;
-    setIsAnimating(true);
-    setCurrentMonth(subMonths(currentMonth, 1));
-    setTimeout(() => setIsAnimating(false), 300);
+    measureOperation('calendar-previous-month', () => {
+      setIsAnimating(true);
+      setCurrentMonth(subMonths(currentMonth, 1));
+      setTimeout(() => setIsAnimating(false), 300);
+    });
   };
   
   const nextMonth = () => {
     if (isAnimating) return;
-    setIsAnimating(true);
-    setCurrentMonth(addMonths(currentMonth, 1));
-    setTimeout(() => setIsAnimating(false), 300);
+    measureOperation('calendar-next-month', () => {
+      setIsAnimating(true);
+      setCurrentMonth(addMonths(currentMonth, 1));
+      setTimeout(() => setIsAnimating(false), 300);
+    });
   };
 
   // Generate calendar days
@@ -476,7 +481,8 @@ const Calendar = ({ cycleStartDate, cycleLength = 28, onDateSelect, cycleHistory
   }, []);
 
   return (
-    <div className="p-4">
+    <Profiler id="Calendar" onRender={onRenderCallback}>
+      <div className="p-4">
       {/* Calendar Header with integrated Today button */}
       <div className="flex flex-col sm:flex-row items-center gap-3 mb-4">
         <div className="flex items-center gap-2 w-full sm:w-auto justify-center sm:justify-start">
@@ -815,7 +821,8 @@ const Calendar = ({ cycleStartDate, cycleLength = 28, onDateSelect, cycleHistory
           hasNote={!!dateNotes[format(contextMenu.date, 'yyyy-MM-dd')]}
         />
       )}
-    </div>
+      </div>
+    </Profiler>
   );
 };
 
