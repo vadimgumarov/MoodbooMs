@@ -1,4 +1,4 @@
-const { Tray, nativeImage } = require('electron');
+const { Tray, nativeImage, Menu, app } = require('electron');
 const { getIconForPhase } = require('./iconFromPNG');
 
 class TrayManager {
@@ -24,6 +24,9 @@ class TrayManager {
       // Set tooltip
       this.tray.setToolTip('MoodbooM');
       console.log('Tooltip set');
+      
+      // Create context menu for Windows (and optionally for macOS)
+      this.createContextMenu();
     } catch (error) {
       console.error('ERROR in TrayManager.init():', error.message);
       console.error('Stack:', error.stack);
@@ -45,16 +48,7 @@ class TrayManager {
             this.window.hide();
           } else {
             console.log('Window is hidden, showing...');
-            const bounds = this.tray.getBounds();
-            console.log('Tray bounds:', bounds);
-            
-            // Ensure window positioning is within screen bounds
-            const x = Math.max(0, bounds.x - 190);
-            const y = bounds.y + bounds.height;
-            
-            console.log(`Setting window position to x:${x}, y:${y}`);
-            this.window.setPosition(x, y);
-            
+            this.positionWindow();
             console.log('Showing window...');
             this.window.show();
             console.log('Window shown');
@@ -123,6 +117,80 @@ class TrayManager {
   // Get current phase
   getCurrentPhase() {
     return this.currentPhase;
+  }
+
+  // Create context menu (especially important for Windows)
+  createContextMenu() {
+    const contextMenu = Menu.buildFromTemplate([
+      {
+        label: 'Show MoodbooM',
+        click: () => {
+          if (this.window && !this.window.isDestroyed()) {
+            this.positionWindow();
+            this.window.show();
+          }
+        }
+      },
+      {
+        label: 'Hide MoodbooM',
+        click: () => {
+          if (this.window && !this.window.isDestroyed()) {
+            this.window.hide();
+          }
+        }
+      },
+      { type: 'separator' },
+      {
+        label: 'About',
+        click: () => {
+          // Could show about dialog or version info
+          console.log('MoodbooM v1.0.0');
+        }
+      },
+      { type: 'separator' },
+      {
+        label: 'Quit',
+        click: () => {
+          app.quit();
+        }
+      }
+    ]);
+
+    // On Windows, right-click shows context menu
+    // On macOS, both right-click and Control+Click show context menu
+    this.tray.setContextMenu(contextMenu);
+  }
+
+  // Position window relative to tray icon (platform-specific)
+  positionWindow() {
+    if (!this.window || !this.tray) return;
+    
+    const bounds = this.tray.getBounds();
+    console.log('Tray bounds:', bounds);
+    
+    if (process.platform === 'win32') {
+      // Windows: Position above the system tray
+      const { screen } = require('electron');
+      const display = screen.getPrimaryDisplay();
+      const { width, height } = display.workAreaSize;
+      
+      // Get window size
+      const windowBounds = this.window.getBounds();
+      
+      // Position window above system tray (usually bottom-right)
+      const x = Math.min(bounds.x, width - windowBounds.width);
+      const y = height - windowBounds.height - 40; // 40px above taskbar
+      
+      console.log(`Setting window position to x:${x}, y:${y} (Windows)`);
+      this.window.setPosition(x, y);
+    } else {
+      // macOS: Position below the menubar icon
+      const x = Math.max(0, bounds.x - 190);
+      const y = bounds.y + bounds.height;
+      
+      console.log(`Setting window position to x:${x}, y:${y} (macOS)`);
+      this.window.setPosition(x, y);
+    }
   }
 
   // Destroy tray
