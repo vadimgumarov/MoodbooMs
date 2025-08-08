@@ -1,0 +1,282 @@
+# User Acceptance Test Data Sets
+
+# Standard test users with different cycle patterns
+test_users:
+  regular_user:
+    name: "Sarah Regular"
+    description: "Typical user with regular 28-day cycles"
+    cycle_data:
+      start_date: "2024-01-15"
+      cycle_length: 28
+      period_length: 5
+    history:
+      - { start: "2024-01-15", length: 28, actual: 28 }
+      - { start: "2024-02-12", length: 28, actual: 29 }
+      - { start: "2024-03-13", length: 28, actual: 27 }
+      - { start: "2024-04-09", length: 28, actual: 28 }
+    preferences:
+      mode: "queen"
+      notifications: true
+      test_mode: false
+
+  irregular_user:
+    name: "Maya Irregular"
+    description: "User with irregular cycles varying 25-32 days"
+    cycle_data:
+      start_date: "2024-01-10"
+      cycle_length: 29  # Average
+      period_length: 6
+    history:
+      - { start: "2023-10-15", length: 29, actual: 25 }
+      - { start: "2023-11-09", length: 29, actual: 32 }
+      - { start: "2023-12-11", length: 29, actual: 28 }
+      - { start: "2024-01-08", length: 29, actual: 30 }
+      - { start: "2024-02-07", length: 29, actual: 27 }
+    preferences:
+      mode: "queen"
+      notifications: false
+      test_mode: false
+
+  new_user:
+    name: "Alex Newbie"
+    description: "First-time user with no history"
+    cycle_data: null
+    history: []
+    preferences:
+      mode: "queen"
+      notifications: true
+      test_mode: false
+      first_time: true
+
+  short_cycle_user:
+    name: "Emma Short"
+    description: "User with consistently short 21-day cycles"
+    cycle_data:
+      start_date: "2024-02-01"
+      cycle_length: 21
+      period_length: 4
+    history:
+      - { start: "2024-01-11", length: 21, actual: 21 }
+      - { start: "2024-02-01", length: 21, actual: 22 }
+      - { start: "2024-02-23", length: 21, actual: 20 }
+    preferences:
+      mode: "queen"
+      notifications: true
+      test_mode: false
+
+  long_cycle_user:
+    name: "Jessica Long"
+    description: "User with consistently long 35-day cycles"
+    cycle_data:
+      start_date: "2024-01-01"
+      cycle_length: 35
+      period_length: 7
+    history:
+      - { start: "2023-11-27", length: 35, actual: 35 }
+      - { start: "2024-01-01", length: 35, actual: 36 }
+    preferences:
+      mode: "queen"
+      notifications: true
+      test_mode: false
+
+  king_mode_user:
+    name: "Chris Partner"
+    description: "Partner using King mode for tracking"
+    cycle_data:
+      start_date: "2024-01-20"
+      cycle_length: 28
+      period_length: 5
+    history:
+      - { start: "2023-12-23", length: 28, actual: 28 }
+      - { start: "2024-01-20", length: 28, actual: 27 }
+    preferences:
+      mode: "king"
+      notifications: true
+      test_mode: false
+
+  power_user:
+    name: "Dr. Patricia Power"
+    description: "Advanced user with extensive history and customizations"
+    cycle_data:
+      start_date: "2024-02-15"
+      cycle_length: 28
+      period_length: 5
+    history:
+      # 12 months of history
+      - { start: "2023-02-15", length: 28, actual: 29 }
+      - { start: "2023-03-16", length: 28, actual: 27 }
+      - { start: "2023-04-12", length: 28, actual: 28 }
+      - { start: "2023-05-10", length: 28, actual: 30 }
+      - { start: "2023-06-09", length: 28, actual: 26 }
+      - { start: "2023-07-05", length: 28, actual: 28 }
+      - { start: "2023-08-02", length: 28, actual: 29 }
+      - { start: "2023-08-31", length: 28, actual: 28 }
+      - { start: "2023-09-28", length: 28, actual: 27 }
+      - { start: "2023-10-25", length: 28, actual: 28 }
+      - { start: "2023-11-22", length: 28, actual: 29 }
+      - { start: "2023-12-21", length: 28, actual: 26 }
+      - { start: "2024-01-16", length: 28, actual: 30 }
+      - { start: "2024-02-15", length: 28, actual: 28 }
+    preferences:
+      mode: "queen"
+      notifications: true
+      test_mode: true
+      high_contrast: true
+
+# Test scenarios with specific dates
+test_scenarios:
+  ovulation_day:
+    description: "User on ovulation day (day 14 of 28)"
+    current_date: "2024-01-28"  # 14 days after Jan 15
+    expected_phase: "ovulation"
+    expected_fertility: "very-high"
+
+  period_day:
+    description: "User on period day 3"
+    current_date: "2024-01-17"  # 3 days after Jan 15
+    expected_phase: "menstrual" 
+    expected_fertility: "very-low"
+
+  pms_day:
+    description: "User in PMS phase"
+    current_date: "2024-02-10"  # Day 26 of cycle
+    expected_phase: "pms"
+    expected_fertility: "low"
+
+  cycle_end:
+    description: "Last day of cycle"
+    current_date: "2024-02-11"  # Day 28 of cycle
+    expected_phase: "pms"
+    next_period: "2024-02-12"
+
+# Error conditions for testing
+error_scenarios:
+  corrupt_data:
+    description: "Corrupted preferences file"
+    data:
+      invalid_json: '{"cycleData": {"startDate":'  # Incomplete JSON
+      
+  invalid_dates:
+    description: "Invalid date formats"
+    inputs:
+      - "32/13/2024"  # Invalid day/month
+      - "2024-13-01"  # Invalid month
+      - "not-a-date"  # Non-date string
+      - ""            # Empty string
+
+  extreme_values:
+    description: "Edge case values"
+    inputs:
+      cycle_length_too_short: 10  # Below minimum 21
+      cycle_length_too_long: 50   # Above maximum 35
+      future_start_date: "2025-12-31"  # Far future
+      past_start_date: "1990-01-01"    # Far past
+
+# Platform-specific test configurations
+platform_configs:
+  macos:
+    os_version: "14.0+"
+    features:
+      - tray_icon
+      - notifications
+      - dark_mode
+      - keyboard_shortcuts
+    test_focus:
+      - "Tray icon behavior in dark/light mode"
+      - "Native notification integration"
+      - "Cmd+Q quit behavior"
+      - "App Store compliance"
+
+  windows:
+    os_version: "Windows 10+"
+    features:
+      - system_tray
+      - notifications
+      - start_menu
+      - multiple_monitors
+    test_focus:
+      - "System tray icon and context menu"
+      - "Windows notification system"
+      - "Start menu integration"
+      - "Multi-monitor support"
+
+  linux:
+    distributions: ["Ubuntu 20.04+", "Fedora 35+", "Debian 11+"]
+    features:
+      - system_tray
+      - freedesktop_notifications
+      - app_menu
+    test_focus:
+      - "System tray compatibility across DEs"
+      - "Notification daemon integration"
+      - "AppImage/Snap package installation"
+
+# Accessibility test configurations
+accessibility_configs:
+  screen_readers:
+    macos: "VoiceOver"
+    windows: "NVDA"
+    linux: "Orca"
+    
+  keyboard_navigation:
+    required_keys:
+      - "Tab"           # Forward navigation
+      - "Shift+Tab"     # Backward navigation
+      - "Enter"         # Activate
+      - "Space"         # Toggle/Select
+      - "Escape"        # Cancel/Close
+      - "Arrow keys"    # Calendar navigation
+      - "Home/End"      # Jump to start/end
+
+  high_contrast:
+    test_modes:
+      - system_high_contrast
+      - app_high_contrast
+      - both_enabled
+
+# Performance benchmarks
+performance_benchmarks:
+  startup_time:
+    excellent: 1000   # < 1 second
+    good: 2000        # < 2 seconds
+    acceptable: 3000  # < 3 seconds
+    
+  navigation:
+    tab_switch: 300   # < 300ms
+    calendar_month: 200  # < 200ms
+    
+  memory_usage:
+    baseline: 80      # < 80MB typical
+    peak: 150         # < 150MB peak
+    
+  responsiveness:
+    ui_interaction: 100  # < 100ms response
+    data_save: 500      # < 500ms save time
+
+# Integration test data
+integration_scenarios:
+  backup_restore:
+    description: "Export data, clear app, import data"
+    steps:
+      1. "Export cycle data"
+      2. "Clear all app data"
+      3. "Import exported data"
+      4. "Verify all data restored correctly"
+
+  mode_switching:
+    description: "Switch between Queen and King modes"
+    steps:
+      1. "Start in Queen mode"
+      2. "Switch to King mode via settings"
+      3. "Verify phase names changed"
+      4. "Switch back to Queen mode"
+      5. "Verify original phase names restored"
+
+  long_term_usage:
+    description: "Simulate months of daily usage"
+    duration: "30 days simulated usage"
+    actions:
+      - "Daily app launches"
+      - "Weekly calendar navigation"
+      - "Monthly cycle updates"
+      - "Settings changes"
