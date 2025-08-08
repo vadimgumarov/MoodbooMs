@@ -52,7 +52,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
     set: (key, value) => ipcRenderer.invoke('store-set', { key, value }),
     delete: (key) => ipcRenderer.invoke('store-delete', key),
     clear: () => ipcRenderer.invoke('store-clear'),
-    has: (key) => ipcRenderer.invoke('store-has', key)
+    has: (key) => ipcRenderer.invoke('store-has', key),
+    exportToFile: (filePath, data) => ipcRenderer.invoke('store-export-to-file', { filePath, data }),
+    importFromFile: (filePath) => ipcRenderer.invoke('store-import-from-file', filePath)
   },
 
   // System Information
