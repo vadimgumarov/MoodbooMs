@@ -105,9 +105,10 @@ The menubar icon changes to reflect your cycle phase:
 
 ### For End Users
 - **macOS**: 10.15 (Catalina) or higher
-- **Processor**: Intel or Apple Silicon (M1/M2)
+- **Windows**: Windows 10 or higher (64-bit or 32-bit)
+- **Processor**: Intel, AMD, or Apple Silicon (M1/M2)
 - **Memory**: 512MB RAM
-- **Storage**: 100MB free space
+- **Storage**: 200MB free space (Windows requires more for installer)
 - **Display**: Any resolution (app adapts to screen size)
 
 ### For Developers
@@ -157,12 +158,40 @@ npm run build
 # Run Electron with production build
 npm run electron
 
+# Build for macOS
+npm run build:mac        # Build DMG installer
+npm run build:mac-simple # Build simple ZIP archive
+
+# Build for Windows
+npm run build:win         # Build both installer and portable
+npm run build:win-portable # Build portable version only
+
 # Clean launch menu app (kills existing instances)
 ./scripts/launch-menu.sh
 
 # Check if menu is running
 npm run check
 ```
+
+## Building for Distribution
+
+### macOS
+```bash
+npm run build:mac        # Creates .dmg installer
+npm run build:mac-simple # Creates .zip archive
+```
+
+### Windows
+```bash
+npm run build:win         # Creates both installer and portable versions
+npm run build:win-portable # Creates portable .exe only
+```
+
+The Windows build creates:
+- **MoodBooMs-Setup-1.0.0.exe** - Full NSIS installer with customization options
+- **MoodBooMs-Portable-1.0.0.exe** - Standalone portable executable (no installation required)
+
+Note: Windows builds can be created on macOS using Wine (automatically downloaded).
 
 ## Troubleshooting
 
