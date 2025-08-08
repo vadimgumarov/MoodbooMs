@@ -1,10 +1,18 @@
 const fs = require('fs');
 const path = require('path');
+const { app } = require('electron');
 
 // Enhanced crash monitoring with detailed logging
-const logsDir = path.join(__dirname, '..', 'logs');
-const heartbeatFile = path.join(logsDir, 'menu-heartbeat.txt');
-const crashLogFile = path.join(logsDir, `crash-${new Date().toISOString().split('T')[0]}.log`);
+// Use proper logs directory - userData in production, relative in development
+let logsDir, heartbeatFile, crashLogFile;
+
+function initializePaths() {
+  logsDir = app.isPackaged 
+    ? path.join(app.getPath('userData'), 'logs')
+    : path.join(__dirname, '..', 'logs');
+  heartbeatFile = path.join(logsDir, 'menu-heartbeat.txt');
+  crashLogFile = path.join(logsDir, `crash-${new Date().toISOString().split('T')[0]}.log`);
+}
 
 let lastRendererHeartbeat = Date.now();
 let rendererAlive = false;
@@ -36,6 +44,9 @@ function logMemoryUsage() {
 }
 
 function startHeartbeat() {
+  // Initialize paths first
+  initializePaths();
+  
   // Create logs directory if it doesn't exist
   if (!fs.existsSync(logsDir)) {
     fs.mkdirSync(logsDir, { recursive: true });
