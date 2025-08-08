@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar as CalendarIcon } from 'lucide-react';
 import { 
   format, 
   startOfMonth, 
@@ -11,7 +11,9 @@ import {
   subMonths,
   isSameMonth,
   isSameDay,
-  getDate
+  getDate,
+  parse,
+  isValid
 } from 'date-fns';
 import { 
   calculateCurrentDay, 
@@ -25,9 +27,12 @@ import PeriodNavigation from './PeriodNavigation';
 const Calendar = ({ cycleStartDate, cycleLength = 28, onDateSelect, cycleHistory = [] }) => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [focusedDate, setFocusedDate] = useState(null);
+  const [dateInputValue, setDateInputValue] = useState('');
+  const [dateInputError, setDateInputError] = useState('');
   const today = new Date();
   const { isKingMode } = useMode();
   const calendarRef = useRef(null);
+  const dateInputRef = useRef(null);
 
   // Navigation handlers
   const previousMonth = () => setCurrentMonth(subMonths(currentMonth, 1));
@@ -103,11 +108,55 @@ const Calendar = ({ cycleStartDate, cycleLength = 28, onDateSelect, cycleHistory
 
   // Handler for Today button
   const goToToday = () => {
-    setCurrentMonth(new Date());
-    setFocusedDate(today);
-    // Clear any selected date by calling onDateSelect with null
+    const now = new Date();
+    setCurrentMonth(now);
+    setFocusedDate(now);
+    // Optionally select today's date
     if (onDateSelect) {
-      onDateSelect(null);
+      onDateSelect(now);
+    }
+    // Clear date input
+    setDateInputValue('');
+    setDateInputError('');
+  };
+
+  // Handler for date input
+  const handleDateInputSubmit = (e) => {
+    e.preventDefault();
+    
+    // Try to parse the date in various formats
+    const formats = ['MM/dd/yyyy', 'M/d/yyyy', 'MM-dd-yyyy', 'M-d-yyyy'];
+    let parsedDate = null;
+    
+    for (const formatStr of formats) {
+      const attemptedDate = parse(dateInputValue, formatStr, new Date());
+      if (isValid(attemptedDate)) {
+        parsedDate = attemptedDate;
+        break;
+      }
+    }
+    
+    if (parsedDate) {
+      // Valid date - jump to it
+      setCurrentMonth(startOfMonth(parsedDate));
+      setFocusedDate(parsedDate);
+      if (onDateSelect) {
+        onDateSelect(parsedDate);
+      }
+      setDateInputError('');
+      // Clear input after successful jump
+      setDateInputValue('');
+    } else {
+      // Invalid date - show error
+      setDateInputError('Please enter a valid date (MM/DD/YYYY)');
+    }
+  };
+
+  const handleDateInputChange = (e) => {
+    setDateInputValue(e.target.value);
+    // Clear error when user starts typing
+    if (dateInputError) {
+      setDateInputError('');
     }
   };
 
@@ -126,6 +175,13 @@ const Calendar = ({ cycleStartDate, cycleLength = 28, onDateSelect, cycleHistory
 
   // Keyboard navigation handlers
   const handleKeyDown = useCallback((e) => {
+    // Handle 'T' key for Today button
+    if (e.key === 't' || e.key === 'T') {
+      e.preventDefault();
+      goToToday();
+      return;
+    }
+
     if (!focusedDate) return;
 
     let newFocusedDate = new Date(focusedDate);
@@ -203,7 +259,7 @@ const Calendar = ({ cycleStartDate, cycleLength = 28, onDateSelect, cycleHistory
     if (monthChanged || !isSameMonth(newFocusedDate, currentMonth)) {
       setCurrentMonth(startOfMonth(newFocusedDate));
     }
-  }, [focusedDate, currentMonth, onDateSelect]);
+  }, [focusedDate, currentMonth, onDateSelect, goToToday]);
 
   // Focus management
   useEffect(() => {
@@ -231,8 +287,9 @@ const Calendar = ({ cycleStartDate, cycleLength = 28, onDateSelect, cycleHistory
         <div className="flex items-center gap-2">
           <button
             onClick={goToToday}
-            className="px-2 py-1 text-tiny bg-primary/10 text-primary rounded hover:bg-primary/20 transition-colors"
-            aria-label="Go to today"
+            className="px-3 py-1 text-tiny bg-primary text-white rounded hover:bg-primary-dark transition-colors font-medium"
+            aria-label="Go to today (Press T)"
+            title="Go to today (Press T)"
           >
             Today
           </button>
@@ -256,6 +313,42 @@ const Calendar = ({ cycleStartDate, cycleLength = 28, onDateSelect, cycleHistory
         >
           <ChevronRight className="w-5 h-5" />
         </button>
+      </div>
+
+      {/* Date Jump Input */}
+      <div className="mb-4">
+        <form onSubmit={handleDateInputSubmit} className="flex gap-2">
+          <div className="flex-1 relative">
+            <input
+              ref={dateInputRef}
+              type="text"
+              value={dateInputValue}
+              onChange={handleDateInputChange}
+              placeholder="Jump to date (MM/DD/YYYY)"
+              className={`w-full px-3 py-1.5 pl-8 text-small border rounded-md transition-colors ${
+                dateInputError 
+                  ? 'border-error focus:border-error focus:ring-error/20' 
+                  : 'border-gray-300 focus:border-primary focus:ring-primary/20'
+              } focus:outline-none focus:ring-2`}
+              aria-label="Jump to specific date"
+              aria-invalid={!!dateInputError}
+              aria-describedby={dateInputError ? "date-error" : undefined}
+            />
+            <CalendarIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          </div>
+          <button
+            type="submit"
+            className="px-3 py-1.5 bg-surface hover:bg-gray-200 text-small rounded-md transition-colors"
+            disabled={!dateInputValue}
+          >
+            Go
+          </button>
+        </form>
+        {dateInputError && (
+          <p id="date-error" className="mt-1 text-tiny text-error">
+            {dateInputError}
+          </p>
+        )}
       </div>
 
       {/* Period Navigation */}
@@ -333,8 +426,8 @@ const Calendar = ({ cycleStartDate, cycleLength = 28, onDateSelect, cycleHistory
               className={`
                 relative p-2 h-14 rounded-lg transition-all flex flex-col items-center justify-center
                 ${isCurrentMonth ? '' : 'opacity-40'}
-                ${isToday ? 'ring-2 ring-blue-500 ring-offset-1' : ''}
-                ${isFocused ? 'ring-2 ring-primary ring-offset-2 z-10' : ''}
+                ${isToday ? 'ring-2 ring-primary font-bold shadow-lg bg-gradient-to-br from-primary/10 to-primary/5' : ''}
+                ${isFocused ? 'ring-2 ring-offset-2 z-10' : ''}
                 ${fertilityColor}
                 ${predictionStyle}
                 hover:opacity-80 hover:scale-105
@@ -352,6 +445,11 @@ const Calendar = ({ cycleStartDate, cycleLength = 28, onDateSelect, cycleHistory
               {cycleDay && isCurrentMonth && (
                 <div className="text-tiny text-text-muted mt-0.5">
                   D{cycleDay}
+                </div>
+              )}
+              {isToday && isCurrentMonth && (
+                <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 text-[8px] font-bold text-primary">
+                  TODAY
                 </div>
               )}
               {predictionIndicator}
