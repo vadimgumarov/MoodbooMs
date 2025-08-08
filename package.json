@@ -89,18 +89,20 @@
       "target": [
         {
           "target": "dmg",
-          "arch": ["arm64"]
+          "arch": ["universal"]
         },
         {
           "target": "zip", 
-          "arch": ["arm64"]
+          "arch": ["universal"]
         }
       ],
       "type": "distribution",
       "hardenedRuntime": false,
       "gatekeeperAssess": false,
       "darkModeSupport": true,
-      "minimumSystemVersion": "10.15.0"
+      "minimumSystemVersion": "10.15.0",
+      "mergeASARs": true,
+      "singleArchFiles": "electron/assets/icons/**"
     },
     "dmg": {
       "title": "Install ${productName}",
