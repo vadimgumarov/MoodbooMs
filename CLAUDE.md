@@ -613,22 +613,26 @@ We use modified versions of standard workflow scripts that automatically handle 
 2. **Issue Branch**: `feat/epic-{number}/issue-{number}-{description}`
 3. **Merge Pattern**: Issue → Epic → Main
 
-### Current Development Focus (Epic #68)
+### Current Development Focus (Epic #117)
 
-**Modular Queen/King Architecture** - Separating modes into distinct modules:
-1. **Issue #69**: Extract shared core functionality
-2. **Issue #70**: Create Queen mode module  
-3. **Issue #71**: Create King mode module
-4. **Issue #72**: Implement mode switching
+**Public Release Preparation** - Preparing MoodBooMs for public release:
+1. **Issue #118**: Create User Guide and App Presentation
+2. **Issue #119**: Cross-Platform Testing on Windows and macOS
+3. **Issue #120**: UI Improvements and Polish
+
+**Status**: All 9 previous epics completed ✅ (82+ issues resolved with `status: done` labels)
 
 **Branch Status**:
-- Active: `feat/epic-68-modular-architecture`
-- Previous: `feat/epic-59/issue-66-comprehensive-phrase-sets` (Queen/King content)
+- Active: `main` branch (all core development completed)
+- All previous epic branches merged
 
-**Key Files to Know**:
-- `src/content/modeContent.js` - All mood messages and cravings (900+ lines)
-- `src/components/MenuBarApp.jsx` - Main app logic and phase calculations
-- `electron/iconFromPNG.js` - Tray icon mapping (must match phase names)
+**Current Workflow**: Open → In Progress (`status: in-progress` label) → Done (`status: done` label) → Closed
+
+**Key Accomplishments**:
+- All core functionality completed and production-ready
+- Cross-platform builds available (macOS + Windows)
+- Professional distribution pipeline established
+- Comprehensive accessibility and security implementation
 
 ### Standard Development Flow
 1. **Identify & Clarify Requirements**
@@ -1133,13 +1137,16 @@ DO NOT jump directly into UI changes without discussion!
 git status
 gh issue list --assignee @me
 
-# View current epic
-gh issue view 68
+# View current epic (Public Release Preparation)
+gh issue view 117
 
 # Check logs for errors
 tail -50 logs/electron-*.log | grep -i error
 
-# Reset if needed
+# Check project status
+gh project view 6 --owner vadimgumarov
+
+# Reset if needed (should stay on main branch)
 git stash
-git checkout feat/epic-68-modular-architecture
+git checkout main
 ```
