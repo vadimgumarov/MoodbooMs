@@ -8,6 +8,7 @@ import { AppProviders } from './core/contexts';
 import ErrorBoundary from './components/ErrorBoundary';
 import { useDarkMode } from './hooks/useDarkMode';
 import './utils/crashLogger'; // Initialize crash logger with heartbeat
+import { initializeCrashReporting, recordEvent } from './utils/crashReporter';
 
 function App() {
   // Toggle this to test the new King mode module
@@ -45,6 +46,46 @@ function App() {
       document.body.classList.remove('high-contrast');
     }
   }, [highContrast]);
+  
+  // Initialize crash reporting
+  React.useEffect(() => {
+    const initTelemetry = async () => {
+      try {
+        if (window.electronAPI?.store) {
+          const telemetrySettings = await window.electronAPI.store.get('telemetrySettings') || {};
+          
+          if (telemetrySettings.crashReporting) {
+            const appVersion = await window.electronAPI.app?.getVersion?.() || '1.0.0';
+            
+            // Generate anonymous user ID
+            let userId = localStorage.getItem('anonymous_user_id');
+            if (!userId) {
+              userId = 'user_' + Math.random().toString(36).substr(2, 16);
+              localStorage.setItem('anonymous_user_id', userId);
+            }
+            
+            initializeCrashReporting({
+              enabled: true,
+              userId,
+              version: appVersion,
+              performanceMonitoring: telemetrySettings.performanceMonitoring || false,
+            });
+            
+            // Record app startup
+            recordEvent('app_startup', {
+              version: appVersion,
+              platform: navigator.platform,
+              user_agent: navigator.userAgent.split(' ')[0], // Just the browser/engine
+            });
+          }
+        }
+      } catch (error) {
+        console.warn('Failed to initialize telemetry:', error);
+      }
+    };
+    
+    initTelemetry();
+  }, []);
   
   return (
     <ErrorBoundary>
