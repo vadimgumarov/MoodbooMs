@@ -12,6 +12,8 @@
     "start": "BROWSER=none react-scripts start",
     "build": "react-scripts build && cp -r electron build/",
     "test": "react-scripts test",
+    "lint": "eslint src --ext .js,.jsx",
+    "lint:fix": "eslint src --ext .js,.jsx --fix",
     "eject": "react-scripts eject",
     "electron": "electron .",
     "electron-dev": "wait-on http://localhost:3000 && ELECTRON_DEV=true REACT_DEV_URL=true electron .",
