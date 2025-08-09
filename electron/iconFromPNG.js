@@ -32,7 +32,7 @@ function loadPNGIcon(filename) {
 // Get icon for phase using PNG files
 function getIconForPhase(phase) {
   const phaseIconMap = {
-    // BadAss mode phases
+    // Queen mode phases
     'Bloody Hell Week': 'cloud-lightning.png',
     'Finally Got My Sh*t Together': 'sun.png',
     'Horny AF': 'cloud-sun.png',
@@ -40,7 +40,15 @@ function getIconForPhase(phase) {
     'Pre-Chaos Mood Swings': 'cloud-rain-wind.png',  // Using rain-wind for mood swings
     'Apocalypse Countdown': 'tornado.png',
     
-    // Professional mode phases (same icons as BadAss for consistency)
+    // King mode phases (partner warning system)
+    'Code Red Alert': 'cloud-lightning.png',
+    'Safe Zone Active': 'sun.png',
+    'High Energy Warning': 'cloud-sun.png',
+    'Patience Level: Low': 'cloud.png',
+    'Volatility Alert': 'cloud-rain-wind.png',
+    'DEFCON 1': 'tornado.png',
+    
+    // Legacy/Professional mode phases (for backward compatibility)
     'Menstruation': 'cloud-lightning.png',
     'Follicular Phase': 'sun.png',
     'Ovulation': 'cloud-sun.png',
