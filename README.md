@@ -193,6 +193,33 @@ The Windows build creates:
 
 Note: Windows builds can be created on macOS using Wine (automatically downloaded).
 
+## Post-Installation Setup
+
+For optimal experience, run the post-installation scripts after installing:
+
+### macOS
+```bash
+# After installing from DMG
+curl -s https://raw.githubusercontent.com/vadimgumarov/MoodbooMs/main/scripts/install/macos-install.sh | bash
+
+# Or download and run locally
+./scripts/install/macos-install.sh
+```
+
+### Windows  
+```powershell
+# Run as Administrator after installer
+.\scripts\install\windows-install.ps1
+```
+
+These scripts handle:
+- Setting up application directories
+- Configuring file associations  
+- Optional startup configuration
+- Data migration from older versions
+
+See [`scripts/install/README.md`](scripts/install/README.md) for complete documentation.
+
 ## Troubleshooting
 
 ### Production Build Issues
