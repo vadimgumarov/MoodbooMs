@@ -58,32 +58,32 @@ const PeriodNavigation = ({
   };
 
   return (
-    <div className={`flex items-center gap-2 ${className}`}>
+    <div className={`flex items-center justify-center gap-1 ${className}`}>
       <Tooltip 
         content={getTooltipContent(previous, 'previous')}
-        position="bottom"
+        position="top"
       >
         <button
           onClick={handlePreviousPeriod}
-          className="flex items-center gap-1 px-3 py-1.5 text-tiny bg-surface hover:bg-surface/80 rounded-lg transition-colors"
+          className="flex items-center gap-0.5 px-2 py-0.5 text-[10px] bg-surface hover:bg-surface/80 rounded transition-colors"
           aria-label={`Navigate to ${getButtonText('previous').toLowerCase()}`}
         >
-          <ChevronLeft className="w-4 h-4" />
+          <ChevronLeft className="w-3 h-3" />
           <span>{getButtonText('previous')}</span>
         </button>
       </Tooltip>
 
       <Tooltip 
         content={getTooltipContent(next, 'next')}
-        position="bottom"
+        position="top"
       >
         <button
           onClick={handleNextPeriod}
-          className="flex items-center gap-1 px-3 py-1.5 text-tiny bg-surface hover:bg-surface/80 rounded-lg transition-colors"
+          className="flex items-center gap-0.5 px-2 py-0.5 text-[10px] bg-surface hover:bg-surface/80 rounded transition-colors"
           aria-label={`Navigate to ${getButtonText('next').toLowerCase()}`}
         >
           <span>{getButtonText('next')}</span>
-          <ChevronRight className="w-4 h-4" />
+          <ChevronRight className="w-3 h-3" />
         </button>
       </Tooltip>
     </div>

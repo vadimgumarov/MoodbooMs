@@ -145,7 +145,7 @@ const MenuBarApp = () => {
   const [testDays, setTestDays] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState(TABS.MOOD);
-  const [selectedDate, setSelectedDate] = useState(null);
+  const [selectedDate, setSelectedDate] = useState(new Date());
   const [cycleHistory, setCycleHistory] = useState([]);
   const [preferences, setPreferences] = useState({
     notifications: true,
@@ -492,18 +492,16 @@ const MenuBarApp = () => {
               cycleHistory={cycleHistory}
               onDateSelect={(date) => setSelectedDate(date)}
             />
-            {selectedDate && (
-              <div className="border-t pt-4" style={{ borderColor: 'var(--king-border)' }}>
-                <PhaseDetail
-                  selectedDate={selectedDate}
-                  cycleStartDate={testMode 
-                    ? new Date(new Date().getTime() - testDays * 24 * 60 * 60 * 1000) 
-                    : cycleData.startDate
-                  }
-                  cycleLength={cycleData.cycleLength}
-                    />
-              </div>
-            )}
+            <div className="border-t pt-4" style={{ borderColor: 'var(--king-border)' }}>
+              <PhaseDetail
+                selectedDate={selectedDate}
+                cycleStartDate={testMode 
+                  ? new Date(new Date().getTime() - testDays * 24 * 60 * 60 * 1000) 
+                  : cycleData.startDate
+                }
+                cycleLength={cycleData.cycleLength}
+                  />
+            </div>
           </div>
         ) : activeTab === 'history' ? (
           <HistoryView 
@@ -719,18 +717,16 @@ const MenuBarApp = () => {
               cycleHistory={cycleHistory}
               onDateSelect={(date) => setSelectedDate(date)}
             />
-            {selectedDate && (
-              <div className="border-t pt-4">
-                <PhaseDetail
-                  selectedDate={selectedDate}
-                  cycleStartDate={testMode 
-                    ? new Date(new Date().getTime() - testDays * 24 * 60 * 60 * 1000) 
-                    : cycleData.startDate
-                  }
-                  cycleLength={cycleData.cycleLength}
-                    />
-              </div>
-            )}
+            <div className="border-t pt-4">
+              <PhaseDetail
+                selectedDate={selectedDate}
+                cycleStartDate={testMode 
+                  ? new Date(new Date().getTime() - testDays * 24 * 60 * 60 * 1000) 
+                  : cycleData.startDate
+                }
+                cycleLength={cycleData.cycleLength}
+                  />
+            </div>
           </div>
         ) : activeTab === 'history' ? (
           <div role="tabpanel" id="history-panel" aria-labelledby="history-tab" tabIndex={0}>

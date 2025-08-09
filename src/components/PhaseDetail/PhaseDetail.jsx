@@ -10,8 +10,10 @@ import {
 } from 'lucide-react';
 import { getPhaseInfo } from '../../utils/phaseDetection';
 import { calculateCurrentDay } from '../../utils/cycleCalculations';
+import { useMode } from '../../core/contexts/SimpleModeContext';
 
 const PhaseDetail = ({ selectedDate, cycleStartDate, cycleLength }) => {
+  const { isKingMode } = useMode();
   if (!selectedDate || !cycleStartDate) {
     return (
       <div className="p-4 text-center text-secondary">
@@ -75,11 +77,19 @@ const PhaseDetail = ({ selectedDate, cycleStartDate, cycleLength }) => {
           <div className="flex items-center space-x-2">
             {getPhaseIcon()}
             <span className="font-medium capitalize">
-              {phaseInfo.phase === 'menstrual' ? 'Bloody Hell Week' :
-              phaseInfo.phase === 'follicular' ? 'Finally Got My Sh*t Together' :
-              phaseInfo.phase === 'ovulation' ? 'Horny AF' :
-              phaseInfo.phase === 'luteal' ? 'Getting Real Tired of This BS' :
-              'Unknown Phase'}
+              {isKingMode ? (
+                phaseInfo.phase === 'menstrual' ? 'Code Red Alert' :
+                phaseInfo.phase === 'follicular' ? 'Safe Zone Active' :
+                phaseInfo.phase === 'ovulation' ? 'High Energy Warning' :
+                phaseInfo.phase === 'luteal' ? 'Patience Level: Low' :
+                'Unknown Phase'
+              ) : (
+                phaseInfo.phase === 'menstrual' ? 'Bloody Hell Week' :
+                phaseInfo.phase === 'follicular' ? 'Finally Got My Sh*t Together' :
+                phaseInfo.phase === 'ovulation' ? 'Horny AF' :
+                phaseInfo.phase === 'luteal' ? 'Getting Real Tired of This BS' :
+                'Unknown Phase'
+              )}
             </span>
           </div>
           <span className="text-small text-secondary">
@@ -118,24 +128,48 @@ const PhaseDetail = ({ selectedDate, cycleStartDate, cycleLength }) => {
         <div className="flex items-start space-x-2">
           <Battery className="w-5 h-5 text-secondary mt-0.5" />
           <div>
-            <p className="text-small font-medium">Energy</p>
-            <p className="text-small text-secondary">{phaseInfo.description}</p>
+            <p className="text-small font-medium">{isKingMode ? 'Her Energy Status' : 'Energy'}</p>
+            <p className="text-small text-secondary">
+              {isKingMode ? 
+                (phaseInfo.phase === 'menstrual' ? "She's running on fumes and chocolate" :
+                 phaseInfo.phase === 'follicular' ? "She's back! Energy levels rising fast" :
+                 phaseInfo.phase === 'ovulation' ? "Peak performance mode - she's unstoppable" :
+                 phaseInfo.phase === 'luteal' ? "Battery draining, proceed with caution" :
+                 phaseInfo.description)
+                : phaseInfo.description}
+            </p>
           </div>
         </div>
 
         <div className="flex items-start space-x-2">
           <Brain className="w-5 h-5 text-secondary mt-0.5" />
           <div>
-            <p className="text-small font-medium">Mood</p>
-            <p className="text-small text-secondary">{phaseInfo.mood}</p>
+            <p className="text-small font-medium">{isKingMode ? 'Mood Forecast' : 'Mood'}</p>
+            <p className="text-small text-secondary">
+              {isKingMode ?
+                (phaseInfo.phase === 'menstrual' ? "Emotional volcano - approach with chocolate offerings" :
+                 phaseInfo.phase === 'follicular' ? "Surprisingly reasonable - make your requests now" :
+                 phaseInfo.phase === 'ovulation' ? "Flirty and fun - enjoy while it lasts" :
+                 phaseInfo.phase === 'luteal' ? "Irritability rising - choose your words wisely" :
+                 phaseInfo.mood)
+                : phaseInfo.mood}
+            </p>
           </div>
         </div>
 
         <div className="flex items-start space-x-2">
           <TrendingUp className="w-5 h-5 text-secondary mt-0.5" />
           <div>
-            <p className="text-small font-medium">Advice</p>
-            <p className="text-small text-secondary">{phaseInfo.advice}</p>
+            <p className="text-small font-medium">{isKingMode ? 'Survival Strategy' : 'Advice'}</p>
+            <p className="text-small text-secondary">
+              {isKingMode ?
+                (phaseInfo.phase === 'menstrual' ? "Stock up on supplies: chocolate, heating pads, and patience" :
+                 phaseInfo.phase === 'follicular' ? "Perfect time for date nights and important discussions" :
+                 phaseInfo.phase === 'ovulation' ? "Clear your schedule - she's got plans" :
+                 phaseInfo.phase === 'luteal' ? "Keep snacks handy and arguments minimal" :
+                 phaseInfo.advice)
+                : phaseInfo.advice}
+            </p>
           </div>
         </div>
       </div>
@@ -145,7 +179,7 @@ const PhaseDetail = ({ selectedDate, cycleStartDate, cycleLength }) => {
         <div className="space-y-2">
           <div className="flex items-center space-x-2">
             <AlertCircle className="w-5 h-5 text-secondary" />
-            <p className="text-small font-medium">Common Symptoms</p>
+            <p className="text-small font-medium">{isKingMode ? 'Warning Signs' : 'Common Symptoms'}</p>
           </div>
           <div className="flex flex-wrap gap-1">
             {phaseInfo.symptoms.map((symptom, index) => (

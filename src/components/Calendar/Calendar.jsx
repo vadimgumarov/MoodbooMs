@@ -476,28 +476,27 @@ const Calendar = ({ cycleStartDate, cycleLength = 28, onDateSelect, cycleHistory
   }, []);
 
   return (
-    <div className="p-4">
-      {/* Calendar Header with integrated Today button */}
-      <div className="flex flex-col sm:flex-row items-center gap-3 mb-4">
-        <div className="flex items-center gap-2 w-full sm:w-auto justify-center sm:justify-start">
-          <button
-            onClick={goToToday}
-            className="px-3 py-1 text-tiny bg-primary text-white rounded hover:bg-primary-dark transition-colors font-medium"
-            aria-label="Go to today (Press T)"
-            title="Go to today (Press T)"
-          >
-            Today
-          </button>
+    <div className="p-3">
+      {/* Compact Calendar Header - all in one row */}
+      <div className="flex items-center justify-between gap-2 mb-3">
+        <button
+          onClick={goToToday}
+          className="px-2.5 py-1 text-xs bg-primary text-white rounded hover:bg-primary-dark transition-colors font-medium"
+          aria-label="Go to today"
+          title="Go to today (Press T)"
+        >
+          Today
+        </button>
+        
+        <div className="flex items-center gap-1">
           <button
             onClick={previousMonth}
-            className="p-2 hover:bg-surface rounded-full transition-colors sm:inline-flex hidden"
+            className="p-1 hover:bg-surface rounded transition-colors"
             aria-label="Previous month"
           >
-            <ChevronLeft className="w-5 h-5" />
+            <ChevronLeft className="w-4 h-4" />
           </button>
-        </div>
-        
-        <div className="flex items-center gap-2">
+          
           {/* Month Dropdown */}
           <select
             value={currentMonth.getMonth()}
@@ -506,13 +505,12 @@ const Calendar = ({ cycleStartDate, cycleLength = 28, onDateSelect, cycleHistory
               newMonth.setMonth(parseInt(e.target.value));
               setCurrentMonth(newMonth);
             }}
-            className="px-3 py-1.5 text-sm sm:text-base font-medium bg-white border border-gray-300 rounded-md hover:border-primary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer appearance-none bg-no-repeat bg-[length:16px] bg-[right_8px_center] pr-8"
-            style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E")` }}
+            className="px-2 py-1 text-xs font-medium bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-600 rounded hover:border-primary focus:border-primary focus:outline-none cursor-pointer"
             aria-label="Select month"
           >
             {[
-              'January', 'February', 'March', 'April', 'May', 'June',
-              'July', 'August', 'September', 'October', 'November', 'December'
+              'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+              'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
             ].map((month, index) => (
               <option key={month} value={index}>
                 {month}
@@ -528,8 +526,7 @@ const Calendar = ({ cycleStartDate, cycleLength = 28, onDateSelect, cycleHistory
               newMonth.setFullYear(parseInt(e.target.value));
               setCurrentMonth(newMonth);
             }}
-            className="px-3 py-1.5 text-sm sm:text-base font-medium bg-white border border-gray-300 rounded-md hover:border-primary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer appearance-none bg-no-repeat bg-[length:16px] bg-[right_8px_center] pr-8"
-            style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E")` }}
+            className="px-2 py-1 text-xs font-medium bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-600 rounded hover:border-primary focus:border-primary focus:outline-none cursor-pointer"
             aria-label="Select year"
           >
             {(() => {
@@ -545,76 +542,22 @@ const Calendar = ({ cycleStartDate, cycleLength = 28, onDateSelect, cycleHistory
               ));
             })()}
           </select>
-        </div>
-        
-        <div className="flex items-center gap-2">
-          <button
-            onClick={previousMonth}
-            className="p-2 hover:bg-surface rounded-full transition-colors inline-flex sm:hidden"
-            aria-label="Previous month"
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </button>
+          
           <button
             onClick={nextMonth}
-            className="p-2 hover:bg-surface rounded-full transition-colors"
+            className="p-1 hover:bg-surface rounded transition-colors"
             aria-label="Next month"
           >
-            <ChevronRight className="w-5 h-5" />
+            <ChevronRight className="w-4 h-4" />
           </button>
         </div>
       </div>
 
-      {/* Date Jump Input */}
-      <div className="mb-4">
-        <form onSubmit={handleDateInputSubmit} className="flex gap-2">
-          <div className="flex-1 relative">
-            <input
-              ref={dateInputRef}
-              type="text"
-              value={dateInputValue}
-              onChange={handleDateInputChange}
-              placeholder="Jump to date (MM/DD/YYYY)"
-              className={`w-full px-3 py-1.5 pl-8 text-small border rounded-md transition-colors ${
-                dateInputError 
-                  ? 'border-error focus:border-error focus:ring-error/20' 
-                  : 'border-gray-300 focus:border-primary focus:ring-primary/20'
-              } focus:outline-none focus:ring-2`}
-              aria-label="Jump to specific date"
-              aria-invalid={!!dateInputError}
-              aria-describedby={dateInputError ? "date-error" : undefined}
-            />
-            <CalendarIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-          </div>
-          <button
-            type="submit"
-            className="px-3 py-1.5 bg-surface hover:bg-gray-200 text-small rounded-md transition-colors"
-            disabled={!dateInputValue}
-          >
-            Go
-          </button>
-        </form>
-        {dateInputError && (
-          <p id="date-error" className="mt-1 text-tiny text-error">
-            {dateInputError}
-          </p>
-        )}
-      </div>
-
-      {/* Period Navigation */}
-      <div className="flex justify-center mb-4">
-        <PeriodNavigation
-          cycleStartDate={cycleStartDate}
-          cycleLength={cycleLength}
-          cycleHistory={cycleHistory}
-          onNavigateToPeriod={handleNavigateToPeriod}
-        />
-      </div>
 
       {/* Day labels */}
-      <div className="grid grid-cols-7 gap-1 mb-2">
-        {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-          <div key={day} className="text-center text-tiny font-medium text-text-secondary py-2">
+      <div className="grid grid-cols-7 gap-1 mb-1">
+        {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map(day => (
+          <div key={day} className="text-center text-[10px] font-medium text-text-secondary py-1">
             {day}
           </div>
         ))}
@@ -623,14 +566,14 @@ const Calendar = ({ cycleStartDate, cycleLength = 28, onDateSelect, cycleHistory
       {/* Calendar Grid */}
       <div 
         ref={calendarRef}
-        className="grid grid-cols-7 gap-1 relative overflow-hidden"
+        className="relative overflow-hidden"
         role="grid"
         aria-label="Calendar"
         tabIndex={0}
       >
         <div 
           ref={calendarGridRef}
-          className={`grid grid-cols-7 gap-1 transition-transform duration-300 ease-out ${
+          className={`grid grid-cols-7 gap-0.5 transition-transform duration-300 ease-out ${
             isAnimating ? 'transition-transform' : ''
           }`}
           style={{
@@ -684,13 +627,13 @@ const Calendar = ({ cycleStartDate, cycleLength = 28, onDateSelect, cycleHistory
               onContextMenu={(e) => handleContextMenu(e, day)}
               onFocus={() => setFocusedDate(day)}
               className={`
-                relative p-2 h-14 rounded-lg transition-all flex flex-col items-center justify-center
+                relative p-1 h-11 rounded transition-all flex flex-col items-center justify-center
                 ${isCurrentMonth ? '' : 'opacity-40'}
-                ${isToday ? 'ring-2 ring-primary font-bold shadow-lg bg-gradient-to-br from-primary/10 to-primary/5' : ''}
-                ${isFocused ? 'ring-2 ring-offset-2 z-10' : ''}
+                ${isToday ? 'ring-1 ring-primary font-bold' : ''}
+                ${isFocused ? 'ring-1 ring-offset-1 z-10' : ''}
                 ${fertilityColor}
                 ${predictionStyle}
-                hover:opacity-80 hover:scale-105
+                hover:opacity-80
                 focus:outline-none
               `}
               disabled={!isCurrentMonth}
@@ -699,17 +642,12 @@ const Calendar = ({ cycleStartDate, cycleLength = 28, onDateSelect, cycleHistory
               aria-selected={isFocused}
               aria-label={ariaLabel}
             >
-              <div className="text-base font-semibold leading-tight">
+              <div className="text-sm font-medium leading-tight">
                 {getDate(day)}
               </div>
               {cycleDay && isCurrentMonth && (
-                <div className="text-tiny text-text-muted mt-0.5">
+                <div className="text-[9px] text-text-muted">
                   D{cycleDay}
-                </div>
-              )}
-              {isToday && isCurrentMonth && (
-                <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 text-[8px] font-bold text-primary">
-                  TODAY
                 </div>
               )}
               {/* Note indicator */}
@@ -736,8 +674,54 @@ const Calendar = ({ cycleStartDate, cycleLength = 28, onDateSelect, cycleHistory
         )}
       </div>
 
+      {/* Period Navigation - Compact */}
+      <div className="mt-3 mb-2">
+        <PeriodNavigation
+          cycleStartDate={cycleStartDate}
+          cycleLength={cycleLength}
+          cycleHistory={cycleHistory}
+          onNavigateToPeriod={handleNavigateToPeriod}
+        />
+      </div>
+
+      {/* Date Jump Input - Below Calendar */}
+      <div className="mb-3">
+        <form onSubmit={handleDateInputSubmit} className="flex gap-1.5">
+          <div className="flex-1 relative">
+            <input
+              ref={dateInputRef}
+              type="text"
+              value={dateInputValue}
+              onChange={handleDateInputChange}
+              placeholder="Jump to date (MM/DD/YYYY)"
+              className={`w-full px-2.5 py-1 pl-7 text-xs border rounded transition-colors ${
+                dateInputError 
+                  ? 'border-error focus:border-error focus:ring-error/20' 
+                  : 'border-gray-300 focus:border-primary focus:ring-primary/20'
+              } focus:outline-none focus:ring-1`}
+              aria-label="Jump to specific date"
+              aria-invalid={!!dateInputError}
+              aria-describedby={dateInputError ? "date-error" : undefined}
+            />
+            <CalendarIcon className="absolute left-2 top-[50%] -translate-y-[50%] w-3 h-3 text-gray-400" />
+          </div>
+          <button
+            type="submit"
+            className="px-2.5 py-1 bg-surface hover:bg-gray-200 text-xs rounded transition-colors"
+            disabled={!dateInputValue}
+          >
+            Go
+          </button>
+        </form>
+        {dateInputError && (
+          <p id="date-error" className="mt-1 text-[10px] text-error">
+            {dateInputError}
+          </p>
+        )}
+      </div>
+
       {/* Legend */}
-      <div className="mt-6 space-y-3">
+      <div className="mt-3 space-y-3">
         <h3 className="text-small font-medium text-text-primary">
           {isKingMode ? "Threat Level Monitor" : "My Cycle Map"}
         </h3>
